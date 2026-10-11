@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Volcano Presets &amp; Workflows</title>
+  <link rel="stylesheet" href="editor.css">
+</head>
+<body>
+  <header class="toolbar">
+    <div class="brand"><a href="/">← Dial</a> <span class="brand-product">Volcano</span> <span id="editor-theme-title">Presets &amp; Workflows</span><b id="editor-leaf" aria-hidden="true"></b></div>
+    <button id="undo-btn" class="icon-btn" title="Undo (Ctrl/Cmd+Z)" aria-label="Undo">&#8630;</button>
+    <button id="redo-btn" class="icon-btn" title="Redo (Ctrl/Cmd+Shift+Z)" aria-label="Redo">&#8631;</button>
+    <span class="spacer"></span>
+    <div class="menu-wrap">
+      <button id="more-btn" aria-haspopup="menu" aria-expanded="false">More</button>
+      <div id="more-menu" class="menu" role="menu" hidden>
+        <button id="validate-btn" role="menuitem">Validate now</button>
+        <button id="layout-btn" role="menuitem">Reset layout</button>
+        <button id="distribute-btn" role="menuitem">Distribute air time</button>
+        <button id="edit-connections-btn" role="menuitemcheckbox" aria-checked="false">Edit connections</button>
+        <div class="menu-separator" role="separator"></div>
+        <button id="import-btn" role="menuitem">Import library…</button>
+        <button id="export-btn" role="menuitem">Export library…</button>
+      </div>
+    </div>
+    <button id="save-btn" class="primary">Save</button>
+  </header>
+
+  <div id="lock-banner" role="status" hidden>Library is read-only while a run or workflow checkpoint is active.</div>
+  <main class="workspace">
+    <aside class="library-panel" aria-label="Preset and workflow library">
+      <div class="library-tools">
+        <input id="search" type="search" placeholder="Search…" aria-label="Search library">
+        <div class="menu-wrap">
+          <button id="new-btn" class="primary" aria-haspopup="menu" aria-expanded="false">+ New</button>
+          <div id="new-menu" class="menu align-left" role="menu" hidden>
+            <button data-create="simple" role="menuitem"><span>Preset</span><small>Quick temperature program</small></button>
+            <button data-create="workflow" role="menuitem"><span>Workflow</span><small>Run presets in sequence</small></button>
+            <div class="menu-separator" role="separator"></div>
+            <button data-create="advanced" role="menuitem"><span>Advanced preset</span><small>Build an action sequence</small></button>
+            <button data-create="variable" role="menuitem"><span>Global variable</span><small>Reuse a value or formula</small></button>
+          </div>
+        </div>
+      </div>
+      <div id="library-list" class="library-list" aria-label="Library items"></div>
+    </aside>
+
+    <section class="editor-panel" aria-label="Editor">
+      <div id="entity-header" class="entity-header" hidden>
+        <div class="entity-name-wrap">
+          <label class="sr-only" for="entity-name">Name</label>
+          <input id="entity-name" data-focus-key="entity-name" autocomplete="off">
+          <span id="entity-kind" class="kind-label"></span>
+        </div>
+      </div>
+      <div id="error-summary" class="error-summary" tabindex="-1" role="alert" hidden></div>
+      <div id="palette" class="palette"></div>
+      <div id="simple-editor" class="simple-editor" hidden></div>
+      <div id="canvas-viewport" class="canvas-viewport" hidden>
+        <div id="canvas" class="canvas">
+          <svg id="edge-layer" aria-hidden="true"></svg>
+          <div id="drop-layer" aria-hidden="true"></div>
+          <div id="node-layer" role="listbox" aria-label="Workflow sequence"></div>
+        </div>
+        <div class="canvas-controls" aria-label="Canvas zoom controls">
+          <button id="zoom-out-btn" title="Zoom out" aria-label="Zoom out">−</button>
+          <button id="fit-btn">Fit</button>
+          <button id="zoom-in-btn" title="Zoom in" aria-label="Zoom in">+</button>
+        </div>
+      </div>
+      <div id="empty-editor" class="empty-editor">Select or create a preset or workflow.</div>
+      <div class="menu-wrap entity-actions">
+        <button id="entity-menu-btn" class="icon-btn" aria-label="Selected item actions" aria-haspopup="menu" aria-expanded="false">&#8942;</button>
+        <div id="entity-menu" class="menu" role="menu" hidden>
+          <button id="move-up-btn" role="menuitem">Move earlier in controller</button>
+          <button id="move-down-btn" role="menuitem">Move later in controller</button>
+          <button id="duplicate-btn" role="menuitem">Duplicate</button>
+          <button id="convert-btn" role="menuitem">Convert to advanced copy</button>
+          <div class="menu-separator" role="separator"></div>
+          <button id="delete-btn" class="danger" role="menuitem">Delete</button>
+        </div>
+      </div>
+    </section>
+
+    <aside class="inspector-panel" aria-label="Details">
+      <h2>Details</h2>
+      <div id="inspector"></div>
+      <details id="variables-section" class="advanced-section" hidden>
+        <summary>Advanced · Local variables</summary>
+        <button id="add-variable-btn" class="secondary-wide">+ Add variable</button>
+        <div id="variables-list"></div>
+      </details>
+    </aside>
+  </main>
+  <footer>
+    <span id="status" role="status" aria-live="polite">Ready</span>
+    <span id="dirty-indicator"></span>
+  </footer>
+  <script type="module" src="editor-bridge.js"></script>
+</body>
+</html>

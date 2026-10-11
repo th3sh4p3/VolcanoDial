@@ -1,0 +1,245 @@
+{
+  "library": {
+    "settingsVersion": 2,
+    "presets": [
+      {
+        "id": "a",
+        "name": "Advanced",
+        "kind": "advanced",
+        "variables": [
+          {
+            "id": "local",
+            "name": "localWait",
+            "valueType": "duration",
+            "binding": {
+              "mode": "expression",
+              "expression": "(totalFillTime / 5) + 2"
+            }
+          }
+        ],
+        "graph": {
+          "nodes": [
+            {
+              "id": "s",
+              "type": "start"
+            },
+            {
+              "id": "h",
+              "type": "reachTemperature",
+              "config": {
+                "temperature": {
+                  "mode": "expression",
+                  "expression": "heat+5"
+                },
+                "timeout": {
+                  "mode": "literal",
+                  "value": 120
+                }
+              }
+            },
+            {
+              "id": "w",
+              "type": "wait",
+              "config": {
+                "duration": {
+                  "mode": "expression",
+                  "expression": "localWait"
+                }
+              }
+            },
+            {
+              "id": "a1",
+              "type": "air",
+              "config": {
+                "duration": {
+                  "mode": "expression",
+                  "expression": "totalFillTime / airActionCount"
+                }
+              }
+            },
+            {
+              "id": "o",
+              "type": "heaterOff"
+            },
+            {
+              "id": "a2",
+              "type": "air",
+              "config": {
+                "duration": {
+                  "mode": "expression",
+                  "expression": "totalFillTime / airActionCount"
+                }
+              }
+            },
+            {
+              "id": "e",
+              "type": "end"
+            }
+          ],
+          "edges": [
+            {
+              "id": "e0",
+              "source": "s",
+              "target": "h"
+            },
+            {
+              "id": "e1",
+              "source": "h",
+              "target": "w"
+            },
+            {
+              "id": "e2",
+              "source": "w",
+              "target": "a1"
+            },
+            {
+              "id": "e3",
+              "source": "a1",
+              "target": "o"
+            },
+            {
+              "id": "e4",
+              "source": "o",
+              "target": "a2"
+            },
+            {
+              "id": "e5",
+              "source": "a2",
+              "target": "e"
+            }
+          ]
+        }
+      }
+    ],
+    "workflows": [
+      {
+        "id": "w",
+        "name": "Chain",
+        "fillTimeSource": "presets",
+        "fillTime": 55,
+        "graph": {
+          "nodes": [
+            {
+              "id": "ws",
+              "type": "start"
+            },
+            {
+              "id": "wp",
+              "type": "preset",
+              "config": {
+                "presetId": "a"
+              }
+            },
+            {
+              "id": "wp2",
+              "type": "preset",
+              "config": {
+                "presetId": "a"
+              }
+            },
+            {
+              "id": "we",
+              "type": "end"
+            }
+          ],
+          "edges": [
+            {
+              "id": "e0",
+              "source": "ws",
+              "target": "wp"
+            },
+            {
+              "id": "e1",
+              "source": "wp",
+              "target": "wp2"
+            },
+            {
+              "id": "e2",
+              "source": "wp2",
+              "target": "we"
+            }
+          ]
+        }
+      }
+    ],
+    "globalVariables": [
+      {
+        "id": "v",
+        "name": "totalFillTime",
+        "valueType": "duration",
+        "binding": {
+          "mode": "literal",
+          "value": 75
+        }
+      },
+      {
+        "id": "t",
+        "name": "heat",
+        "valueType": "temperature",
+        "binding": {
+          "mode": "literal",
+          "value": 180
+        }
+      }
+    ],
+    "runnableOrder": [],
+    "activeRunnable": null
+  },
+  "ref": {
+    "kind": "workflow",
+    "id": "w"
+  },
+  "expected": [
+    {
+      "name": "Advanced",
+      "actions": [
+        {
+          "type": "reachTemperature",
+          "temperature": 185,
+          "timeoutSeconds": 120
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 17
+        },
+        {
+          "type": "air",
+          "durationSeconds": 37.5
+        },
+        {
+          "type": "heaterOff"
+        },
+        {
+          "type": "air",
+          "durationSeconds": 37.5
+        }
+      ]
+    },
+    {
+      "name": "Advanced",
+      "actions": [
+        {
+          "type": "reachTemperature",
+          "temperature": 185,
+          "timeoutSeconds": 120
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 17
+        },
+        {
+          "type": "air",
+          "durationSeconds": 37.5
+        },
+        {
+          "type": "heaterOff"
+        },
+        {
+          "type": "air",
+          "durationSeconds": 37.5
+        }
+      ]
+    }
+  ],
+  "invalid": false
+}

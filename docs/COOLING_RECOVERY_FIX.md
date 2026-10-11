@@ -1,0 +1,13 @@
+# Hue-Abschaltung nach dem Abkühlen – 0.2.4
+
+Die bisherige Abkühlüberwachung und die Zuordnung zur eingeschalteten Hue-Steckdose lagen nur im Arbeitsspeicher. Stop beendete die Überwachung; ein Update oder Stromverlust löschte die Sitzung. Genau das passierte beim vorherigen LED-Update: Heizung und Lüftung wurden für das Update gestoppt, die Steckdose blieb eingeschaltet, danach fehlte die Überwachung. Zusätzlich löschte die Temperaturprüfung ihren Auftrag bereits vor der Hue-Bestätigung. Eine fehlgeschlagene Hue-Anfrage konnte daher keine weitere Abschaltung auslösen.
+
+Der Dial speichert jetzt einen kleinen Auftrag in NVS, bevor er bei aktiver Abschaltautomatik die zugeordnete Hue-Steckdose einschaltet. Er enthält die Identitäten von Volcano, Bridge und Steckdose, keine Zugangsdaten. Der Auftrag übersteht Stop, Abbruch, Stromverlust und ein App-Update. Während eines laufenden Workflows einschließlich der Zwischenpausen wird nicht abgeschaltet. Nach Ende oder Stop werden frische Temperatur- und Ausgangszustände überwacht.
+
+Erst zwei unterschiedliche aktuelle Proben bei oder unter der eingestellten Schwelle erlauben einen Abschaltversuch. Unmittelbar vor dem Schaltbefehl werden Bluetooth-Verbindung, Temperatur und HEAT/AIR AUS nochmals geprüft. Der Auftrag wird erst nach bestätigtem Hue AUS gelöscht. Bei Fehlern bleibt er erhalten; Wiederholungen erfolgen mit 5 bis maximal 30 Sekunden Pause. Hierbei wird ausschließlich AUS wiederholt.
+
+Nach Neustart wird die zugeordnete Steckdose über geprüftes Hue-HTTPS gelesen. Ist sie bereits aus, wird der Auftrag erledigt. Ist sie an, verbindet der Dial Bluetooth, bestätigt HEAT/AIR AUS und überwacht die Abkühlung. Er startet weder Preset noch Workflow noch Heizung automatisch. Beim ersten Wechsel von einer älteren Firmware erfolgt einmalig dieselbe Übernahme der konfigurierten eingeschalteten Steckdose. Änderungen der Geräte-/Steckdosenzuordnung sind während eines gespeicherten Auftrags gesperrt. Deaktivierte Abschaltautomatik schaltet nicht automatisch.
+
+Ein erster fehlgeschlagener Bluetooth-Verbindungsversuch behält den Wiederverbindungsauftrag nach erfolgreichem Hue EIN. Bei der Ersteinrichtung kann ohne bereits bekannte Volcano-ID weiterhin Bluetooth gesucht werden; dafür Volcano/Steckdose manuell einschalten. Automatisches Hue EIN setzt eine vollständig zugeordnete Identität voraus.
+
+Die Ergebnisse der automatisierten und tatsächlichen Geräteprüfungen stehen im [Prüfbericht](PRUEFBERICHT.md) und in `verification.json`. Die technische Wiederherstellung erfordert erreichbares WLAN, Hue und eine gültige Uhrzeit sowie eine Bluetooth-Verbindung zum Volcano. Ein Programm muss nach einer Unterbrechung weiterhin ausdrücklich neu gestartet werden.

@@ -1,0 +1,20 @@
+{
+  "version": "0.2.3",
+  "verifiedDate": "2026-10-09",
+  "board": "M5Stack Dial v1.1 / ESP32-S3 8 MB, no PSRAM",
+  "tests": 45,
+  "passed": 45,
+  "failed": 0,
+  "flash": 1817619,
+  "appBinaryBytes": 1817760,
+  "flashLimit": 3145728,
+  "staticRam": 69664,
+  "appSHA256": "F101344E9D62133057CB368CD969E107C4C5983BE43DE4BA308746B02D40FC74",
+  "changes": [
+    "Accessory RGB scales with actual normalized display brightness",
+    "Accessory RGB zero during manual/automatic display off, current color restored on wake",
+    "Button polling and wake-only gestures preserved",
+    "Queued sleepDisplay cannot generate its own wake request (HTTP/USB/local paths)"
+  ],
+  "publicCopy": "Only technical test/build evidence; live status and local work-log metadata omitted."
+}

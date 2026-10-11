@@ -1,0 +1,292 @@
+{
+  "library": {
+    "settingsVersion": 2,
+    "presets": [
+      {
+        "id": "p",
+        "name": "Simple",
+        "kind": "simple",
+        "startTemp": 170,
+        "endTemp": 230,
+        "fillTime": 55,
+        "steps": 20
+      }
+    ],
+    "workflows": [],
+    "globalVariables": [],
+    "runnableOrder": [],
+    "activeRunnable": null
+  },
+  "ref": {
+    "kind": "preset",
+    "id": "p"
+  },
+  "expected": [
+    {
+      "name": "Simple",
+      "actions": [
+        {
+          "type": "reachTemperature",
+          "temperature": 170,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 173,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 176,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 179,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 183,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 186,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 189,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 192,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 195,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 198,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 202,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 205,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 208,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 211,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 214,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 217,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 221,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 224,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 227,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 230,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 2.75
+        }
+      ]
+    }
+  ],
+  "invalid": false
+}

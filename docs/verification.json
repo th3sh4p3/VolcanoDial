@@ -1,0 +1,57 @@
+{
+  "version": "0.2.6",
+  "verifiedDate": "2026-10-11",
+  "installedVersion": "0.2.6",
+  "board": "M5Stack Dial v1.1 / ESP32-S3 8 MB, no PSRAM",
+  "tests": 94,
+  "passed": 94,
+  "failed": 0,
+  "flash": 1823891,
+  "staticRam": 69768,
+  "flashLimit": 3145728,
+  "appBinaryBytes": 1824032,
+  "appSHA256": "822E0896F1C41D6CEB702A4F7CC6C79F1399BCAFB1048DC3404DBB034C8ACABD",
+  "changes": [
+    "Manual workflow Stop permits deliberate restart of interrupted stage at action 0 with full time/air budget",
+    "Checkpoint Stop targets the next unfinished stage; double Stop preserves candidate",
+    "Selection/library changes and failed output-OFF confirmation invalidate candidate",
+    "Dial and browser show retry stage; Hue preparation and wake-only gesture preserved; no automatic restart"
+  ],
+  "review": {
+    "independent": true,
+    "importantFindings": 2,
+    "criticalFindings": 0,
+    "minorFindings": 0,
+    "remainingImportantFindings": 0,
+    "resolvedBy": "Three review regressions RED to GREEN, final full suite 94/94"
+  },
+  "pendingHardwareVerification": [
+    "Physical abort of Daily 02/03 and deliberate retry starts only that preset",
+    "Real heating/radio timing is not established by simulated production-path tests"
+  ],
+  "documentation": {
+    "manualPdfVersion": "0.2.6",
+    "stageRetryAddendum": "WORKFLOW_STAGE_RETRY.md"
+  },
+  "publicCopy": "Only technical test/build evidence; live status and local work-log metadata omitted.",
+  "releaseState": "public-build-not-installed",
+  "usbUpdateHashVerified": false,
+  "installationVerified": false,
+  "liveTestPerformed": false,
+  "originalInstalledBuild": {
+    "version": "0.2.6",
+    "appSHA256": "7A96389430895FD0E7B2D3FC503AC2A8863E2696F4BB512FD1AE064ED9BC5605",
+    "appBinaryBytes": 1824096,
+    "flash": 1823955,
+    "staticRam": 69768,
+    "usbUpdateHashVerified": true,
+    "installationVerified": true,
+    "libraryPreserved": true,
+    "settingsPreserved": true,
+    "outputsOff": true,
+    "noAutomaticRestart": true
+  },
+  "productionSourceUnchanged": true,
+  "buildPathMapping": "-ffile-prefix-map, all user-profile path variants replaced with /build-user",
+  "privateBuildPathScanPassed": true
+}

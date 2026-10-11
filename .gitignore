@@ -1,0 +1,25 @@
+# Local tools, compiler output and temporary files
+**/.build-tools/
+**/build/
+**/__pycache__/
+node_modules/
+dist/
+docs/superpowers/
+*.elf
+*.map
+*.merged.bin
+*.pyc
+tmp/
+work/
+.env
+.env.*
+*.private.*
+*device-backup*
+*Sicherung*.json
+*backup*.json
+# Only the four ready-to-flash images belong in bin/.
+bin/*
+!bin/VolcanoDial.ino.bin
+!bin/VolcanoDial.ino.bootloader.bin
+!bin/VolcanoDial.ino.partitions.bin
+!bin/boot_app0.bin

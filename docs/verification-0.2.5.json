@@ -1,0 +1,39 @@
+{
+  "version": "0.2.5",
+  "verifiedDate": "2026-10-11",
+  "installedVersion": "0.2.5",
+  "board": "M5Stack Dial v1.1 / ESP32-S3 8 MB, no PSRAM",
+  "tests": 81,
+  "passed": 81,
+  "failed": 0,
+  "flash": 1822727,
+  "appBinaryBytes": 1822880,
+  "flashLimit": 3145728,
+  "staticRam": 69728,
+  "appSHA256": "8CA4764CA1E19668CC5133E1A53DBEC14D82ED0A34136936085A380E9FD4D02A",
+  "changes": [
+    "Explicit start verifies managed Hue ON even with cached BLE state",
+    "Fresh cached link poll and immediate explicit disconnect invalidation",
+    "Maximum 3 synchronous BLE attempts in 30-second admission window; no retained auto-start intent",
+    "Stop and output-OFF failures prevent program start; reconnect remains OFF-only",
+    "Manual output OFF bypasses Hue/WLAN; toggles resolve intention before preparation",
+    "Wake-only first gesture, cooling persistence, LED/display sleep and Daily 03 at 222 C preserved"
+  ],
+  "review": {
+    "independent": true,
+    "importantFindings": 1,
+    "criticalFindings": 0,
+    "minorFindings": 0,
+    "resolvedBy": "Four execute-path regression cases RED to GREEN, full suite 81/81",
+    "remainingImportantFindings": 0
+  },
+  "pendingHardwareVerification": [
+    "Long display sleep after Hue OFF: first physical gesture wakes only, second powers plug, connects and starts Daily",
+    "Actual Volcano boot/radio timing and awake manual output-OFF response"
+  ],
+  "documentation": {
+    "manualPdfVersion": "0.2.4",
+    "startPathAddendum": "POWER_RESTART_FIX.md"
+  },
+  "publicCopy": "Only technical test/build evidence; live status and local work-log metadata omitted."
+}

@@ -1,0 +1,71 @@
+{
+  "library": {
+    "settingsVersion": 2,
+    "presets": [
+      {
+        "id": "p",
+        "name": "Simple",
+        "kind": "simple",
+        "startTemp": 170,
+        "endTemp": 230,
+        "fillTime": 55,
+        "steps": 3
+      }
+    ],
+    "workflows": [],
+    "globalVariables": [],
+    "runnableOrder": [],
+    "activeRunnable": null
+  },
+  "ref": {
+    "kind": "preset",
+    "id": "p"
+  },
+  "expected": [
+    {
+      "name": "Simple",
+      "actions": [
+        {
+          "type": "reachTemperature",
+          "temperature": 170,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 18.333333333333332
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 200,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 18.333333333333332
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 230,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 2
+        },
+        {
+          "type": "air",
+          "durationSeconds": 18.333333333333332
+        }
+      ]
+    }
+  ],
+  "invalid": false
+}

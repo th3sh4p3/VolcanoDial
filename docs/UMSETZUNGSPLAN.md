@@ -1,0 +1,10 @@
+# Umsetzung Volcano Dial
+
+Der Nutzer hat Firmware und Dokumentation angefordert und nach der Pause die Fortsetzung beauftragt. Umsetzung direkt in diesem Chat; keine Änderung der PC-App und kein Flashen angeschlossener Geräte durch den Agenten.
+
+1. **Ablaufkern:** plattformneutraler C++-Compiler für Bibliothek V2, Formeln/Variablen, Graphvalidierung, Speichergrenzen; Engine mit bestätigten Ausgängen, monotoner Zeit und Workflow-Zwischenpausen. Interfaces: Library → RunPlan, DeviceIO → Snapshot/Bestätigungen, Engine → Status/Start/Weiter/Stop. Zuerst Host-Tests und Referenz-Fixtures, danach Implementierung. Prüfen: PC-Compiler-Parität, falsche Graphen/Formeln, Temperatur-Timeouts, Luftbudget, Stop und Funkverlust.
+2. **Geräteadapter:** NimBLE-Zentralgerät für exakt die PC-App-UUIDs und Statusbits, serialisierte Befehle mit Rücklesebestätigung; Hue-HTTPS-Adapter mit lokaler Bridge-Paarung, Erreichbarkeit und geprüften Schaltzuständen. Benutzerdefinierte Steuerbefehle werden während eines Laufs gesperrt. Prüfen: echtes Firmware-Build, Statusdekodierung, Hue-Abschaltregeln und Zeitüberschreitungen.
+3. **Einrichtung und Bedienung:** geschütztes AP/STA-WLAN, lokaler Browser-Editor samt Import/Export, Atomicspeicherung, Dial-/Touch-Menüs und Chain-Key-Taster. Versionierte lokale HTTP-Schnittstelle für Status, Befehle, Bibliothek und Einrichtung. Browser ist nicht die Ablauf-Engine. Prüfen: Browser-Tests und Editor-Validierung, Taster-Release/Fehlerfälle, Import ohne Zugangsdaten.
+4. **Auslieferung:** reproduzierbares Build, Firmware-Image, USB-Installer, deutsche Anleitung, Funktionsvergleich, Diagnose/Backup und Hardware-Abnahme. Prüfen: finaler Host-Test, Referenztests, Buildgröße und Paketinhalt. Hardwaretests ausdrücklich als ausstehend kennzeichnen.
+
+Besondere Prüfpunkte: abgelaufene Messungen dürfen Hue nicht abschalten; Funkverlust darf keinen Ablauf fortsetzen; unklare EIN-Befehle dürfen nicht blind wiederholt werden; ein klemmender/getrennter Taster darf kein dauerhaftes EIN anfordern; Bibliotheksänderungen dürfen einen aktiven Plan nicht verändern. Abschließende Prüfung des Gesamtpakets nach der Implementierung.

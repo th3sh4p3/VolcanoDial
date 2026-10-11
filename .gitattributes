@@ -1,0 +1,9 @@
+# Preserve release bytes, including web-manifest hashes and Windows installers.
+* -text
+*.bin binary
+*.exe binary
+*.pdf binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.zip binary

@@ -1,0 +1,19 @@
+{
+  "version": "0.2.1",
+  "verifiedDate": "2026-10-08",
+  "board": "M5Stack Dial v1.1 / ESP32-S3 8 MB, no PSRAM",
+  "tests": 28,
+  "passed": 28,
+  "failed": 0,
+  "flash": 1816075,
+  "appBinaryBytes": 1816224,
+  "flashLimit": 3145728,
+  "staticRam": 69648,
+  "appSHA256": "3E2BBA7B89322679AE0E1D7D609C933205C9102E4723FAF61BB6944744C41D8F",
+  "changes": [
+    "BLE heater telemetry cannot start or advance workflows",
+    "Original action failure and BLE detail retained across cleanup failure",
+    "GATT and target confirmation diagnostics"
+  ],
+  "publicCopy": "Only technical test/build evidence; live status and local work-log metadata omitted."
+}

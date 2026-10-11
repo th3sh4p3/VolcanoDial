@@ -1,0 +1,138 @@
+{
+  "settingsVersion": 2,
+  "presets": [
+    {
+      "id": "6c17ba04-b91e-4a93-b34b-ee975a578a73",
+      "name": "Preset 03",
+      "startTemp": 170,
+      "endTemp": 220,
+      "fillTime": 50,
+      "steps": 5,
+      "kind": "simple"
+    },
+    {
+      "id": "ab68c12c-583e-4121-a6da-6c8880d6f81c",
+      "name": "02",
+      "kind": "simple",
+      "startTemp": 221,
+      "endTemp": 221,
+      "fillTime": 50,
+      "steps": 1
+    },
+    {
+      "id": "fec0626b-e05e-480b-b5ee-e9f913dc718f",
+      "name": "03",
+      "kind": "simple",
+      "startTemp": 222,
+      "endTemp": 222,
+      "fillTime": 50,
+      "steps": 1
+    }
+  ],
+  "workflows": [
+    {
+      "id": "d481293f-38db-4ebf-82de-126375debbde",
+      "name": "Daily",
+      "graph": {
+        "nodes": [
+          {
+            "id": "4bb429ea-1c70-4d89-a45a-1c9f0a746829",
+            "type": "start",
+            "position": {
+              "x": 70,
+              "y": 220
+            }
+          },
+          {
+            "id": "724fa832-6ea0-45f7-b7cd-4a8c729e4e3b",
+            "type": "preset",
+            "position": {
+              "x": 300,
+              "y": 220
+            },
+            "config": {
+              "presetId": "6c17ba04-b91e-4a93-b34b-ee975a578a73"
+            }
+          },
+          {
+            "id": "b12e40c2-9ade-4233-b2b3-65c1ff3ac126",
+            "type": "end",
+            "position": {
+              "x": 990,
+              "y": 220
+            }
+          },
+          {
+            "id": "6a08945e-5481-4e7a-a1d5-54608bf88a5f",
+            "type": "preset",
+            "position": {
+              "x": 530,
+              "y": 220
+            },
+            "config": {
+              "presetId": "ab68c12c-583e-4121-a6da-6c8880d6f81c"
+            }
+          },
+          {
+            "id": "a5eb4270-f89b-4076-b5cf-cd2a33ad47b6",
+            "type": "preset",
+            "position": {
+              "x": 760,
+              "y": 220
+            },
+            "config": {
+              "presetId": "fec0626b-e05e-480b-b5ee-e9f913dc718f"
+            }
+          }
+        ],
+        "edges": [
+          {
+            "id": "20075d56-e0e4-499f-9219-6b4570847014",
+            "source": "4bb429ea-1c70-4d89-a45a-1c9f0a746829",
+            "target": "724fa832-6ea0-45f7-b7cd-4a8c729e4e3b"
+          },
+          {
+            "id": "63ddda8f-c4b0-4b1a-9b3d-19f625db0306",
+            "source": "724fa832-6ea0-45f7-b7cd-4a8c729e4e3b",
+            "target": "6a08945e-5481-4e7a-a1d5-54608bf88a5f"
+          },
+          {
+            "id": "a2123ea1-07e7-4719-8649-fc709385527a",
+            "source": "6a08945e-5481-4e7a-a1d5-54608bf88a5f",
+            "target": "a5eb4270-f89b-4076-b5cf-cd2a33ad47b6"
+          },
+          {
+            "id": "49da09c5-6ec0-4808-bd6d-1627a1636df1",
+            "source": "a5eb4270-f89b-4076-b5cf-cd2a33ad47b6",
+            "target": "b12e40c2-9ade-4233-b2b3-65c1ff3ac126"
+          }
+        ]
+      },
+      "fillTimeSource": "ui",
+      "fillTime": 53
+    }
+  ],
+  "globalVariables": [],
+  "runnableOrder": [
+    {
+      "id": "d481293f-38db-4ebf-82de-126375debbde",
+      "kind": "workflow"
+    },
+    {
+      "id": "6c17ba04-b91e-4a93-b34b-ee975a578a73",
+      "kind": "preset"
+    },
+    {
+      "id": "ab68c12c-583e-4121-a6da-6c8880d6f81c",
+      "kind": "preset"
+    },
+    {
+      "id": "fec0626b-e05e-480b-b5ee-e9f913dc718f",
+      "kind": "preset"
+    }
+  ],
+  "activeRunnable": {
+    "id": "d481293f-38db-4ebf-82de-126375debbde",
+    "kind": "workflow"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "version": "0.2.4",
+  "verifiedDate": "2026-10-10",
+  "board": "M5Stack Dial v1.1 / ESP32-S3 8 MB, no PSRAM",
+  "tests": 62,
+  "passed": 62,
+  "failed": 0,
+  "flash": 1822187,
+  "appBinaryBytes": 1822336,
+  "flashLimit": 3145728,
+  "staticRam": 69728,
+  "appSHA256": "870B893007C7F14E73375FF58F7308A4627B2B6E93C019A24B8E1EEEC318131B",
+  "changes": [
+    "Identity-bound cooling ownership persisted before managed Hue ON",
+    "Stop/error/restart preserve shutdown supervision",
+    "Hue OFF failure retains request with 5-30s retry delay",
+    "Cold recovery never powers ON or starts a program",
+    "Initial BLE failure keeps reconnect/OFF supervision; first discovery remains read-only without ID"
+  ],
+  "review": {
+    "importantFindings": 2,
+    "fixed": 2,
+    "openImportant": 0,
+    "fixTests": "actual prepare/bleScan source regressions RED→GREEN; final 62/62 suite"
+  },
+  "publicCopy": "Only technical test/build evidence; live status and local work-log metadata omitted."
+}

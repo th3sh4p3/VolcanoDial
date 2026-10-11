@@ -1,0 +1,282 @@
+{
+  "settingsVersion": 2,
+  "presets": [
+    {
+      "id": "dial-test-heat40",
+      "name": "Test 40 C + Luft 2 s",
+      "kind": "advanced",
+      "variables": [],
+      "graph": {
+        "nodes": [
+          {
+            "id": "s",
+            "type": "start",
+            "position": {
+              "x": 40,
+              "y": 80
+            }
+          },
+          {
+            "id": "h",
+            "type": "reachTemperature",
+            "config": {
+              "temperature": {
+                "mode": "literal",
+                "value": 40
+              },
+              "timeout": {
+                "mode": "literal",
+                "value": 90
+              }
+            },
+            "position": {
+              "x": 240,
+              "y": 80
+            }
+          },
+          {
+            "id": "w",
+            "type": "wait",
+            "config": {
+              "duration": {
+                "mode": "literal",
+                "value": 1
+              }
+            },
+            "position": {
+              "x": 440,
+              "y": 80
+            }
+          },
+          {
+            "id": "a",
+            "type": "air",
+            "config": {
+              "duration": {
+                "mode": "literal",
+                "value": 2
+              }
+            },
+            "position": {
+              "x": 640,
+              "y": 80
+            }
+          },
+          {
+            "id": "o",
+            "type": "heaterOff",
+            "position": {
+              "x": 840,
+              "y": 80
+            }
+          },
+          {
+            "id": "e",
+            "type": "end",
+            "position": {
+              "x": 1040,
+              "y": 80
+            }
+          }
+        ],
+        "edges": [
+          {
+            "id": "e0",
+            "source": "s",
+            "target": "h"
+          },
+          {
+            "id": "e1",
+            "source": "h",
+            "target": "w"
+          },
+          {
+            "id": "e2",
+            "source": "w",
+            "target": "a"
+          },
+          {
+            "id": "e3",
+            "source": "a",
+            "target": "o"
+          },
+          {
+            "id": "e4",
+            "source": "o",
+            "target": "e"
+          }
+        ]
+      }
+    },
+    {
+      "id": "dial-test-air2",
+      "name": "Test Luft 2 s",
+      "kind": "advanced",
+      "variables": [],
+      "graph": {
+        "nodes": [
+          {
+            "id": "s",
+            "type": "start",
+            "position": {
+              "x": 40,
+              "y": 80
+            }
+          },
+          {
+            "id": "w",
+            "type": "wait",
+            "config": {
+              "duration": {
+                "mode": "literal",
+                "value": 1
+              }
+            },
+            "position": {
+              "x": 240,
+              "y": 80
+            }
+          },
+          {
+            "id": "a",
+            "type": "air",
+            "config": {
+              "duration": {
+                "mode": "literal",
+                "value": 2
+              }
+            },
+            "position": {
+              "x": 440,
+              "y": 80
+            }
+          },
+          {
+            "id": "o",
+            "type": "heaterOff",
+            "position": {
+              "x": 640,
+              "y": 80
+            }
+          },
+          {
+            "id": "e",
+            "type": "end",
+            "position": {
+              "x": 840,
+              "y": 80
+            }
+          }
+        ],
+        "edges": [
+          {
+            "id": "e0",
+            "source": "s",
+            "target": "w"
+          },
+          {
+            "id": "e1",
+            "source": "w",
+            "target": "a"
+          },
+          {
+            "id": "e2",
+            "source": "a",
+            "target": "o"
+          },
+          {
+            "id": "e3",
+            "source": "o",
+            "target": "e"
+          }
+        ]
+      }
+    }
+  ],
+  "workflows": [
+    {
+      "id": "dial-test-workflow",
+      "name": "Funktionstest 40 C - 2 Stufen",
+      "fillTimeSource": "presets",
+      "fillTime": 5,
+      "graph": {
+        "nodes": [
+          {
+            "id": "s",
+            "type": "start",
+            "position": {
+              "x": 40,
+              "y": 80
+            }
+          },
+          {
+            "id": "p1",
+            "type": "preset",
+            "config": {
+              "presetId": "dial-test-heat40"
+            },
+            "position": {
+              "x": 240,
+              "y": 80
+            }
+          },
+          {
+            "id": "p2",
+            "type": "preset",
+            "config": {
+              "presetId": "dial-test-air2"
+            },
+            "position": {
+              "x": 440,
+              "y": 80
+            }
+          },
+          {
+            "id": "e",
+            "type": "end",
+            "position": {
+              "x": 640,
+              "y": 80
+            }
+          }
+        ],
+        "edges": [
+          {
+            "id": "e0",
+            "source": "s",
+            "target": "p1"
+          },
+          {
+            "id": "e1",
+            "source": "p1",
+            "target": "p2"
+          },
+          {
+            "id": "e2",
+            "source": "p2",
+            "target": "e"
+          }
+        ]
+      }
+    }
+  ],
+  "globalVariables": [],
+  "activeRunnable": {
+    "kind": "workflow",
+    "id": "dial-test-workflow"
+  },
+  "runnableOrder": [
+    {
+      "kind": "preset",
+      "id": "dial-test-heat40"
+    },
+    {
+      "kind": "preset",
+      "id": "dial-test-air2"
+    },
+    {
+      "kind": "workflow",
+      "id": "dial-test-workflow"
+    }
+  ]
+}

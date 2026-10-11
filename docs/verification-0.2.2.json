@@ -1,0 +1,21 @@
+{
+  "version": "0.2.2",
+  "verifiedDate": "2026-10-09",
+  "board": "M5Stack Dial v1.1 / ESP32-S3 8 MB, no PSRAM",
+  "tests": 37,
+  "passed": 37,
+  "failed": 0,
+  "flash": 1817115,
+  "appBinaryBytes": 1817264,
+  "flashLimit": 3145728,
+  "staticRam": 69664,
+  "appSHA256": "8881653EE2625F29B48A73ED0BE4305F70AF546716B2503BD8F8C99EE7C4EF48",
+  "changes": [
+    "Desktop-compatible four-byte LE setpoint payload",
+    "Exact readback with bounded settling/retry of absolute setpoint only",
+    "Stop cancels normal target; separate confirmed-output-off cleanup restores old target",
+    "Setpoint failure distinguished from heater ON failure",
+    "Target write/retry/duration diagnostics"
+  ],
+  "publicCopy": "Only technical test/build evidence; live status and local work-log metadata omitted."
+}

@@ -1,0 +1,92 @@
+{
+  "/api.js": {
+    "bytes": 1633,
+    "gzip": 873,
+    "sha256": "af65eda2482e1f08362e495287b0bf4c764052ff2e475c319d2a3a3c1e77f668"
+  },
+  "/app.js": {
+    "bytes": 7757,
+    "gzip": 2983,
+    "sha256": "681a9d6f4327f6e62ca80a58c117cc698178b9c049bbdd9c46a91b0ac57408cc"
+  },
+  "/ble/ble-constants.js": {
+    "bytes": 2241,
+    "gzip": 785,
+    "sha256": "ca62a4bea1d3ffc460f0a43cbfc4ba78a92551a4e797dc5654e10d6f93b8adf4"
+  },
+  "/compat.js": {
+    "bytes": 678,
+    "gzip": 402,
+    "sha256": "2ff9cc2b27a2aabb34a114c506affd17ba50b5a63a16b30686b0915c071020bc"
+  },
+  "/dial.css": {
+    "bytes": 2749,
+    "gzip": 1075,
+    "sha256": "1358fb54054796c127a469e15209bee815b390c9b74b5be80629d7662c93f28b"
+  },
+  "/editor-bridge.js": {
+    "bytes": 1668,
+    "gzip": 822,
+    "sha256": "59cb537becda3deaa91a8f5e949ffcdeb7a0e7f2f078f472225096a0cdc627af"
+  },
+  "/editor-model.js": {
+    "bytes": 3115,
+    "gzip": 1016,
+    "sha256": "3ae94e1b5992683f887cf6524d2a2a2e667288da4743aa92205828aca41f079e"
+  },
+  "/editor.css": {
+    "bytes": 17277,
+    "gzip": 4218,
+    "sha256": "e8348b76fb2b5439ebaeae1331b5cb8c66ebfdc548ce93104e2110bdf24c14a3"
+  },
+  "/editor.html": {
+    "bytes": 5722,
+    "gzip": 1728,
+    "sha256": "3e0466cfa9d48f7d461e830bfb96fe68213ad9e8a568ea3630bc664868cf073a"
+  },
+  "/editor.js": {
+    "bytes": 52208,
+    "gzip": 12692,
+    "sha256": "73534fa8dc52c2114f7ddbed6764817576f824ed3550e08a70455523ad1311cc"
+  },
+  "/hose-hold.js": {
+    "bytes": 1416,
+    "gzip": 623,
+    "sha256": "3b1343a19fec220319de596b753b7b2effd198e2510b43f9fb73b9c17bd8fbf8"
+  },
+  "/index.html": {
+    "bytes": 6207,
+    "gzip": 2539,
+    "sha256": "be4604e5d3831f097159d04574e41adabf9ce7a0990482b7d1859d171bba60ed"
+  },
+  "/library-bridge.js": {
+    "bytes": 1824,
+    "gzip": 806,
+    "sha256": "ded90f49455a6504f81aadfc7ad88fd904e4ddf92ebfa0cf4880550120695bb8"
+  },
+  "/runnable-items.js": {
+    "bytes": 486,
+    "gzip": 273,
+    "sha256": "341f6825d55456269f6877de4e5bfe7a2f1fbe97fd7141b219a6b9a4f9b96be3"
+  },
+  "/theme/themes.js": {
+    "bytes": 4772,
+    "gzip": 1727,
+    "sha256": "7e5d2714fec05114d08a220efe018c9af174b18536797b48f4c0fee97b8d7455"
+  },
+  "/workflow/compiler.js": {
+    "bytes": 9255,
+    "gzip": 2587,
+    "sha256": "b430ff005aa0aa9c2245bf018c630d86f40f4696edd29cc8294c716fed17133c"
+  },
+  "/workflow/expression.js": {
+    "bytes": 5608,
+    "gzip": 1674,
+    "sha256": "2c89d88959e872586f6be3dfb1fd082a8ff7df6df1b97ccf4f0257e5c8a8dc33"
+  },
+  "/workflow/program-manager.js": {
+    "bytes": 19371,
+    "gzip": 4868,
+    "sha256": "9c56c543620727f95769cb8acf1b0db4c8d816bb426195c569d5d62fad454962"
+  }
+}
