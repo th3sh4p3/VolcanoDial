@@ -1,57 +1,55 @@
 {
-  "version": "0.2.6",
-  "verifiedDate": "2026-10-11",
-  "installedVersion": "0.2.6",
+  "version": "0.2.7",
+  "verifiedDate": "2026-10-12",
+  "installedVersion": "0.2.7",
   "board": "M5Stack Dial v1.1 / ESP32-S3 8 MB, no PSRAM",
-  "tests": 94,
-  "passed": 94,
+  "tests": 95,
+  "passed": 95,
   "failed": 0,
-  "flash": 1823891,
+  "flash": 1824387,
   "staticRam": 69768,
   "flashLimit": 3145728,
-  "appBinaryBytes": 1824032,
-  "appSHA256": "822E0896F1C41D6CEB702A4F7CC6C79F1399BCAFB1048DC3404DBB034C8ACABD",
+  "appBinaryBytes": 1824528,
+  "appSHA256": "74472B1FE878AEDEAD7054CA32552401042EAD058490BB810B2ED7000FCD8796",
   "changes": [
-    "Manual workflow Stop permits deliberate restart of interrupted stage at action 0 with full time/air budget",
-    "Checkpoint Stop targets the next unfinished stage; double Stop preserves candidate",
-    "Selection/library changes and failed output-OFF confirmation invalidate candidate",
-    "Dial and browser show retry stage; Hue preparation and wake-only gesture preserved; no automatic restart"
+    "A transient invalid BLE status at a confirmed-off workflow checkpoint keeps the current checkpoint instead of failing the whole plan",
+    "Explicit next-stage input requires a fresh status and confirmed HEAT/AIR off before advancing",
+    "A missed secondary BLE read no longer fabricates a device fault; actual fault bits and active-run fail-safe behavior remain"
   ],
-  "review": {
-    "independent": true,
-    "importantFindings": 2,
-    "criticalFindings": 0,
-    "minorFindings": 0,
-    "remainingImportantFindings": 0,
-    "resolvedBy": "Three review regressions RED to GREEN, final full suite 94/94"
+  "regression": {
+    "reproducedBeforeFix": true,
+    "checkpointStatusRecovery": true,
+    "actualFaultStillFails": true,
+    "activeRunStaleStatusStillFails": true,
+    "secondaryReadFailureDistinguished": true,
+    "knownActiveOutputStillFails": true
   },
   "pendingHardwareVerification": [
-    "Physical abort of Daily 02/03 and deliberate retry starts only that preset",
-    "Real heating/radio timing is not established by simulated production-path tests"
+    "Complete real Daily heating run with stage transitions",
+    "Intermittent BLE read failure cannot be forced reliably on a real Volcano"
   ],
   "documentation": {
-    "manualPdfVersion": "0.2.6",
+    "manualPdfVersion": "0.2.7",
     "stageRetryAddendum": "WORKFLOW_STAGE_RETRY.md"
   },
-  "publicCopy": "Only technical test/build evidence; live status and local work-log metadata omitted.",
-  "releaseState": "public-build-not-installed",
-  "usbUpdateHashVerified": false,
-  "installationVerified": false,
+  "releaseState": "installed",
+  "usbUpdateHashVerified": true,
+  "installationVerified": true,
+  "libraryPreserved": true,
+  "settingsPreserved": true,
+  "outputsOff": true,
+  "noAutomaticRestart": true,
   "liveTestPerformed": false,
-  "originalInstalledBuild": {
+  "previousInstalledBuild": {
     "version": "0.2.6",
     "appSHA256": "7A96389430895FD0E7B2D3FC503AC2A8863E2696F4BB512FD1AE064ED9BC5605",
     "appBinaryBytes": 1824096,
     "flash": 1823955,
     "staticRam": 69768,
     "usbUpdateHashVerified": true,
-    "installationVerified": true,
-    "libraryPreserved": true,
-    "settingsPreserved": true,
-    "outputsOff": true,
-    "noAutomaticRestart": true
+    "installationVerified": true
   },
-  "productionSourceUnchanged": true,
   "buildPathMapping": "-ffile-prefix-map, all user-profile path variants replaced with /build-user",
-  "privateBuildPathScanPassed": true
+  "privateBuildPathScanPassed": true,
+  "publicCopy": "Only technical test/build evidence; live status and local work-log metadata omitted."
 }

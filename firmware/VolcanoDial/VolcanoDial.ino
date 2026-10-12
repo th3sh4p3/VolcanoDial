@@ -127,7 +127,7 @@ void setupAP(){
   if(apOn)return;WiFi.mode(WIFI_AP_STA);WiFi.softAP(apName.c_str(),apPassword.c_str());dns.start(53,"*",WiFi.softAPIP());apOn=true;apSince=nowMs();
 }
 void publish(){
-  JsonDocument d;auto s=volcano.snapshot();d["version"]="0.2.6";d["connected"]=s.connected;d["current"]=std::isfinite(s.current)?s.current:0;d["target"]=std::isfinite(s.target)?s.target:210;d["temperatureValid"]=s.connected&&std::isfinite(s.current)&&nowMs()>=s.sampleAt&&nowMs()-s.sampleAt<1500;
+  JsonDocument d;auto s=volcano.snapshot();d["version"]="0.2.7";d["connected"]=s.connected;d["current"]=std::isfinite(s.current)?s.current:0;d["target"]=std::isfinite(s.target)?s.target:210;d["temperatureValid"]=s.connected&&std::isfinite(s.current)&&nowMs()>=s.sampleAt&&nowMs()-s.sampleAt<1500;
   d["heat"]=s.heat;d["fan"]=s.fan;d["fault"]=s.fault;d["statusValid"]=s.valid;d["phase"]=hose.busy()?(hose.ready()?"hoseReady":"hoseHeating"):hoseSelected()&&hose.phase==vd::HosePhase::Error?"error":hoseSelected()&&hose.phase==vd::HosePhase::Complete?"complete":vd::phaseName(engine.phase);d["busy"]=busy()||!operation.isEmpty();d["stage"]=engine.stageIndex+1;d["action"]=engine.actionIndex+1;d["remaining"]=engine.remaining;
   auto& plan=engine.currentPlan();d["stages"]=plan.stages.size();if(engine.stageIndex<plan.stages.size()){d["stageName"]=plan.stages[engine.stageIndex].name;d["actions"]=plan.stages[engine.stageIndex].actions.size();if(engine.actionIndex<plan.stages[engine.stageIndex].actions.size())d["actionType"]=vd::actionName(plan.stages[engine.stageIndex].actions[engine.actionIndex].type);}
   bool retryStage=stageRetryAvailable();d["retryAvailable"]=retryStage;
@@ -216,7 +216,7 @@ bool runSelected(bool fromInput=false){
     if(!prepare())return false;engine.discardStageRestart();airOwner=0;volcano.manualHold=false;runLocksKey=false;
     return hose.start(config["hoseTemperature"]|210.0,nowMs());
   }
-  if(engine.phase==vd::Phase::AwaitingNext){cooldown.cancel();return engine.next(nowMs());}
+  if(engine.phase==vd::Phase::AwaitingNext){cooldown.cancel();bool ok=engine.next(nowMs());if(!ok&&engine.phase==vd::Phase::AwaitingNext)notice="Volcano-Status pruefen; erneut druecken";return ok;}
   if(engine.busy())return false;vd::Compiler compiler;vd::Plan plan;
   if(!compiler.compile(library,library["activeRunnable"],plan)){notice=compiler.error.c_str();return false;}
   // Resolve the requested stage before Hue temporarily releases/reloads the
@@ -486,7 +486,7 @@ void usbConsole(){
     if(c!='\n'){if(line.length()<512)line+=c;else discarded=true;continue;}
     JsonDocument q;if(discarded||deserializeJson(q,line)){Serial.println("{\"error\":\"USB JSON ungueltig/zu lang\"}");}
     else if(String(q["command"]|"")=="info"){
-      JsonDocument d;d["device"]="VolcanoDial";d["version"]="0.2.6";d["pin"]=pin;d["apName"]=apName;d["apPassword"]=apPassword;d["ip"]=WiFi.localIP().toString();d["ap"]=apOn.load();d["heap"]=ESP.getFreeHeap();d["filesystem"]=fsReady;serializeJson(d,Serial);Serial.println();
+      JsonDocument d;d["device"]="VolcanoDial";d["version"]="0.2.7";d["pin"]=pin;d["apName"]=apName;d["apPassword"]=apPassword;d["ip"]=WiFi.localIP().toString();d["ap"]=apOn.load();d["heap"]=ESP.getFreeHeap();d["filesystem"]=fsReady;serializeJson(d,Serial);Serial.println();
     }else if(String(q["command"]|"")=="status"){
       xSemaphoreTake(stateMutex,portMAX_DELAY);auto s=stateText;xSemaphoreGive(stateMutex);Serial.println(*s);
     }else{if(String(q["command"]|"")=="stop")stopRequested=true;Serial.println(enqueue(line,0,String(q["command"]|"")!="sleepDisplay"&&String(q["command"]|"")!="wakeDisplay",String(q["command"]|"")!="sleepDisplay")?"{\"accepted\":true}":"{\"error\":\"Warteschlange voll\"}");}

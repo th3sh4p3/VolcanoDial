@@ -181,7 +181,7 @@ struct Snapshot {
 };
 inline bool safe(const Snapshot& s,uint64_t now){return s.connected&&s.valid&&!s.fault&&now>=s.statusAt&&now-s.statusAt<=1500&&!s.heat&&!s.fan&&!s.heatRequested&&!s.fanRequested&&!s.interlock;}
 inline bool freshCool(const Snapshot& s,uint64_t now,double threshold){return safe(s,now)&&std::isfinite(s.current)&&s.current>=0&&s.current<=250&&s.current<=threshold&&now>=s.sampleAt&&now-s.sampleAt<=1000;}
-struct DeviceIO { virtual ~DeviceIO()=default;virtual Snapshot snapshot()=0;virtual bool target(double)=0;virtual bool restoreTarget(double c){return target(c);}virtual bool heat(bool)=0;virtual bool fan(bool)=0;virtual bool refreshTemperature(){return true;}virtual uint64_t monotonic(){return 0;}virtual bool manualAirCancelled(){return false;}virtual std::string failureDetail(){return {};} };
+struct DeviceIO { virtual ~DeviceIO()=default;virtual Snapshot snapshot()=0;virtual bool target(double)=0;virtual bool restoreTarget(double c){return target(c);}virtual bool heat(bool)=0;virtual bool fan(bool)=0;virtual bool refreshTemperature(){return true;}virtual bool refreshStatus(){return false;}virtual uint64_t monotonic(){return 0;}virtual bool manualAirCancelled(){return false;}virtual std::string failureDetail(){return {};} };
 enum class Phase { Idle,Running,AwaitingNext,Complete,Aborted,Error };
 inline const char* phaseName(Phase p){switch(p){case Phase::Running:return "running";case Phase::AwaitingNext:return "awaitingNext";case Phase::Complete:return "complete";case Phase::Aborted:return "aborted";case Phase::Error:return "error";default:return "idle";}}
 class Engine {
@@ -209,7 +209,17 @@ class Engine {
     restartPending=false;plan=p;previousTarget=io.snapshot().target;phase=Phase::Running;stageIndex=firstStage;actionIndex=0;active=airOn=false;error.clear();airGoalMs=airElapsedMs=0;remaining=0;lastTick=stamp(now);
     if(!outputsOff()){failed(now,"Ausgangszustand nicht bestaetigt");return false;}fanBaseline=io.snapshot().fanTotalMs;return true;
   }
-  bool next(uint64_t now){if(phase!=Phase::AwaitingNext)return false;if(!outputsOff()){failed(now,"AUS nicht bestaetigt");return false;}++stageIndex;actionIndex=0;active=airOn=false;airGoalMs=airElapsedMs=0;fanBaseline=io.snapshot().fanTotalMs;phase=Phase::Running;lastTick=stamp(now);return true;}
+  bool next(uint64_t now){
+    if(phase!=Phase::AwaitingNext)return false;
+    auto s=io.snapshot();uint64_t n=stamp(now);
+    // A missed optional read may leave the idle checkpoint temporarily
+    // unverified. Refresh once before accepting an explicit next-stage press.
+    if(!safe(s,n)&&s.connected&&!s.fault&&io.refreshStatus()){s=io.snapshot();n=stamp(now);}
+    if(s.fault){failed(n,"Volcano-Status ungueltig oder Geraetefehler");return false;}
+    if(!safe(s,n))return false;
+    if(!outputsOff()){failed(n,"AUS nicht bestaetigt");return false;}
+    ++stageIndex;actionIndex=0;active=airOn=false;airGoalMs=airElapsedMs=0;fanBaseline=io.snapshot().fanTotalMs;phase=Phase::Running;lastTick=stamp(n);return true;
+  }
   void stop(uint64_t now){
     if(busy()){
       // A checkpoint's current preset is already complete. A deliberate next
@@ -222,6 +232,10 @@ class Engine {
   void tick(uint64_t now){
     if(!busy())return;auto s=io.snapshot();now=stamp(now);
     if(!s.connected){phase=Phase::Error;error="Bluetooth getrennt. Ausgaenge unbekannt!";active=false;return;}
+    // At a confirmed OFF checkpoint, a single missed status read is not an
+    // active-output failure. Keep the checkpoint; next() demands fresh OFF
+    // evidence before any subsequent stage can run.
+    if(phase==Phase::AwaitingNext&&!s.fault&&!s.heat&&!s.fan&&!s.heatRequested&&!s.fanRequested&&!s.interlock&&(!s.valid||now<s.statusAt||now-s.statusAt>1500)){lastTick=now;return;}
     if(!s.valid||s.fault||now<s.statusAt||now-s.statusAt>1500){failed(now,"Volcano-Status ungueltig oder Geraetefehler");return;}
     if(std::isfinite(s.fanTotalMs)&&std::isfinite(fanBaseline))airElapsedMs=std::max(0.0,s.fanTotalMs-fanBaseline);else if(airOn)airElapsedMs+=double(now-lastTick);lastTick=now;
     if(phase==Phase::AwaitingNext)return;

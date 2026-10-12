@@ -62,11 +62,11 @@ class Connection(Flowable):
   c.line(279,100,279,54);c.drawString(288,74,'Grove-Kabel 20 cm')
   c.setDash(4,3);c.line(354,127,403,127);c.setDash()
   box(403,100,106,54,'Volcano','Bluetooth LE')
-  c.setFont('Arial',8);c.drawCentredString(432,83,'Bluetooth mit Dial 0.2.6')
+  c.setFont('Arial',8);c.drawCentredString(432,83,'Bluetooth mit Dial 0.2.7')
 
 p('Volcano Fernbedienung','title')
 p('Hardware Aufbauanleitung','h1')
-p('Für M5Stack Dial v1.1 und Chain Key U206 · USB-Versorgung · Stand 11.10.2026 · Firmware 0.2.6','small')
+p('Für M5Stack Dial v1.1 und Chain Key U206 · USB-Versorgung · Stand 12.10.2026 · Firmware 0.2.7','small')
 p('Mit dieser Anleitung kannst du die gelieferten Teile verbinden, die Stromversorgung prüfen und die Fernbedienung mechanisch vorbereiten. Die Elektronik bleibt in ihren vorhandenen Gehäusen. Löten und Arbeiten im Inneren des Volcano sind für diesen Aufbau nicht erforderlich.')
 p('<b>Die passende Firmware liegt diesem Paket bei.</b> Installation und Einrichtung stehen in der separaten Bedienungsanleitung. Der Chain Key ist optional; alle Grundfunktionen sind auch direkt am Dial verfügbar.')
 h('1 Teile und Hilfsmittel')
@@ -123,7 +123,7 @@ p('Sind diese Punkte erfüllt, ist die Steckmontage abgeschlossen. Erst jetzt fo
 page('4 Erstes Einschalten und Fehlersuche')
 step(8,'Netzteil einstecken','Stelle die Module stabil ab und stecke das USB-Netzteil in die Steckdose. Beobachte den Aufbau zunächst etwa eine Minute. Bei Geruch, auffälliger Erwärmung oder ständigen Neustarts sofort USB beziehungsweise das Netzteil abziehen.')
 h('Was jetzt sichtbar sein kann')
-p('Ein fabrikneuer Dial kann eine Herstellerdemo zeigen. Nach Installation von Volcano Dial 0.2.6 erscheint die gespeicherte Auswahl. Der Chain Key wird automatisch erkannt. Im Ruhemodus weckt die erste Bedienung nur das Display; erst danach erneut bedienen.')
+p('Ein fabrikneuer Dial kann eine Herstellerdemo zeigen. Nach Installation von Volcano Dial 0.2.7 erscheint die gespeicherte Auswahl. Der Chain Key wird automatisch erkannt. Im Ruhemodus weckt die erste Bedienung nur das Display; erst danach erneut bedienen.')
 p('<b>Nach der Firmwareinstallation:</b> WLAN, Hue und Volcano gemäß Bedienungsanleitung einrichten. Die erste Sichtprüfung bestätigt Versorgung und Startverhalten; anschließend die vorgesehenen Funktionstests durchführen.')
 h('Wenn der Aufbau nicht wie erwartet startet')
 table(['Beobachtung','Nächster Schritt'],[
@@ -169,7 +169,7 @@ checklist([
  'USB-C und Diagnosezugang sind weiterhin erreichbar.',
 ])
 p('<b>Damit ist die Hardware vorbereitet.</b> Dieser Zustand bestätigt noch keine erfolgreiche Kommunikation zwischen den Modulen oder mit dem Volcano. Die folgenden Punkte werden nach dem Aufspielen der passenden Software geprüft.')
-h('Funktionstest mit Volcano Dial 0.2.6')
+h('Funktionstest mit Volcano Dial 0.2.7')
 p('Zuerst Display, Drehgeber und den gedrückten/losgelassenen Zustand des Chain Key ohne Volcano-Befehle prüfen. Danach die Bluetooth-Verbindung aufbauen und Rückmeldungen anzeigen. Erst anschließend Temperatursteuerung und einen kurzen Workflow unter Beobachtung testen.')
 checklist([
  'Drehen und Drücken erzeugen die vorgesehenen Menüs und Werte.',

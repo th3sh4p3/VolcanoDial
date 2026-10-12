@@ -1,12 +1,12 @@
 # VolcanoDial
 
-Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Version **0.2.6**.
+Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Version **0.2.7**.
 
 ## Vom Einkauf zum laufenden Gerät
 
 1. **[Einkaufsliste](hardware/EINKAUFSLISTE.md)**: Dial, USB-Datenkabel, Versorgung; optional Chain Key und Grove-Kabel. Teilebezeichnungen und Bezugsquellen in Deutschland.
 2. **[Hardware zusammenbauen](hardware/AUFBAU.md)**: lötfreier Aufbau in den Modulgehäusen, korrekter schwarzer UART-Port und Chain Key IN/J1. [Druckbare Aufbauanleitung](docs/VolcanoDial_Hardware_Aufbauanleitung.pdf).
-3. **[Installationspaket herunterladen](https://github.com/th3sh4p3/VolcanoDial/releases/tag/v0.2.6)**: `VolcanoDial_0.2.6.zip` vollständig entpacken. Es enthält Firmware, Windows-Installer, Flash-Tool, Prüfsummen und Anleitungen. GitHubs „Source code“-ZIP ist der Quellstand; das benannte ZIP ist das vorbereitete Installationspaket.
+3. **[Installationspaket herunterladen](https://github.com/th3sh4p3/VolcanoDial/releases/tag/v0.2.7)**: `VolcanoDial_0.2.7.zip` vollständig entpacken. Es enthält Firmware, Windows-Installer, Flash-Tool, Prüfsummen und Anleitungen. GitHubs „Source code“-ZIP ist der Quellstand; das benannte ZIP ist das vorbereitete Installationspaket.
 4. **[Firmware installieren und einrichten](docs/BEDIENUNGSANLEITUNG.md)**: USB-Datenkabel, tatsächlichen COM-Port wählen, `Installieren.cmd -Modus Neu -Port COM3`; bei erster Installation „NEU“ bestätigen. COM3 ist nur ein Beispiel. Danach Heim-WLAN, optional Hue und Volcano einrichten.
 5. **[Kurzen Funktionstest durchführen](docs/FUNKTIONSTEST.md)**: `examples/Funktionstest-40C.json`, Start/Stop, Zwischenpause und optionale Taste prüfen. Eigene Bibliothek im lokalen Browser importieren oder dort Presets erstellen. `examples/Daily.json` enthält einen dreistufigen Beispielworkflow.
 
@@ -30,7 +30,7 @@ Die Remote-Abschaltung benötigt eine funktionierende Funkverbindung. Bei „AUS
 
 ## Aktueller Prüfstand
 
-94/94 automatisierte Fälle sowie native Speicher-/UI-Prüfungen bestanden. Firmware 0.2.6 wurde auf einem Dial v1.1 per USB mit bestätigtem Schreibhash installiert; Bibliothek und Einstellungen blieben erhalten. Der öffentliche Build hat 1.823.891 Byte Programm und 69.768 Byte statisches RAM, kein PSRAM. Er wurde aus identischen Produktionsquellen mit anonymisierten Build-Pfaden neu kompiliert; dieser öffentliche Binärbuild wurde nicht erneut auf das Gerät geflasht. **Ein tatsächlicher Heizlauf der neuen Stufenwiederholung steht noch aus.** Ältere echte Geräteprüfungen und Grenzen sind getrennt dokumentiert.
+95/95 automatisierte Fälle sowie native Speicher-/UI-Prüfungen bestanden. Firmware 0.2.7 wurde auf einem Dial v1.1 per USB mit bestätigtem Schreibhash installiert; Bibliothek und Einstellungen blieben erhalten, HEAT/AIR waren aus und kein Ablauf startete automatisch. Das installierte Image hat 1.824.387 Byte Programm und 69.768 Byte statisches RAM, kein PSRAM. Der seltene Statusfehler beim Wechsel einer Daily-Stufe wurde im Test nachgestellt und korrigiert; ein vollständiger realer Daily-Heizlauf zur erneuten Prüfung steht noch aus. Ältere Geräteprüfungen und Grenzen sind getrennt dokumentiert.
 
 - [Prüfbericht](docs/PRUEFBERICHT.md), [maschinenlesbare Prüfung](docs/verification.json)
 - [Stufe erneut starten](docs/WORKFLOW_STAGE_RETRY.md)

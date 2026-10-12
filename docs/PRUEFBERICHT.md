@@ -1,10 +1,16 @@
-# Prüfbericht – Volcano Dial 0.2.6
+# Prüfbericht – Volcano Dial 0.2.7
 
-Stand 11.10.2026: lokal geprüft und per USB installiert. Schreibhash und laufende Version 0.2.6 bestätigt; Bibliothek und Einstellungen unverändert, HEAT/AIR AUS, Zusatztaster erkannt, kein automatischer Programmstart. 94/94 automatisierte Tests und native Speicher-/UI-Prüfungen bestanden; 1823955 Byte Programm, 69768 Byte statisches RAM, kein PSRAM. Die unabhängige Gegenprüfung fand zwei wichtige Randfälle, beide durch drei zunächst scheiternde Regressionen abgesichert und korrigiert. Keine wichtigen offenen Befunde. Ein realer Heizlauf zur Stufenwiederholung wurde nicht ausgelöst. [Bedienung und Prüfung](WORKFLOW_STAGE_RETRY.md); aktueller Installationsstatus und Hash in `verification.json`.
+Stand 12.10.2026: 95/95 automatisierte Tests bestanden. Ein gezielter Test stellte nach, dass eine vorübergehend ungültige Bluetooth-Statusabfrage in der AUS-Zwischenpause den Workflow 0.2.6 abbrach; er scheiterte vor der Korrektur und besteht danach. Die neue Firmware hält die Zwischenpause, verlangt vor „Weiter“ eine frische Bestätigung für HEAT/AIR AUS und unterscheidet einen fehlenden zweiten Statuswert von einem echten Gerätefehler. Echte Fehler und ungültiger Status während eines aktiven Ablaufs führen weiterhin zum sicheren Abbruch.
 
-## Öffentlicher Distributionsbuild
+Version 0.2.7 wurde per USB auf dem Dial v1.1 installiert; das Flash-Tool bestätigte den Schreibhash. Nach Neustart meldete das Gerät 0.2.7 im Leerlauf mit HEAT/AIR AUS; Bibliothek und Einstellungen stimmten mit der Sicherung vor dem Update überein und kein Ablauf startete automatisch. Programmgröße des finalen Images: 1824387 Byte; statisches RAM: 69768 Byte, kein PSRAM. Ein vollständiger Daily-Heizlauf mit dem seltenen Funkfehler wurde noch nicht wiederholt. Die Herkunft und Größe des installierten Images stehen in `verification.json`.
 
-Die Produktionsquellen sind gegenüber der installierten Version unverändert. Für die Veröffentlichung wurden im Compiler lokale Benutzerpfade in __FILE__ und Debug-Metadaten durch /build-user ersetzt. Dieser neu kompilierte Binärbuild wurde nicht nochmals geflasht; seine Größe und Prüfsumme stehen in verification.json. Die dort getrennt erhaltenen originalInstalledBuild-Werte dokumentieren die zuvor bestätigte Installation. Öffentliche JSON-Berichte enthalten keine Live-Statusdaten oder lokalen Arbeitslog-Verweise.
+## Historische Prüfung 0.2.6
+
+Stand 11.10.2026: lokal geprüft und per USB installiert. Schreibhash und laufende Version 0.2.6 bestätigt; Bibliothek und Einstellungen unverändert, HEAT/AIR AUS, Zusatztaster erkannt, kein automatischer Programmstart. 94/94 automatisierte Tests und native Speicher-/UI-Prüfungen bestanden; 1823955 Byte Programm, 69768 Byte statisches RAM, kein PSRAM. Die unabhängige Gegenprüfung fand zwei wichtige Randfälle, beide durch drei zunächst scheiternde Regressionen abgesichert und korrigiert. Ein realer Heizlauf zur Stufenwiederholung wurde nicht ausgelöst. [Bedienung und Prüfung](WORKFLOW_STAGE_RETRY.md); damaliger Installationsstand und Hash sind in `verification.json` unter `previousInstalledBuild` erhalten.
+
+### Öffentlicher Distributionsbuild von 0.2.6
+
+Die Produktionsquellen von 0.2.6 waren damals gegenüber der installierten Version unverändert. Für die Veröffentlichung wurden im Compiler lokale Benutzerpfade in __FILE__ und Debug-Metadaten durch /build-user ersetzt. Dieser neu kompilierte 0.2.6-Binärbuild wurde nicht nochmals geflasht. Die frühere Originalinstallation steht in `verification.json` unter `previousInstalledBuild`. Öffentliche JSON-Berichte enthalten keine Live-Statusdaten oder lokalen Arbeitslog-Verweise.
 
 ## Historische Prüfung 0.2.5
 

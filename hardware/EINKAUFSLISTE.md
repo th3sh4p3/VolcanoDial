@@ -1,6 +1,6 @@
 # Einkaufsliste für den nachbaubaren USB-Dial
 
-Stand: 11.10.2026, Firmware 0.2.6. Die Artikelnummern identifizieren den getesteten Aufbau. Preise und Lieferbestand können sich ändern; Produktlinks sind Bezugsquellen, keine Zusage für Verfügbarkeit. Bereits vorhandene passende Kabel und Netzteile können wiederverwendet werden.
+Stand: 12.10.2026, Firmware 0.2.7. Die Artikelnummern identifizieren den getesteten Aufbau. Preise und Lieferbestand können sich ändern; Produktlinks sind Bezugsquellen, keine Zusage für Verfügbarkeit. Bereits vorhandene passende Kabel und Netzteile können wiederverwendet werden.
 
 ## Pflichtteile für die Fernbedienung
 

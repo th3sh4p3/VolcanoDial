@@ -56,6 +56,19 @@ int main(int argc,char**argv) {
  // Native ready pulses count against the same cumulative physical air budget.
  Fake pulses;pulses.s.fanTotalMs=0;Engine pe(pulses);Plan pp;pp.stages={{"pulse",{{ActionType::Wait,0,0.1},{ActionType::Air,0,1}}}};assert(pe.start(pp,0));pe.tick(0);pulses.s.fanTotalMs=400;pe.tick(100);pe.tick(120);assert(pulses.ons==1);pulses.s.fanTotalMs=1000;pe.tick(720);pe.tick(740);assert(pe.phase==Phase::Complete);
  Fake stale;Engine se(stale);Plan sp;sp.stages={{"stale",{{ActionType::Wait,0,10}}}};assert(se.start(sp,0));se.tick(0);se.tick(2000);assert(se.phase==Phase::Error);assert(!stale.s.heat&&!stale.s.fan);
+ // A missed optional status read at a workflow checkpoint must not erase the
+ // completed stage. No next stage may start until status is fresh again.
+ Fake checkpoint;Engine ce(checkpoint);Plan cp;cp.workflow=true;cp.stages={{"01",{}},{"02",{{ActionType::Heat,210,90}}}};
+ assert(ce.start(cp,100));checkpoint.s.statusAt=100;ce.tick(100);assert(ce.phase==Phase::AwaitingNext);
+ checkpoint.s.valid=false;ce.tick(200);assert(ce.phase==Phase::AwaitingNext);
+ assert(!ce.next(200));assert(ce.phase==Phase::AwaitingNext&&ce.stageIndex==0);
+ checkpoint.s.valid=true;checkpoint.s.statusAt=250;assert(ce.next(250));assert(ce.phase==Phase::Running&&ce.stageIndex==1);
+ Fake oldCheckpoint;Engine oce(oldCheckpoint);assert(oce.start(cp,100));oldCheckpoint.s.statusAt=100;oce.tick(100);
+ oce.tick(2000);assert(oce.phase==Phase::AwaitingNext);assert(!oce.next(2000));
+ Fake faultCheckpoint;Engine fce(faultCheckpoint);assert(fce.start(cp,100));faultCheckpoint.s.statusAt=100;fce.tick(100);
+ faultCheckpoint.s.fault=true;fce.tick(200);assert(fce.phase==Phase::Error);
+ Fake unexpectedOutput;Engine uoe(unexpectedOutput);assert(uoe.start(cp,100));unexpectedOutput.s.statusAt=100;uoe.tick(100);
+ unexpectedOutput.s.valid=false;unexpectedOutput.s.heat=true;uoe.tick(200);assert(uoe.phase==Phase::Error);
  // Real command acknowledgements can consume the cached temperature's lifetime.
  struct SlowHeat : Fake {
    uint64_t clock=0;bool fresh=true;

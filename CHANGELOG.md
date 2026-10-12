@@ -1,5 +1,11 @@
 # Versionsstand
 
+## 0.2.7 - 12.10.2026
+
+- Ein einzelner fehlgeschlagener Bluetooth-Statusabruf während der bestätigten AUS-Zwischenpause beendet Daily nicht mehr mit „Volcano-Status ungültig oder Gerätefehler“.
+- Die nächste Stufe beginnt nur nach einer frischen Bestätigung, dass Heizung und Lüftung aus sind. Bei fehlender Bestätigung bleibt die Zwischenpause erhalten; ein echter Gerätefehler oder ein Fehler während aktiver Ausgänge stoppt weiterhin sicher.
+- Ein fehlender zweiter Statuswert wird als ungültige Messung behandelt und nicht mehr selbst als Gerätefehler markiert. 95/95 automatisierte Fälle inklusive Regressionen für Zwischenpause, Wiederherstellung und echte Fehler bestanden.
+
 ## 0.2.6 - 11.10.2026
 
 - Bewusster Start nach manuellem Workflow-Stop wiederholt nur die unterbrochene Stufe, mit voller Laufzeit und Luftmenge.

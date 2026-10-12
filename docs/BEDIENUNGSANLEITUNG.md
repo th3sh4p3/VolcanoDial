@@ -1,6 +1,6 @@
 # Volcano Dial - Einrichtung und Bedienung
 
-Version 0.2.6 | 11.10.2026 | M5Stack Dial v1.1 / Volcano Hybrid
+Version 0.2.7 | 12.10.2026 | M5Stack Dial v1.1 / Volcano Hybrid
 
 Vor dem Installieren: [Einkaufsliste](../hardware/EINKAUFSLISTE.md) und [Hardware zusammenbauen](../hardware/AUFBAU.md).
 
@@ -98,6 +98,8 @@ Der grafische Editor wird unter „Presets & Workflows“ geöffnet. Seine Bezei
 Einfache Presets: Start-/Endtemperatur 40-230 °C, Füllzeit 5-300 Sekunden, 1-20 Schritte. Erweiterte Presets unterstützen Zieltemperatur erreichen, warten, Luft fördern und Heizung ausschalten. Globale und lokale Variablen, Einheiten und Rechenausdrücke werden wie in der PC-App ausgewertet. Allgemeiner JavaScript-Code wird nicht ausgeführt.
 
 Workflow-Stufen verwenden vorhandene Presets. Nach jeder Stufe gehen Heizung und Lüftung AUS; der nächste Abschnitt wartet auf einen bewussten Weiter-Befehl am Dial, optionalen Zusatztaster oder im Browser. Bei der Füllzeitquelle „ui“ lässt sich die gemeinsame Füllzeit am Dial einstellen; sie gilt je Preset-Stufe und verteilt deren Luftaktionen proportional. Bei „presets“ bleiben die jeweiligen Preset-Füllzeiten erhalten. Heizungs-Rückmeldungen und die HEAT-Taste direkt am Volcano starten oder erweitern keinen Workflow. Nach einem Fehler startet der Ablauf erst nach einer erneuten bewussten Bedienung.
+
+Wird während der Zwischenpause ein einzelner Bluetooth-Statuswert verpasst, bleibt der Workflow an dieser Stelle stehen. Vor „Weiter“ prüft der Dial den Status erneut und bestätigt Heizung und Lüftung AUS. Gelingt das gerade nicht, erscheint „Volcano-Status prüfen; erneut drücken“; nach stabiler Verbindung denselben Weiter-Befehl erneut auslösen. Ein echter Gerätefehler oder eine unterbrochene Verbindung wird weiterhin als Fehler behandelt.
 
 Die eigentliche Luftlaufzeit wird anhand bestätigter Lüftungszustände gezählt. Vom Volcano ausgelöste Luftimpulse werden in das Luftbudget einbezogen. Nach Abschluss werden die Ausgänge ausgeschaltet und bei bestätigtem AUS die ursprüngliche Zieltemperatur zurückgesetzt. Ein Fehler oder Funkverlust beendet den Ablauf; nach Wiederverbindung startet er nicht automatisch weiter.
 

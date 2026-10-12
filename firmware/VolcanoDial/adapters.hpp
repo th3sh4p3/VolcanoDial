@@ -120,12 +120,13 @@ class Volcano : public vd::DeviceIO, public NimBLEClientCallbacks {
     if(!snapshot().connected)return false;uint16_t v;
     if(!readU16(stat,v))return false;status(v,false);
     if(!vd::optionalReadAllowed(stopRequested,endHoseRequested,manualHold,manualDemandValid()))return false;
-    if(stat2){if(!readU16(stat2,v)){portENTER_CRITICAL(&mux);data.valid=false;status2Fault=true;data.fault=true;portEXIT_CRITICAL(&mux);return false;}portENTER_CRITICAL(&mux);status2Fault=v&0x003b;data.fault=status1Fault||status2Fault;portEXIT_CRITICAL(&mux);}
+    if(stat2){if(!readU16(stat2,v)){portENTER_CRITICAL(&mux);data.valid=false;portEXIT_CRITICAL(&mux);return false;}portENTER_CRITICAL(&mux);status2Fault=v&0x003b;data.fault=status1Fault||status2Fault;portEXIT_CRITICAL(&mux);}
     if(!vd::optionalReadAllowed(stopRequested,endHoseRequested,manualHold,manualDemandValid()))return false;
     if(!refreshTemperature())return false;
     if(!vd::optionalReadAllowed(stopRequested,endHoseRequested,manualHold,manualDemandValid()))return false;
     if(readU16(targetChar,v)&&v>=400&&v<=2300){portENTER_CRITICAL(&mux);data.target=double(v)/10;portEXIT_CRITICAL(&mux);}return snapshot().connected;
   }
+  bool refreshStatus()override{return poll();}
   bool confirmTarget(double c,bool restoring){
     error="";
     lastTargetRequested=c;lastTargetObserved=NAN;
