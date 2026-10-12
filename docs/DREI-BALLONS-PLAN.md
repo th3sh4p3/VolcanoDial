@@ -23,6 +23,14 @@ Die Temperaturen unten sind daher **begründete Startwerte**, kein Versprechen f
 
 230 °C erfüllt den Wunsch nach maximaler letzter Extraktion **innerhalb des einstellbaren Bereichs**, kann aber deutlich kratziger sein. Wenn der dritte Ballon zu unangenehm ist, eine alternative Variante mit **220 °C** anbieten; sie ist ein Komfortkompromiss, nicht die maximale Einstellung. Der Schritt 180 → 200 → 230 °C ist nicht in einer kontrollierten sensorischen Studie validiert.
 
+## Sind feinere Hitzestufen sinnvoll?
+
+**Zwischen den Ballons ja, innerhalb eines einzelnen Ballons zunächst nein.** Ein konstanter Sollwert je Ballon trennt Aroma, mittlere und hohe Extraktion verständlich und hält den Versuch wiederholbar. Mehr kleine Stufen in einem Ballon mischen die Temperaturbereiche im selben Ballon. Der Dial-Compiler unterteilt dann auch die gesamte Lüftungszeit: fünf Stufen bei 53 Sekunden ergeben fünf kurze Pumpenabschnitte von jeweils 10,6 Sekunden. Für das gewünschte Drei-Ballon-Erlebnis gibt es keinen Messbeleg, dass diese Zerlegung Geschmack oder Gesamtextraktion verbessert. Die Beobachtung, dass flüchtige Terpene früh freigesetzt werden und die Cannabinoid-Abgabe mit der Temperatur stark steigt, spricht eher für getrennte Ballons. [Eyal et al., 2023](https://journals.sagepub.com/doi/pdf/10.1089/can.2021.0173).
+
+**Daily nicht stillschweigend umstellen.** Sein erstes Preset fährt derzeit 170 → 220 °C in fünf Stufen; Preset 2 und 3 liegen bei 221 beziehungsweise 222 °C. Damit erreicht schon der erste Ballon 220 °C, und die beiden letzten Ballons unterscheiden sich als Sollwerte kaum. Das ist ein anderes Profil als „Aroma → Balance → Extraktion“. Da der HYBRID nur einen Referenzwert am Wärmetauscher anzeigt und die Temperatur in der Füllkammer beim Verdampfen nicht direkt misst, ist eine Differenz von 1 °C zwischen zwei Ballons kaum als zuverlässig getrenntes Erlebnis zu erwarten. Diese Bewertung ist eine technische Schlussfolgerung, keine direkte Messung des konkreten Dial-Geräts. [S&B-Temperaturangaben](https://support.storz-bickel.com/hc/de/articles/36238897285393-Temperatureinstellungen).
+
+Nach ersten Versuchen lassen sich die **drei Ballon-Sollwerte** gezielt in 5-°C-Schritten anpassen, z. B. Ballon 1 etwas höher, wenn er zu dünn ist, oder Ballon 3 niedriger, wenn er zu scharf wird. Die gemeinsame Füllzeit separat kalibrieren. Erst wenn wiederholbare Vergleichsversuche einen Vorteil zeigen, eine interne Temperaturrampe in einem Preset hinzufügen.
+
 ## Abbildung in VolcanoDial
 
 1. Drei neue Presets mit festen Zieltemperaturen und jeweils **einer** Lüftungsaktion anlegen. Das vorhandene einfache Presetformat kann den ersten Softwareprototyp abbilden: `startTemp = endTemp = 180/200/230`, `steps = 1`, `fillTime = 53`. Der Plancompiler führt damit pro Preset `reachTemperature`, 2 Sekunden Pause und `air` aus. Die Pumpe würde also automatisch anlaufen; für die endgültige Bedienung ist Schritt 4 nötig.
