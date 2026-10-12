@@ -1,6 +1,6 @@
 # VolcanoDial
 
-Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Version **0.2.7**.
+Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Vorbereiteter Quellstand **0.2.8**; zuletzt am Gerät bestätigte Version **0.2.7**.
 
 ## Vom Einkauf zum laufenden Gerät
 
@@ -20,6 +20,7 @@ Der Windows-Installer braucht keine Arduino-Installation. Grundaufbau und Nutzun
 - Drehknopf, Klick und Touch für Auswahl, Start, Weiter, Stop und Werte.
 - Einfache/erweiterte Presets, lineare Workflows, Variablen und Formeln; lokaler Browsereditor mit JSON-Import/Export.
 - Workflow-Zwischenpause wartet auf bewusste Bedienung. Nach manuellem Abbruch bietet **Preset erneut** die unterbrochene Stufe von Anfang an an; abgeschlossene Stufen werden übersprungen.
+- Im vorbereiteten Stand 0.2.8 wählt ein Tipp auf den äußeren Ring eine Workflow-Startstufe; erst „Starten“ führt diese und die folgenden Stufen aus. Die gemeinsame Daily-Ballonfüllzeit lässt sich direkt im Hauptbild antippen und gilt für alle drei Daily-Stufen.
 - **Schlauchmodus**, standardmäßig 210 °C: heizen, dann neu halten für Luft; Loslassen fordert AUS an.
 - Optionaler **Chain Key U206** wird automatisch erkannt: Start/Weiter, langer Druck für Stop, Halten im bereiten Schlauchmodus. Ohne Taste bleiben die Grundfunktionen am Dial verfügbar.
 - Hue-Steckdose vor dem Start einschalten, nach Ende/Stop und Abkühlen ausschalten; Abschaltauftrag übersteht einen Dial-Neustart.
@@ -30,7 +31,7 @@ Die Remote-Abschaltung benötigt eine funktionierende Funkverbindung. Bei „AUS
 
 ## Aktueller Prüfstand
 
-95/95 automatisierte Fälle sowie native Speicher-/UI-Prüfungen bestanden. Firmware 0.2.7 wurde auf einem Dial v1.1 per USB mit bestätigtem Schreibhash installiert; Bibliothek und Einstellungen blieben erhalten, HEAT/AIR waren aus und kein Ablauf startete automatisch. Das installierte Image hat 1.824.387 Byte Programm und 69.768 Byte statisches RAM, kein PSRAM. Der seltene Statusfehler beim Wechsel einer Daily-Stufe wurde im Test nachgestellt und korrigiert; ein vollständiger realer Daily-Heizlauf zur erneuten Prüfung steht noch aus. Ältere Geräteprüfungen und Grenzen sind getrennt dokumentiert.
+Der vorbereitete Stand 0.2.8 besteht 98/98 automatisierte Fälle und native UI-Prüfungen. Er wurde noch nicht am Dial installiert; der oben verlinkte Download bleibt deshalb die zuletzt installierte Version 0.2.7. Diese wurde auf einem Dial v1.1 per USB mit bestätigtem Schreibhash installiert; Bibliothek und Einstellungen blieben erhalten, HEAT/AIR waren aus und kein Ablauf startete automatisch. Das installierte 0.2.7-Image hat 1.824.387 Byte Programm und 69.768 Byte statisches RAM, kein PSRAM. Der seltene Statusfehler beim Wechsel einer Daily-Stufe wurde im Test nachgestellt und korrigiert; ein vollständiger realer Daily-Heizlauf zur erneuten Prüfung steht noch aus. Ältere Geräteprüfungen und Grenzen sind getrennt dokumentiert.
 
 - [Prüfbericht](docs/PRUEFBERICHT.md), [maschinenlesbare Prüfung](docs/verification.json)
 - [Stufe erneut starten](docs/WORKFLOW_STAGE_RETRY.md)

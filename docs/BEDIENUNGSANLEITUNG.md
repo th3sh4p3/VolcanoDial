@@ -1,6 +1,6 @@
 # Volcano Dial - Einrichtung und Bedienung
 
-Version 0.2.7 | 12.10.2026 | M5Stack Dial v1.1 / Volcano Hybrid
+Version 0.2.8 (vorbereitet, noch nicht auf dem Gerät installiert) | 12.10.2026 | M5Stack Dial v1.1 / Volcano Hybrid
 
 Vor dem Installieren: [Einkaufsliste](../hardware/EINKAUFSLISTE.md) und [Hardware zusammenbauen](../hardware/AUFBAU.md).
 
@@ -54,7 +54,7 @@ Temperatur sowie HEAT/AIR-Status erscheinen erst nach tatsächlicher Bluetooth-R
 
 ## 6. Rundes Display, Touch und Drehknopf
 
-Die große Zahl ist die gemessene Temperatur. Darunter stehen Zieltemperatur oder Presetname und der aktuelle Arbeitsschritt. „--“ bedeutet: noch keine gültige Messung. Oben stehen Bluetooth und WLAN. Der äußere Ring zeigt den Fortschritt; bei Workflows ist er in Stufen aufgeteilt. Grün bedeutet bereit, Gelb Heizen, Blau Lüftung, Rot Fehler. Die untere Zeile zeigt HEAT/AIR oder die Workflow-Stufe. „H“ steht für Heizung, „L“ für Lüftung.
+Die große Zahl ist die gemessene Temperatur. Darunter stehen Zieltemperatur oder Presetname und der aktuelle Arbeitsschritt. „--“ bedeutet: noch keine gültige Messung. Oben stehen Bluetooth und WLAN. Der äußere Ring zeigt den Fortschritt; bei Workflows ist er in Stufen aufgeteilt. Im Leerlauf markiert das helle Segment die gewählte Startstufe. Grün bedeutet bereit, Gelb Heizen, Blau Lüftung, Rot Fehler. Die untere Zeile zeigt HEAT/AIR oder die Workflow-Stufe. „H“ steht für Heizung, „L“ für Lüftung.
 
 | Bedienung | Wirkung |
 |---|---|
@@ -65,11 +65,15 @@ Die große Zahl ist die gemessene Temperatur. Darunter stehen Zieltemperatur ode
 | Drehknopf während Preset/Workflow etwa 0,7 s halten | Stop anfordern |
 | Namen antippen | Vollständigen Namen, aktuellen/nächsten Presetnamen und Meldung ansehen; drehen oder tippen blättert |
 | Temperatur antippen | Zieltemperatur ändern, soweit für den aktuellen Zustand verfügbar |
+| Einen Abschnitt des äußeren Rings antippen | Bei ausgewähltem Workflow im Leerlauf die Startstufe auswählen; erst „Starten“ beginnt den Ablauf. Ab dort läuft der Workflow bis zum Ende. Bei Daily bedeutet Stufe 3 nur „03“. |
+| „Füllzeit … s“ im Hauptbild antippen | Gemeinsame Ballonfüllzeit direkt ändern: drehen und mit „Übernehmen“ speichern. Bei Daily gilt der neue Wert für alle drei Stufen. |
 | Im Menü drehen oder ober-/unterhalb des gewählten Eintrags tippen | Vorherigen/nächsten verfügbaren Eintrag wählen |
 | Menüeintrag anklicken oder antippen | Öffnen; Zahlenwert drehen und mit Klick/„Übernehmen“ speichern |
 | Oben „Zurück“ antippen | Zum Hauptbild zurück |
 
 Das Menü bietet Temperatur, einfache Presetwerte, Füllzeit, Schritte, Timer, manuelle Heizung/Lüftung, Bluetooth, Helligkeit, Signaltöne, Hue-Automatik/Schwelle, RFID, Einrichtungs-WLAN und Geräteinfo. Während eines Laufs stehen nur passende Aktionen bereit. Zahlenwerte ändern sich in 1er-Schritten; Helligkeit in 5er-Schritten. Geräteinfo zeigt IP-Adresse und PIN für den Browser.
+
+Die Direktbedienung der Füllzeit erscheint auch bei einfachen Einzelpresets und weiteren Workflows mit gemeinsamer UI-Füllzeit. Workflows mit festen Zeiten aus ihren Presets behalten diese Zeiten; ihre Füllzeit ist nicht als gemeinsamer Wert einstellbar. Die PC-App unterscheidet entsprechend zwischen globaler Lüftungsdauer und individuell festgelegten Lüftungsschritten. Eine am Ring gewählte Startstufe wird nach erfolgreichem Start oder Programmwechsel zurückgesetzt; nach einem Stromausfall ist wieder Stufe 1 vorausgewählt.
 
 Nach USB-Start wird WLAN zunächst verbunden. Ein sofortiger Start wartet bei aktivem Hue bis zu 30 Sekunden auf WLAN und eine gültige Uhrzeit; das Display meldet den Verbindungsaufbau. Die Verbindung lässt sich mit Stop abbrechen. Fehlt danach weiterhin eine Voraussetzung, wird der Fehler angezeigt. Dann WLAN/Uhrzeit prüfen und erneut bewusst starten.
 

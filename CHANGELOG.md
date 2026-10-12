@@ -1,5 +1,12 @@
 # Versionsstand
 
+## 0.2.8 - vorbereitet, noch nicht am Dial installiert
+
+- Workflow-Stufe im Leerlauf direkt über den äußeren Touch-Ring auswählen. Der Ring markiert die Auswahl; erst ein weiterer bewusster Start beginnt dort und führt alle folgenden Stufen aus. Bei Daily beginnt Stufe 3 direkt mit „03“ bei konstant 222 °C.
+- Gemeinsame Ballonfüllzeit von Daily und anderen dafür konfigurierten Workflows sowie Füllzeit einfacher Presets direkt auf der Startansicht antippbar. Daily verwendet den Wert in allen drei Presets; feste Presetzeiten anderer Workflows bleiben getrennt.
+- Touch-Ziele und Menüknopf so angeordnet, dass auch bei bis zu 32 Workflow-Stufen die ersten Ringabschnitte erreichbar bleiben. Auswahl wird nach erfolgreichem Start oder Programmwechsel verworfen; Aufwecken bleibt eine reine Aufweckaktion.
+- 98/98 automatisierte Fälle und native UI-Prüfungen bestanden. Der Build liegt vor; Installation und Geräteprüfung stehen aus.
+
 ## 0.2.7 - 12.10.2026
 
 - Ein einzelner fehlgeschlagener Bluetooth-Statusabruf während der bestätigten AUS-Zwischenpause beendet Daily nicht mehr mit „Volcano-Status ungültig oder Gerätefehler“.

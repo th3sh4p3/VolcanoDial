@@ -14,9 +14,10 @@ function section(source,start,end){const a=source.indexOf(start),b=source.indexO
 const prepare=section(ino,'bool prepare(bool bypass','\nbool selectByDelta(');
 const run=section(ino,'bool runSelected(bool fromInput','\nbool execute(');
 const selectDelta=section(ino,'bool selectByDelta(int delta)','\nbool runSelected(');
-const selectBranch=section(ino,'  if(command=="select"){','\n  if(command=="connect")');
+const selectBranch=section(ino,'  if(command=="selectStage"){','\n  if(command=="connect")');
 const rfidBranch=section(ino,'  if(command=="rfidSeen"){','\n  if(command=="rfidLearn")');
 const retryHelper=ino.includes('bool stageRetryAvailable(){')?section(ino,'bool stageRetryAvailable(){','\nvd::KeyContext context()'):'bool stageRetryAvailable(){return false;}';
+const previewHelper=section(ino,'void refreshPreview(){','\nvoid normalizeOrder()');
 const manual=section(ino,'  if(command=="heat"||command=="fan")','\n  if(command=="timer")');
 const disconnect=section(adapters,'  void disconnect(){','\n  bool poll(){').replaceAll('portENTER_CRITICAL(&mux);','').replaceAll('portEXIT_CRITICAL(&mux);','');
 const firmware=fileURLToPath(new URL('../firmware/VolcanoDial/',import.meta.url)).replaceAll('\\','/');
@@ -33,6 +34,7 @@ std::atomic<int> selectionPending{0};
 uint64_t clockMs=1000;int mode=0;
 uint64_t nowMs(){return clockMs;}void delay(unsigned n){clockMs+=n;if(mode==3)stopRequested=true;}
 JsonDocument config,library;String notice,operation,revision="revA",lastRunId,lastRunRevision,rfidSeen;vd::KeyContext inputContext;
+String previewId,previewRevision,stageChoiceId,stageChoiceRevision;int previewStages=0,stageChoice=0;
 bool fsReady=true,sessionHue=false,wantConnection=false,recoveryOff=false,coolingRestore=false,activationPending=false,coolCancel=false;
 unsigned airOwner=0,reconnectAttempt=0,lastGeneration=0;uint64_t retryAt=0;
 constexpr int WL_CONNECTED=3;struct{int status(){return WL_CONNECTED;}}WiFi;
@@ -58,6 +60,7 @@ struct FakeVolcano:vd::DeviceIO{
 }volcano;
 vd::Engine engine(volcano);vd::HoseSession hose(volcano);
 bool hoseSelected(){return String(config["selectedMode"]|"")=="hose";}
+${previewHelper}
 bool saveConfig(){return true;}bool saveLibrary(){revision="changed";return true;}
 ${retryHelper}
 ${prepare}
@@ -82,9 +85,18 @@ int main(int argc,char**argv){mode=std::stoi(argv[1]);
  if(mode==13){hue.enabled=false;assert(prepare(true));assert(hue.ons==0&&volcano.connects==1);return 0;}
  if(mode==14){config["volcanoId"]="";assert(!runSelected());assert(hue.ons==0&&volcano.connects==0);return 0;}
  if(mode>=20){
-  assert(runSelected());
   auto tick=[&](){clockMs+=1000;volcano.s.current=230;volcano.s.sampleAt=volcano.s.statusAt=clockMs;engine.tick(clockMs);};
   auto finishStage=[&](){for(int i=0;i<180&&engine.phase==vd::Phase::Running;++i)tick();assert(engine.phase==vd::Phase::AwaitingNext||engine.phase==vd::Phase::Complete);};
+  if(mode==33||mode==34||mode==35){
+   if(mode==35){assert(runSelected());finishStage();assert(runSelected());engine.stop(clockMs);assert(engine.canRestartStage());}
+   JsonDocument stage;stage["command"]="selectStage";stage["value"]=mode==33?2:3;
+   assert(selectionExecute(stage));assert(runSelected());assert(engine.stageIndex==(mode==33?1:2));
+   tick();assert(volcano.s.target==(mode==33?221:222));finishStage();
+   if(mode==33){assert(engine.phase==vd::Phase::AwaitingNext);assert(runSelected());assert(engine.stageIndex==2);tick();assert(volcano.s.target==222);}
+   else assert(engine.phase==vd::Phase::Complete);
+   return 0;
+  }
+  assert(runSelected());
   finishStage();assert(engine.stageIndex==0&&engine.phase==vd::Phase::AwaitingNext);
   if(mode==21){engine.stop(clockMs);assert(engine.phase==vd::Phase::Aborted);assert(runSelected());assert(engine.stageIndex==1&&engine.actionIndex==0);return 0;}
   assert(runSelected());assert(engine.stageIndex==1);tick();assert(volcano.s.target==221);
@@ -180,5 +192,8 @@ for(const [mode,name]of[
  [30,'Preparation OFF failure discards retry even after subsequent recovery'],
  [31,'Selecting hose then an unmapped RFID cannot resurrect a retry point'],
  [32,'Dial rotation to hose invalidates retry before an unmapped RFID'],
+ [33,'Ring stage 2 starts Daily at 02 and continues to 03'],
+ [34,'Ring stage 3 runs only Daily 03'],
+ [35,'Explicit ring choice overrides an interrupted stage retry'],
 ])test(name,()=>{const r=spawnSync(exe,[String(mode)],{encoding:'utf8'});assert.equal(r.status,0,r.stderr||r.stdout);});
 test.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
