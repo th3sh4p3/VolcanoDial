@@ -1,6 +1,6 @@
 # VolcanoDial
 
-Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Aktueller Quellstand **0.2.10**, auf dem Entwicklungsgerät installiert und geprüft. Das zuletzt veröffentlichte Installationspaket ist weiterhin **0.2.7**.
+Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Aktueller Quellstand **0.2.11**, auf dem Entwicklungsgerät installiert und geprüft. Das zuletzt veröffentlichte Installationspaket ist weiterhin **0.2.7**.
 
 ## Vom Einkauf zum laufenden Gerät
 
@@ -24,6 +24,7 @@ Der Windows-Installer braucht keine Arduino-Installation. Grundaufbau und Nutzun
 - Workflow-Zwischenpause wartet auf bewusste Bedienung. Nach manuellem Abbruch bietet **Preset erneut** die unterbrochene Stufe von Anfang an an; abgeschlossene Stufen werden übersprungen.
 - Ein Tipp auf den äußeren Ring wählt eine Workflow-Startstufe; erst „Starten“ führt diese und die folgenden Stufen aus. Die gemeinsame Ballonfüllzeit lässt sich direkt im Hauptbild antippen und gilt für alle drei Daily- oder Aroma-Kurve-3-Stufen.
 - **[Aroma-Kurve 3](docs/AROMA-KURVE-3.md)** ergänzt Daily um drei Ballons mit abgestuften Temperaturen. Vor der ersten Lüftung jedes Ballons verlangt der Dial „Ballon aufsetzen“; die Bestätigung funktioniert am Dial oder mit dem optionalen Zusatztaster.
+- Die Auswahlfolge am Rad und im Browser ist **Daily → Aroma-Kurve 3 → Schlauch → AK3 Aroma → AK3 Balance → AK3 Finish**; weitere vorhandene Presets bleiben in ihrer gespeicherten Reihenfolge.
 - **Schlauchmodus**, standardmäßig 210 °C: heizen, dann neu halten für Luft; Loslassen fordert AUS an.
 - Optionaler **Chain Key U206** wird automatisch erkannt: Start/Weiter, langer Druck für Stop, Halten im bereiten Schlauchmodus. Ohne Taste bleiben die Grundfunktionen am Dial verfügbar.
 - Hue-Steckdose vor dem Start einschalten, nach Ende/Stop und Abkühlen ausschalten; Abschaltauftrag übersteht einen Dial-Neustart.
@@ -34,7 +35,7 @@ Die Remote-Abschaltung benötigt eine funktionierende Funkverbindung. Bei „AUS
 
 ## Aktueller Prüfstand
 
-Version 0.2.10 besteht 100/100 automatisierte Fälle einschließlich Compiler-Parität, Ablaufsteuerung, Eingaben und runder UI. Das Geräteabbild benötigt 1.828.963 Byte Programm und 69.856 Byte statisches RAM, ohne PSRAM. Auf dem Dial wurde nur die App-Partition per USB aktualisiert und der Schreibhash bestätigt. Die ergänzte Bibliothek und sämtliche Einstellungen blieben erhalten; der Neustart endete ohne automatischen Ablauf, mit HEAT/AIR AUS und WLAN verbunden. Bei einem vorherigen USB-Neustart brauchte die WLAN-Anmeldung mehrere automatische Versuche. Ein beaufsichtigter realer Drei-Ballon-Heizlauf steht noch aus. Das oben verlinkte Release-ZIP 0.2.7 enthält die neue Funktion nicht; zum Nachbau des aktuellen Quellstands die [Entwickleranleitung](docs/ENTWICKLUNG.md) verwenden.
+Version 0.2.11 besteht 102/102 automatisierte Fälle einschließlich Compiler-Parität, Ablaufsteuerung, Eingaben und runder UI. Das Geräteabbild benötigt 1.829.387 Byte Programm und 69.856 Byte statisches RAM, ohne PSRAM. Auf dem Dial wurde nur die App-Partition per USB aktualisiert und der Schreibhash bestätigt. Nach dem Neustart blieben Einstellungen, alle 18 Presets, drei Workflows und die vorherige Auswahl erhalten; kein Ablauf startete selbsttätig, HEAT/AIR waren AUS. Die Auswahlfolge Aroma-Kurve 3 → Schlauch → AK3 Aroma und zurück wurde über die USB-Steuerung des Dial ohne Heizung/Lüftung geprüft. Das zuvor getrennte Heim-WLAN verband sich wieder. Ein beaufsichtigter realer Drei-Ballon-Heizlauf steht noch aus. Das oben verlinkte Release-ZIP 0.2.7 enthält die neue Funktion nicht; zum Nachbau des aktuellen Quellstands die [Entwickleranleitung](docs/ENTWICKLUNG.md) verwenden.
 
 - [Prüfbericht](docs/PRUEFBERICHT.md), [maschinenlesbare Prüfung](docs/verification.json)
 - [Stufe erneut starten](docs/WORKFLOW_STAGE_RETRY.md)

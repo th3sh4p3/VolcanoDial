@@ -1,6 +1,6 @@
 # Aroma-Kurve 3 bedienen
 
-**Aroma-Kurve 3** ist ein zusätzlicher, experimenteller Workflow für drei Ballons aus einer Füllung. Daily und alle bisherigen Programme bleiben erhalten. In der Auswahlliste steht Aroma-Kurve 3 direkt hinter Daily. Die drei zugehörigen Presets heißen **AK3 Aroma**, **AK3 Balance** und **AK3 Finish**.
+**Aroma-Kurve 3** ist ein zusätzlicher, experimenteller Workflow für drei Ballons aus einer Füllung. Daily und alle bisherigen Programme bleiben erhalten. In der Auswahlliste stehen **Daily → Aroma-Kurve 3 → Schlauch → AK3 Aroma → AK3 Balance → AK3 Finish**. Die drei zugehörigen Presets bleiben einzeln auswählbar.
 
 | Ballon | Temperaturabschnitte | Anteil der eingestellten Füllzeit |
 | --- | --- | --- |

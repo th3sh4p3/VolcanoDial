@@ -84,6 +84,15 @@ int main(int argc,char**argv){mode=std::stoi(argv[1]);
  if(mode==12){config["selectedMode"]="hose";config["hoseTemperature"]=210;}
  if(mode==13){hue.enabled=false;assert(prepare(true));assert(hue.ons==0&&volcano.connects==1);return 0;}
  if(mode==14){config["volcanoId"]="";assert(!runSelected());assert(hue.ons==0&&volcano.connects==0);return 0;}
+ if(mode==36){
+  library.clear();assert(!deserializeJson(library,R"({"runnableOrder":[{"kind":"workflow","id":"daily"},{"kind":"workflow","id":"a847fe34-93c1-472a-9750-d4b473c5f78d"},{"kind":"preset","id":"ak3-a"}],"activeRunnable":{"kind":"workflow","id":"daily"}})"));
+  assert(selectByDelta(1));assert(String(library["activeRunnable"]["id"]|"")=="a847fe34-93c1-472a-9750-d4b473c5f78d");
+  assert(selectByDelta(1));assert(hoseSelected());
+  assert(selectByDelta(1));assert(!hoseSelected());assert(String(library["activeRunnable"]["id"]|"")=="ak3-a");
+  assert(selectByDelta(-1));assert(hoseSelected());
+  assert(selectByDelta(-1));assert(String(library["activeRunnable"]["id"]|"")=="a847fe34-93c1-472a-9750-d4b473c5f78d");
+  return 0;
+ }
  if(mode>=20){
   auto tick=[&](){clockMs+=1000;volcano.s.current=230;volcano.s.sampleAt=volcano.s.statusAt=clockMs;engine.tick(clockMs);};
   auto finishStage=[&](){for(int i=0;i<180&&engine.phase==vd::Phase::Running;++i)tick();assert(engine.phase==vd::Phase::AwaitingNext||engine.phase==vd::Phase::Complete);};
@@ -195,5 +204,6 @@ for(const [mode,name]of[
  [33,'Ring stage 2 starts Daily at 02 and continues to 03'],
  [34,'Ring stage 3 runs only Daily 03'],
  [35,'Explicit ring choice overrides an interrupted stage retry'],
+ [36,'Dial rotation puts hose immediately after Aroma-Kurve 3 in both directions'],
 ])test(name,()=>{const r=spawnSync(exe,[String(mode)],{encoding:'utf8'});assert.equal(r.status,0,r.stderr||r.stdout);});
 test.after(()=>fs.rmSync(dir,{recursive:true,force:true}));

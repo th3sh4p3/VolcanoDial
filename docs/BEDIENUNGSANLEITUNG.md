@@ -1,6 +1,6 @@
 # Volcano Dial - Einrichtung und Bedienung
 
-Version 0.2.10 | 13.10.2026 | M5Stack Dial v1.1 / Volcano Hybrid
+Version 0.2.11 | 13.10.2026 | M5Stack Dial v1.1 / Volcano Hybrid
 
 Vor dem Installieren: [Einkaufsliste](../hardware/EINKAUFSLISTE.md) und [Hardware zusammenbauen](../hardware/AUFBAU.md).
 
@@ -59,6 +59,7 @@ Die große Zahl ist die gemessene Temperatur. Darunter stehen Zieltemperatur ode
 | Bedienung | Wirkung |
 |---|---|
 | Drehen im Hauptbild, solange kein Ablauf läuft | Preset, Workflow oder Schlauch auswählen |
+| Auswahl nach Daily | Aroma-Kurve 3, danach Schlauch, danach die einzelnen AK3-Presets |
 | Kurz auf den Drehknopf oder die große Bildschirmtaste drücken | Starten, Stoppen oder in Zwischenpause Weiter |
 | Oben auf „···“ tippen | Menü öffnen |
 | Drehknopf im Leerlauf etwa 0,7 s halten | Menü öffnen/schließen |
