@@ -1,4 +1,5 @@
 #include "../firmware/VolcanoDial/core.hpp"
+#include "../firmware/VolcanoDial/plan_tuning.hpp"
 #include "../firmware/VolcanoDial/key_link.hpp"
 #include <cassert>
 #include <fstream>
@@ -118,5 +119,23 @@ int main(int argc,char**argv) {
  balloon.s.sampleAt=balloon.s.statusAt=11040;be.tick(11040);balloon.s.sampleAt=balloon.s.statusAt=11060;be.tick(11060);
  balloon.s.sampleAt=balloon.s.statusAt=131061;be.tick(131061);
  assert(be.phase==Phase::Error&&balloon.ons==1&&!balloon.s.heat&&!balloon.s.fan);
+ // Runtime settings alter execution plans, never the stored preset graph.
+ Plan tuned; tuned.workflow=true;tuned.stages={{"01",{{ActionType::Heat,175,360},{ActionType::Wait,0,5},{ActionType::Confirm,0,120},{ActionType::Air,0,13.25},{ActionType::Air,0,39.75}}},{"02",{{ActionType::Heat,195,360},{ActionType::Air,0,20}}}};
+ Plan stored=tuned;
+ tunePlan(tuned,false,60,true);
+ assert(tuned.stages[0].actions.size()==4);
+ assert(tuned.stages[0].actions[2].type==ActionType::Air);
+ assert(tuned.stages[0].actions[2].seconds==15&&tuned.stages[0].actions[3].seconds==45);
+ assert(tuned.stages[1].actions.back().seconds==60);
+ assert(stored.stages[0].actions[2].type==ActionType::Confirm);
+ tunePlan(tuned,true,60,true);
+ assert(std::count_if(tuned.stages[0].actions.begin(),tuned.stages[0].actions.end(),[](const Action& a){return a.type==ActionType::Confirm;})==1);
+ assert(std::count_if(tuned.stages[1].actions.begin(),tuned.stages[1].actions.end(),[](const Action& a){return a.type==ActionType::Confirm;})==1);
+ Plan single;single.stages={{"preset",{{ActionType::Heat,180,360},{ActionType::Air,0,7}}}};tunePlan(single,false,80,false);assert(single.stages[0].actions.back().seconds==7);tunePlan(single,true,80,false);assert(single.stages[0].actions[1].type==ActionType::Confirm);
+ Fake upcoming;Engine ue(upcoming);Plan two;two.workflow=true;two.stages={{"done",{}},{"next",{{ActionType::Heat,200,360},{ActionType::Air,0,53}}}};
+ assert(ue.start(two,100));upcoming.s.statusAt=100;ue.tick(100);assert(ue.phase==Phase::AwaitingNext);
+ Stage replacement={"next",{{ActionType::Heat,200,360},{ActionType::Confirm,0,120},{ActionType::Air,0,68}}};
+ assert(ue.replaceUpcomingStage(replacement));assert(ue.currentPlan().stages[1].actions.back().seconds==68);
+ assert(ue.currentPlan().stages[0].actions.empty());assert(ue.next(100));
  std::cout<<"Engine / cooldown / optional key tests passed\n";
 }

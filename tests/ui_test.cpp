@@ -42,4 +42,15 @@ int main(){vd::UiSnapshot s;vd::UiState u;
  s={};u={};auto beforeRetry=vd::visualHash(s,u);s.retryStage=true;assert(vd::visualHash(s,u)!=beforeRetry);assert(vd::hit(120,185,s,u)==vd::Hit::Primary);
  s.retryStage=false;auto beforeStage=vd::visualHash(s,u);s.startStage=2;assert(vd::visualHash(s,u)!=beforeStage);
  assert(vd::textWidth(vd::font18,"Preset erneut")<=144);
+ u.screen=vd::Screen::Rose;s.workflow=true;s.busy=false;s.fillEditable=false;
+ assert(vd::roseAt(120,50)==0);assert(vd::roseAt(181,85)==1);
+ assert(vd::roseAt(181,155)==2);assert(vd::roseAt(120,190)==3);
+ assert(vd::roseAt(59,155)==4);assert(vd::roseAt(59,85)==5);
+ assert(vd::roseAt(120,120)==-1);assert(vd::roseAt(120,12)==0);
+ assert(vd::hit(120,120,s,u)==vd::Hit::Back);assert(vd::hit(120,234,s,u)==vd::Hit::None);
+ assert(vd::roseAvailable(s,0));assert(!vd::roseAvailable(s,3));
+ s.simple=true;s.fillTime=17;s.globalFillSeconds=61;assert(vd::roseAvailable(s,3));assert(vd::parameter(s,23)==61);assert(vd::parameter(s,4)==17);
+ s.busy=true;s.phase=vd::UiPhase::Checkpoint;assert(vd::roseAvailable(s,0));assert(vd::roseAvailable(s,1));assert(!vd::roseAvailable(s,2));
+ assert(vd::menuAvailable(s,23));
+ s.phase=vd::UiPhase::Running;assert(!vd::roseAvailable(s,0));
  puts("Circle hit regions and stable dirty-frame tests passed");}

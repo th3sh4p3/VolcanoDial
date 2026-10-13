@@ -10,11 +10,11 @@ inline const Glyph* glyph(const Font& f,uint32_t c){for(int i=0;i<f.count;++i)if
 inline int textWidth(const Font& f,const char* p){int w=0;while(*p)w+=glyph(f,codepoint(p))->advance;return w;}
 inline const Font& titleFont(const char* name){return textWidth(font22,name)<=178?font22:textWidth(font18,name)<=178?font18:font14;}
 inline uint16_t blend(uint16_t a,uint16_t b,int coverage){int r=((a>>11)*(15-coverage)+(b>>11)*coverage)/15,g=(((a>>5)&63)*(15-coverage)+((b>>5)&63)*coverage)/15,bl=((a&31)*(15-coverage)+(b&31)*coverage)/15;return r<<11|g<<5|bl;}
-inline const char* menuLabel(int i){static const char* a[]={"Zurück","Zieltemperatur","Starttemperatur","Endtemperatur","Füllzeit","Heizschritte","Timer: Sekunden","Timer: Temperatur","Timer starten","Bluetooth","Heizung","Lüftung","Helligkeit","Signaltöne","Hue Automatik","Hue Schwelle","RFID zuordnen","Einrichtungs-WLAN","Geräteinfo","Schlauch beenden","Display aus"};return a[std::clamp(i,0,20)];}
-inline int parameter(const UiSnapshot& s,int i){switch(i){case 1:return s.hose?s.hoseTemperature:s.target;case 2:return s.startTemp;case 3:return s.endTemp;case 4:return s.fillTime;case 5:return s.steps;case 6:return s.timerSeconds;case 7:return s.timerTemperature;case 12:return s.brightness;case 15:return s.threshold;default:return 0;}}
-inline bool editable(int i){return (i>=1&&i<=7)||i==12||i==15;}
-inline bool menuAvailable(const UiSnapshot& s,int i){if(i==20)return !s.programActive&&(!s.busy||s.hose);if(i==19)return s.hose&&s.busy;if(s.busy)return i==0||(s.hose&&i==1)||i==18;if(i==4)return s.fillEditable;if(i>=2&&i<=5)return !s.hose&&s.simple;return true;}
-inline int nextMenu(const UiSnapshot& s,int i,int delta){int step=delta<0?-1:1;for(int n=0;n<std::abs(delta);++n)do{i=(i+step+21)%21;}while(!menuAvailable(s,i));return i;}
+inline const char* menuLabel(int i){static const char* a[]={"Zurück","Zieltemperatur","Starttemperatur","Endtemperatur","Füllzeit","Heizschritte","Timer: Sekunden","Timer: Temperatur","Timer starten","Bluetooth","Heizung","Lüftung","Helligkeit","Signaltöne","Hue Automatik","Hue Schwelle","RFID zuordnen","Einrichtungs-WLAN","Geräteinfo","Schlauch beenden","Display aus","Ruhezeit","Ballon bestätigen","Ballonfüllzeit"};return a[std::clamp(i,0,23)];}
+inline int parameter(const UiSnapshot& s,int i){switch(i){case 1:return s.hose?s.hoseTemperature:s.target;case 2:return s.startTemp;case 3:return s.endTemp;case 4:return s.fillTime;case 5:return s.steps;case 6:return s.timerSeconds;case 7:return s.timerTemperature;case 12:return s.brightness;case 15:return s.threshold;case 21:return s.sleepOffSeconds;case 23:return s.globalFillSeconds;default:return 0;}}
+inline bool editable(int i){return (i>=1&&i<=7)||i==12||i==15||i==21||i==23;}
+inline bool menuAvailable(const UiSnapshot& s,int i){if(i==20)return !s.programActive&&(!s.busy||s.hose);if(i==19)return s.hose&&s.busy;if(s.busy)return i==0||(s.phase==UiPhase::Checkpoint&&((i==4&&s.fillEditable)||i==22||i==23))||(s.hose&&i==1)||i==18;if(i==4)return s.fillEditable;if(i>=2&&i<=5)return !s.hose&&s.simple;return true;}
+inline int nextMenu(const UiSnapshot& s,int i,int delta){int step=delta<0?-1:1;for(int n=0;n<std::abs(delta);++n)do{i=(i+step+24)%24;}while(!menuAvailable(s,i));return i;}
 inline const char* wrapLine(const Font& font,const char* input,char* line,size_t capacity,int width){int used=0;size_t bytes=0;while(*input){const char* start=input;uint32_t cp=codepoint(input);int advance=glyph(font,cp)->advance;size_t n=input-start;if(bytes+n>=capacity||used+advance>width){input=start;break;}if(cp=='\n')break;memcpy(line+bytes,start,n);bytes+=n;used+=advance;}line[bytes]=0;return input;}
 template<class Canvas> class Painter {
  Canvas& c;int offset;
@@ -30,12 +30,44 @@ public:
  }
  void wrapped(const Font& font,const char* input,int top,int rows,uint16_t color=INK,int skip=0){char line[160];for(int i=0;i<skip&&*input;++i)input=wrapLine(font,input,line,sizeof line,168);for(int i=0;i<rows&&*input;++i){input=wrapLine(font,input,line,sizeof line,168);text(font,line,120,top+i*17,168,color);}}
  void button(int x,int w,const char* label,uint16_t color){rounded(x,158,w,40,14,color);text(w>=140?font18:font14,label,x+w/2,w>=140?168:171,w-12,color==PANEL?MUTED:BG,color);}
+ void roseWheel(const UiSnapshot& s,const UiState& u){
+  constexpr uint16_t ROSE_SELECTED=0x1b6b,ROSE_DIMMED=0x10a4,ROSE_OUTLINE=0x3a6d;
+  for(int py=offset;py<offset+4;++py)for(int x=10;x<=230;++x){
+   int dx=x-120,dy=py-120,r=dx*dx+dy*dy;
+   if(r>=36*36&&r<40*40){c.drawPixel(x,py-offset,ROSE_OUTLINE);continue;}
+   if(r<40*40||r>110*110)continue;
+   int item=roseSector(dx,dy);bool available=roseAvailable(s,item);
+   uint16_t color=available?(item==u.menu?(u.roseHueConfirm&&item==4?RED:ROSE_SELECTED):PANEL):ROSE_DIMMED;
+   if(r>=106*106)color=item==u.menu&&available?(u.roseHueConfirm&&item==4?RED:GREEN):ROSE_OUTLINE;
+   constexpr int vx[]={0,866,866,0,-866,-866},vy[]={-1000,-500,500,1000,500,-500};
+   int best=-2147483647,second=-2147483647;for(int i=0;i<6;++i){int score=dx*vx[i]+dy*vy[i];if(score>best){second=best;best=score;}else if(score>second)second=score;}
+   if(best-second<1800)color=BG;
+   c.drawPixel(x,py-offset,color);
+  }
+ }
  void ring(const UiSnapshot& s,uint16_t accent){for(int y=offset;y<offset+4;++y)for(int x=3;x<237;++x){int dx=x-120,dy=y-120,r=dx*dx+dy*dy;if(r<112*112||r>117*117)continue;double angle=std::atan2(double(dx),double(-dy));if(angle<0)angle+=6.283185307;int segments=s.workflow&&s.stages>1?s.stages:1;double seg=angle/6.283185307*segments;if(segments>1&&seg-int(seg)<.035)continue;double progress=s.busy&&s.actions?std::clamp((s.stage-1+(s.action-1.0+(s.actionType==0?s.temperatureProgress/100.0:0))/s.actions)/std::max(s.stages,1),0.0,1.0):1.0;uint16_t color=s.workflow&&segments>1&&!s.busy?(int(seg)+1==s.startStage?accent:PANEL):(angle/6.283185307<=progress?accent:PANEL);c.drawPixel(x,y-offset,color);}}
 };
 template<class Canvas> void paint(Canvas& c,const UiSnapshot& s,const UiState& u,int y){
  Painter<Canvas> p(c,y);p.rect(0,y,240,4,BG);
- uint16_t accent=s.phase==UiPhase::Error?RED:s.fan?BLUE:s.heat?AMBER:GREEN;p.ring(s,accent);
+ uint16_t accent=s.phase==UiPhase::Error?RED:s.fan?BLUE:s.heat?AMBER:GREEN;if(u.screen!=Screen::Rose)p.ring(s,accent);
  char b[160]{};
+ if(u.screen==Screen::Rose){
+  p.roseWheel(s,u);
+  const int px[]={120,181,181,120,59,59},py[]={30,70,143,176,143,70};
+  const char* labels[]={"Füllzeit","Ballon","Display","Temp.","Hue AUS","Mehr"};
+  for(int i=0;i<6;++i){bool available=roseAvailable(s,i);uint16_t bg=available?(i==u.menu?(u.roseHueConfirm&&i==4?RED:0x1b6b):PANEL):0x10a4;uint16_t ink=available?INK:MUTED;
+   p.text(font12,labels[i],px[i],py[i],i==0||i==3?78:68,ink,bg);
+   if(i==0)snprintf(b,sizeof b,"%d s",s.globalFillSeconds);
+   else if(i==1)snprintf(b,sizeof b,"%s",s.balloonConfirm?"AN":"AUS");
+   else if(i==2)snprintf(b,sizeof b,"%d s",s.sleepOffSeconds);
+   else if(i==3)snprintf(b,sizeof b,available?"%d°":"—",s.hose?s.hoseTemperature:s.endTemp);
+   else if(i==4)snprintf(b,sizeof b,u.roseHueConfirm?"Erneut":"2x");
+   else snprintf(b,sizeof b,"Menü");
+   p.text(font14,b,px[i],py[i]+15,i==0||i==3?76:68,ink,bg);
+  }
+  p.text(font18,"‹",120,94,40,GREEN);p.text(font12,"Zurück",120,117,58,MUTED);
+  return;
+ }
  if(u.screen==Screen::Menu){
   p.text(font12,"‹ ZURÜCK",120,23,120,MUTED);
   int prev=nextMenu(s,u.menu,-1),next=nextMenu(s,u.menu,1);
@@ -46,7 +78,7 @@ template<class Canvas> void paint(Canvas& c,const UiSnapshot& s,const UiState& u
  if(u.screen==Screen::Edit){
   p.text(font12,"‹ ZURÜCK",120,23,120,MUTED);p.text(font18,menuLabel(u.menu),120,59,192);
   snprintf(b,sizeof b,"%d",u.value);p.text(font40,b,120,91,180);
-  const char* unit=(u.menu<=3||u.menu==7||u.menu==15)?"°C":(u.menu==4||u.menu==6)?"Sekunden":u.menu==5?"Schritte":"Helligkeit";
+  const char* unit=(u.menu<=3||u.menu==7||u.menu==15)?"°C":(u.menu==4||u.menu==6||u.menu==21||u.menu==23)?"Sekunden":u.menu==5?"Schritte":"Helligkeit";
   p.text(font14,unit,120,142,180,MUTED);p.button(43,154,"Übernehmen",GREEN);return;
  }
  if(u.screen==Screen::Info){

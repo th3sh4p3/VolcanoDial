@@ -1,6 +1,6 @@
 # Volcano Dial - Einrichtung und Bedienung
 
-Version 0.2.11 | 13.10.2026 | M5Stack Dial v1.1 / Volcano Hybrid
+Version 0.2.12 | 13.10.2026 | M5Stack Dial v1.1 / Volcano Hybrid
 
 Vor dem Installieren: [Einkaufsliste](../hardware/EINKAUFSLISTE.md) und [Hardware zusammenbauen](../hardware/AUFBAU.md).
 
@@ -67,8 +67,8 @@ Die große Zahl ist die gemessene Temperatur. Darunter stehen Zieltemperatur ode
 | Namen antippen | Vollständigen Namen, aktuellen/nächsten Presetnamen und Meldung ansehen; drehen oder tippen blättert |
 | Temperatur antippen | Zieltemperatur ändern, soweit für den aktuellen Zustand verfügbar |
 | Einen Abschnitt des äußeren Rings antippen | Bei ausgewähltem Workflow im Leerlauf die Startstufe auswählen; erst „Starten“ beginnt den Ablauf. Ab dort läuft der Workflow bis zum Ende. Bei Daily bedeutet Stufe 3 nur „03“. |
-| „Füllzeit … s“ im Hauptbild antippen | Gemeinsame Ballonfüllzeit direkt ändern: drehen und mit „Übernehmen“ speichern. Bei Daily und Aroma-Kurve 3 gilt der neue Wert für alle drei Stufen. |
-| „Ballon bereit“ bei Aroma-Kurve 3 antippen oder den Dial klicken | Bestätigt erst nach dem Aufsetzen des Ballons die erste Lüftung dieser Stufe. Bis dahin bleibt die Lüftung aus. |
+| „Füllzeit … s“ im Hauptbild antippen | Gemeinsame Ballonfüllzeit direkt ändern: drehen und mit „Übernehmen“ dauerhaft speichern. Bei Daily und Aroma-Kurve 3 gilt der neue Wert für alle Stufen. |
+| „Ballon bereit“ antippen oder den Dial klicken (wenn Ballonbestätigung aktiviert ist) | Bestätigt erst nach dem Aufsetzen des Ballons die erste Lüftung dieser Stufe. Bis dahin bleibt die Lüftung aus. |
 | Im Menü drehen oder ober-/unterhalb des gewählten Eintrags tippen | Vorherigen/nächsten verfügbaren Eintrag wählen |
 | Menüeintrag anklicken oder antippen | Öffnen; Zahlenwert drehen und mit Klick/„Übernehmen“ speichern |
 | Oben „Zurück“ antippen | Zum Hauptbild zurück |
@@ -76,6 +76,8 @@ Die große Zahl ist die gemessene Temperatur. Darunter stehen Zieltemperatur ode
 Das Menü bietet Temperatur, einfache Presetwerte, Füllzeit, Schritte, Timer, manuelle Heizung/Lüftung, Bluetooth, Helligkeit, Signaltöne, Hue-Automatik/Schwelle, RFID, Einrichtungs-WLAN und Geräteinfo. Während eines Laufs stehen nur passende Aktionen bereit. Zahlenwerte ändern sich in 1er-Schritten; Helligkeit in 5er-Schritten. Geräteinfo zeigt IP-Adresse und PIN für den Browser.
 
 Die Direktbedienung der Füllzeit erscheint auch bei einfachen Einzelpresets und weiteren Workflows mit gemeinsamer UI-Füllzeit. Workflows mit festen Zeiten aus ihren Presets behalten diese Zeiten; ihre Füllzeit ist nicht als gemeinsamer Wert einstellbar. Die PC-App unterscheidet entsprechend zwischen globaler Lüftungsdauer und individuell festgelegten Lüftungsschritten. Eine am Ring gewählte Startstufe wird nach erfolgreichem Start oder Programmwechsel zurückgesetzt; nach einem Stromausfall ist wieder Stufe 1 vorausgewählt.
+
+Die Mitte des Touchscreens länger halten, um das [radiale Schnellmenü](QUICK-ROSE.md) zu öffnen. Die globale Ballonfüllzeit und die globale Ballonbestätigung können auch in einer Workflow-Zwischenpause geändert werden. Sie werden sofort gespeichert, gelten ab der nächsten Stufe und bleiben nach dem Ausschalten erhalten. Beim aktiven Heizen/Lüften ist das Schnellmenü nicht verfügbar.
 
 Nach USB-Start wird WLAN zunächst verbunden. Ein sofortiger Start wartet bei aktivem Hue bis zu 30 Sekunden auf WLAN und eine gültige Uhrzeit; das Display meldet den Verbindungsaufbau. Die Verbindung lässt sich mit Stop abbrechen. Fehlt danach weiterhin eine Voraussetzung, wird der Fehler angezeigt. Dann WLAN/Uhrzeit prüfen und erneut bewusst starten.
 
@@ -113,7 +115,7 @@ Bibliotheksänderungen und manuelle HEAT/AIR-Schalter sind während eines Laufs 
 
 Das beiliegende Daily-Beispiel enthält drei Stufen: „Preset 03“, „02“ mit 221 °C und „03“ mit konstant 222 °C. Die gemeinsame Füllzeit beträgt 53 Sekunden je Stufe; nach jeder Stufe wird auf Weiter gewartet. „Schlauch“ ist ein eingebauter manueller Modus und wird nicht als PC-Preset exportiert.
 
-**Aroma-Kurve 3** liegt in der Auswahlliste direkt hinter Daily und verwendet dieselbe Start-, Ring- und Weiter-Bedienung. Die drei neuen Presets heizen in kleinen Schritten auf 175–185, 195–205 und 220–230 °C. Vor der ersten Lüftung jedes Ballons fordert der Dial zum Aufsetzen und Bestätigen des Ballons auf. Nach 120 Sekunden ohne Bestätigung schaltet der Ablauf die Ausgänge aus. Die [genaue Bedienfolge und Temperaturaufteilung](AROMA-KURVE-3.md) sind separat beschrieben.
+**Aroma-Kurve 3** liegt in der Auswahlliste direkt hinter Daily und verwendet dieselbe Start-, Ring- und Weiter-Bedienung. Die drei neuen Presets heizen in kleinen Schritten auf 175–185, 195–205 und 220–230 °C. Die Ballonbestätigung ist global und standardmäßig AUS; wenn eingeschaltet, fordert der Dial vor der ersten Lüftung zum Aufsetzen und Bestätigen auf. Nach 120 Sekunden ohne Bestätigung schaltet der Ablauf die Ausgänge aus. Die [genaue Bedienfolge und Temperaturaufteilung](AROMA-KURVE-3.md) sind separat beschrieben.
 
 ### Nach einem manuellen Workflow-Abbruch
 

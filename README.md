@@ -1,6 +1,6 @@
 # VolcanoDial
 
-Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Aktueller Quellstand **0.2.11**, auf dem Entwicklungsgerät installiert und geprüft. Das zuletzt veröffentlichte Installationspaket ist weiterhin **0.2.7**.
+Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Aktueller Quellstand **0.2.12**, auf dem Entwicklungsgerät installiert und ohne Heizlauf geprüft. Das zuletzt veröffentlichte Installationspaket ist weiterhin **0.2.7**.
 
 ## Vom Einkauf zum laufenden Gerät
 
@@ -23,7 +23,7 @@ Der Windows-Installer braucht keine Arduino-Installation. Grundaufbau und Nutzun
 - Einfache/erweiterte Presets, lineare Workflows, Variablen und Formeln; lokaler Browsereditor mit JSON-Import/Export.
 - Workflow-Zwischenpause wartet auf bewusste Bedienung. Nach manuellem Abbruch bietet **Preset erneut** die unterbrochene Stufe von Anfang an an; abgeschlossene Stufen werden übersprungen.
 - Ein Tipp auf den äußeren Ring wählt eine Workflow-Startstufe; erst „Starten“ führt diese und die folgenden Stufen aus. Die gemeinsame Ballonfüllzeit lässt sich direkt im Hauptbild antippen und gilt für alle drei Daily- oder Aroma-Kurve-3-Stufen.
-- **[Aroma-Kurve 3](docs/AROMA-KURVE-3.md)** ergänzt Daily um drei Ballons mit abgestuften Temperaturen. Vor der ersten Lüftung jedes Ballons verlangt der Dial „Ballon aufsetzen“; die Bestätigung funktioniert am Dial oder mit dem optionalen Zusatztaster.
+- **[Aroma-Kurve 3](docs/AROMA-KURVE-3.md)** ergänzt Daily um drei Ballons mit abgestuften Temperaturen. Die globale Bestätigung „Ballon aufsetzen“ ist optional und standardmäßig AUS; eingeschaltet funktioniert sie am Dial oder mit dem optionalen Zusatztaster.
 - Die Auswahlfolge am Rad und im Browser ist **Daily → Aroma-Kurve 3 → Schlauch → AK3 Aroma → AK3 Balance → AK3 Finish**; weitere vorhandene Presets bleiben in ihrer gespeicherten Reihenfolge.
 - **Schlauchmodus**, standardmäßig 210 °C: heizen, dann neu halten für Luft; Loslassen fordert AUS an.
 - Optionaler **Chain Key U206** wird automatisch erkannt: Start/Weiter, langer Druck für Stop, Halten im bereiten Schlauchmodus. Ohne Taste bleiben die Grundfunktionen am Dial verfügbar.
@@ -33,9 +33,13 @@ Der Windows-Installer braucht keine Arduino-Installation. Grundaufbau und Nutzun
 
 Die Remote-Abschaltung benötigt eine funktionierende Funkverbindung. Bei „AUS nicht bestätigt“ den Volcano direkt kontrollieren. Unterstützt wird Volcano Hybrid, keine Classic-/Digit-Variante. Hue benötigt eine Bridge; die Steckdose wird nicht direkt per Bluetooth angesteuert.
 
+## Radiales Schnellmenü
+
+Die Mitte des wachen Touchscreens etwa 0,7 Sekunden halten: Sechs sichtbare Kreissektoren bieten per Touch oder Drehknopf Füllzeit, globale Ballonbestätigung, Display-Ruhezeit, Temperatur bei einfachem Preset/Schlauch, zweifach bestätigtes Hue-AUS und das ausführliche Menü. Die Ballonbestätigung ist standardmäßig AUS. Daily und Aroma-Kurve 3 teilen eine dauerhaft gespeicherte Füllzeit. Änderungen in einer Workflow-Zwischenpause gelten ab der nächsten Stufe und bleiben auch nach einem Stromausfall erhalten. Die optionale Zwei-Finger-Geste zum ausführlichen Menü ist implementiert, am physischen Touchscreen aber noch nicht geprüft. [Details](docs/QUICK-ROSE.md).
+
 ## Aktueller Prüfstand
 
-Version 0.2.11 besteht 102/102 automatisierte Fälle einschließlich Compiler-Parität, Ablaufsteuerung, Eingaben und runder UI. Das Geräteabbild benötigt 1.829.387 Byte Programm und 69.856 Byte statisches RAM, ohne PSRAM. Auf dem Dial wurde nur die App-Partition per USB aktualisiert und der Schreibhash bestätigt. Nach dem Neustart blieben Einstellungen, alle 18 Presets, drei Workflows und die vorherige Auswahl erhalten; kein Ablauf startete selbsttätig, HEAT/AIR waren AUS. Die Auswahlfolge Aroma-Kurve 3 → Schlauch → AK3 Aroma und zurück wurde über die USB-Steuerung des Dial ohne Heizung/Lüftung geprüft. Das zuvor getrennte Heim-WLAN verband sich wieder. Ein beaufsichtigter realer Drei-Ballon-Heizlauf steht noch aus. Das oben verlinkte Release-ZIP 0.2.7 enthält die neue Funktion nicht; zum Nachbau des aktuellen Quellstands die [Entwickleranleitung](docs/ENTWICKLUNG.md) verwenden.
+Version 0.2.12 besteht 105/105 automatisierte Fälle einschließlich Compiler-Parität, Ablaufsteuerung, Eingaben und radialer UI. Der Build benötigt 1.837.711 Byte Programm und 69.912 Byte statisches RAM, ohne PSRAM. Auf dem Dial wurde nur die App-Partition per USB aktualisiert und der Schreibhash bestätigt. Nach dem Neustart blieben Einstellungen, alle 18 Presets, drei Workflows und die vorherige Auswahl erhalten; kein Ablauf startete selbsttätig, HEAT/AIR waren AUS. Das Heim-WLAN verband sich wieder. Der Dial übernahm die bisherige Daily-Füllzeit von 55 Sekunden als gemeinsamen Wert und setzte die Ballonbestätigung standardmäßig auf AUS. Die neue Kreismenü-Bedienung und ein realer Heizlauf sind am physischen Gerät noch nicht geprüft. Das oben verlinkte Release-ZIP 0.2.7 enthält die neue Funktion nicht; zum Nachbau des aktuellen Quellstands die [Entwickleranleitung](docs/ENTWICKLUNG.md) verwenden.
 
 - [Prüfbericht](docs/PRUEFBERICHT.md), [maschinenlesbare Prüfung](docs/verification.json)
 - [Stufe erneut starten](docs/WORKFLOW_STAGE_RETRY.md)

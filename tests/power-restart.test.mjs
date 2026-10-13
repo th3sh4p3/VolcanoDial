@@ -18,6 +18,8 @@ const selectBranch=section(ino,'  if(command=="selectStage"){','\n  if(command==
 const rfidBranch=section(ino,'  if(command=="rfidSeen"){','\n  if(command=="rfidLearn")');
 const retryHelper=ino.includes('bool stageRetryAvailable(){')?section(ino,'bool stageRetryAvailable(){','\nvd::KeyContext context()'):'bool stageRetryAvailable(){return false;}';
 const previewHelper=section(ino,'void refreshPreview(){','\nvoid normalizeOrder()');
+const selectionHelpers=section(ino,'JsonVariant selected(){','\nvoid refreshPreview()');
+const configCommit=section(ino,'bool saveConfigCandidate(','\nbool saveLibrary()');
 const manual=section(ino,'  if(command=="heat"||command=="fan")','\n  if(command=="timer")');
 const disconnect=section(adapters,'  void disconnect(){','\n  bool poll(){').replaceAll('portENTER_CRITICAL(&mux);','').replaceAll('portEXIT_CRITICAL(&mux);','');
 const firmware=fileURLToPath(new URL('../firmware/VolcanoDial/',import.meta.url)).replaceAll('\\','/');
@@ -28,12 +30,15 @@ fs.writeFileSync(cpp,`#include <cassert>
 #include <ctime>
 #include "${firmware}/interaction.hpp"
 #include "${firmware}/display_idle.hpp"
-struct String:std::string{using std::string::string;using std::string::operator=;bool isEmpty()const{return empty();}};
+#include "${firmware}/plan_tuning.hpp"
+#include "${firmware}/document_update.hpp"
+struct String:std::string{using std::string::string;using std::string::operator=;bool isEmpty()const{return empty();}bool reserve(size_t n){std::string::reserve(n);return true;}bool concat(const char* p,size_t n){append(p,n);return true;}};
 std::atomic<bool> stopRequested{false},keyHeld{false},runLocksKey{false};
 std::atomic<int> selectionPending{0};
 uint64_t clockMs=1000;int mode=0;
 uint64_t nowMs(){return clockMs;}void delay(unsigned n){clockMs+=n;if(mode==3)stopRequested=true;}
-JsonDocument config,library;String notice,operation,revision="revA",lastRunId,lastRunRevision,rfidSeen;vd::KeyContext inputContext;
+JsonDocument config,library,persistedConfig;String notice,operation,revision="revA",lastRunId,lastRunRevision,rfidSeen;vd::KeyContext inputContext;
+bool failStore=false;bool store(const char*,const String& text){if(failStore)return false;return !deserializeJson(persistedConfig,text);}void applyHue(){}
 String previewId,previewRevision,stageChoiceId,stageChoiceRevision;int previewStages=0,stageChoice=0;
 bool fsReady=true,sessionHue=false,wantConnection=false,recoveryOff=false,coolingRestore=false,activationPending=false,coolCancel=false;
 unsigned airOwner=0,reconnectAttempt=0,lastGeneration=0;uint64_t retryAt=0;
@@ -60,8 +65,10 @@ struct FakeVolcano:vd::DeviceIO{
 }volcano;
 vd::Engine engine(volcano);vd::HoseSession hose(volcano);
 bool hoseSelected(){return String(config["selectedMode"]|"")=="hose";}
+${selectionHelpers}
 ${previewHelper}
-bool saveConfig(){return true;}bool saveLibrary(){revision="changed";return true;}
+bool saveConfig(){persistedConfig.set(config);return true;}bool saveLibrary(){revision="changed";return true;}
+${configCommit}
 ${retryHelper}
 ${prepare}
 ${selectDelta}
@@ -84,6 +91,7 @@ int main(int argc,char**argv){mode=std::stoi(argv[1]);
  if(mode==12){config["selectedMode"]="hose";config["hoseTemperature"]=210;}
  if(mode==13){hue.enabled=false;assert(prepare(true));assert(hue.ons==0&&volcano.connects==1);return 0;}
  if(mode==14){config["volcanoId"]="";assert(!runSelected());assert(hue.ons==0&&volcano.connects==0);return 0;}
+ if(mode==39){config["balloonFillSeconds"]=53;JsonDocument candidate;candidate.set(config);candidate["balloonFillSeconds"]=70;failStore=true;assert(!saveConfigCandidate(candidate));assert((config["balloonFillSeconds"]|0)==53);failStore=false;assert(saveConfigCandidate(candidate));assert((config["balloonFillSeconds"]|0)==70&&(persistedConfig["balloonFillSeconds"]|0)==70);return 0;}
  if(mode==36){
   library.clear();assert(!deserializeJson(library,R"({"runnableOrder":[{"kind":"workflow","id":"daily"},{"kind":"workflow","id":"a847fe34-93c1-472a-9750-d4b473c5f78d"},{"kind":"preset","id":"ak3-a"}],"activeRunnable":{"kind":"workflow","id":"daily"}})"));
   assert(selectByDelta(1));assert(String(library["activeRunnable"]["id"]|"")=="a847fe34-93c1-472a-9750-d4b473c5f78d");
@@ -107,6 +115,14 @@ int main(int argc,char**argv){mode=std::stoi(argv[1]);
   }
   assert(runSelected());
   finishStage();assert(engine.stageIndex==0&&engine.phase==vd::Phase::AwaitingNext);
+  if(mode==37||mode==38){
+   config["balloonFillSeconds"]=67;config["balloonConfirm"]=mode==38;assert(saveConfig());
+   config.clear();config.set(persistedConfig);assert((config["balloonFillSeconds"]|0)==67);
+   assert(runSelected());assert(engine.stageIndex==1);
+   double air=0;int confirms=0;for(const auto& action:engine.currentPlan().stages[1].actions){if(action.type==vd::ActionType::Air)air+=action.seconds;if(action.type==vd::ActionType::Confirm)++confirms;}
+   assert(std::abs(air-67)<.001&&confirms==(mode==38?1:0));
+   return 0;
+  }
   if(mode==21){engine.stop(clockMs);assert(engine.phase==vd::Phase::Aborted);assert(runSelected());assert(engine.stageIndex==1&&engine.actionIndex==0);return 0;}
   assert(runSelected());assert(engine.stageIndex==1);tick();assert(volcano.s.target==221);
   if(mode==20){for(int i=0;i<6&&!volcano.s.fan;++i)tick();assert(volcano.s.fan);tick();tick();tick();assert(engine.remaining<53&&engine.remaining>0);}
@@ -205,5 +221,8 @@ for(const [mode,name]of[
  [34,'Ring stage 3 runs only Daily 03'],
  [35,'Explicit ring choice overrides an interrupted stage retry'],
  [36,'Dial rotation puts hose immediately after Aroma-Kurve 3 in both directions'],
+ [37,'Persisted fill time in a checkpoint applies to the next Daily stage'],
+ [38,'Persisted balloon confirmation in a checkpoint applies to the next stage'],
+ [39,'Failed settings write leaves active and stored balloon fill unchanged'],
 ])test(name,()=>{const r=spawnSync(exe,[String(mode)],{encoding:'utf8'});assert.equal(r.status,0,r.stderr||r.stdout);});
 test.after(()=>fs.rmSync(dir,{recursive:true,force:true}));

@@ -212,6 +212,10 @@ class Engine {
     ++actionIndex;active=false;remaining=0;lastTick=now;return true;
   }
   const Plan& currentPlan()const{return plan;}
+  bool replaceUpcomingStage(const Stage& next){
+    if(phase!=Phase::AwaitingNext||stageIndex+1>=plan.stages.size()||plan.stages[stageIndex+1].name!=next.name)return false;
+    plan.stages[stageIndex+1]=next;return true;
+  }
   bool canRestartStage()const{return restartPending&&phase==Phase::Aborted&&plan.workflow&&stoppedStage<plan.stages.size();}
   size_t restartStageIndex()const{return stoppedStage;}
   void discardStageRestart(){restartPending=false;}

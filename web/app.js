@@ -3,7 +3,7 @@ import {createTransport,download} from './api.js';
 import {createHold,bindHold} from './hose-hold.js';
 import {runnableItems} from './runnable-items.js';
 
-const api=createTransport(),$=id=>document.getElementById(id);let state=null,boot=true,polling=false,catalogVersion=null,catalog=[];
+const api=createTransport(),$=id=>document.getElementById(id);let state=null,boot=true,polling=false,catalogVersion=null,catalog=[],balloonDirty=false;
 
 function message(text,error=false){$('message').textContent=text;$('message').className='message visible'+(error?' error':'');}
 
@@ -29,10 +29,12 @@ async function poll(){if(polling)return;polling=true;try{
  $('heat').textContent=`Heizung ${state.heat?'AUS':'EIN'}`;$('fan').textContent=`Lüftung ${state.fan?'AUS':'EIN'}`;
 
  for(const id of ['set-target','heat','fan','timer','save-hue','save-volcano','save-display','ble-search','bridge-search','pair','plug-search','bypass'])$(id).disabled=state.busy&&!(id==='set-target'&&hose);
+ $('save-balloon').disabled=state.busy&&state.phase!=='awaitingNext';
 
  $('wifi-info').textContent=state.wifi?`Heimnetz verbunden. Browser-Adresse: http://${state.ip} oder http://volcano-dial.local. Das Einrichtungs-WLAN schließt nach zwei Minuten.`:'WLAN noch nicht verbunden. Name und Passwort prüfen.';
 
- if(boot){for(const [id,key] of Object.entries({ssid:'ssid','bridge-ip':'bridgeAddress',threshold:'threshold',brightness:'brightness','timer-temp':'timerTemperature','timer-seconds':'timerSeconds','sleep-dim':'sleepDimSeconds','sleep-off':'sleepOffSeconds'}))if(state.settings[key]!=null)$(id).value=state.settings[key];for(const [id,key] of Object.entries({'hue-enabled':'hueEnabled','auto-off':'autoOff',sound:'sound','sleep-enabled':'sleepEnabled'}))if(state.settings[key]!=null)$(id).checked=state.settings[key];boot=false;}
+ if(boot){for(const [id,key] of Object.entries({ssid:'ssid','bridge-ip':'bridgeAddress',threshold:'threshold',brightness:'brightness','timer-temp':'timerTemperature','timer-seconds':'timerSeconds','sleep-dim':'sleepDimSeconds','sleep-off':'sleepOffSeconds','balloon-fill':'balloonFillSeconds'}))if(state.settings[key]!=null)$(id).value=state.settings[key];for(const [id,key] of Object.entries({'hue-enabled':'hueEnabled','auto-off':'autoOff',sound:'sound','sleep-enabled':'sleepEnabled','balloon-confirm':'balloonConfirm'}))if(state.settings[key]!=null)$(id).checked=state.settings[key];boot=false;}
+ if(!balloonDirty){if(state.settings.balloonFillSeconds!=null)$('balloon-fill').value=state.settings.balloonFillSeconds;if(state.settings.balloonConfirm!=null)$('balloon-confirm').checked=state.settings.balloonConfirm;}
 
  const d=state.discoveries||{};if(d.bridges?.length)options('bridges',d.bridges,x=>x.address,x=>`${x.name} · ${x.address}`);if(d.plugs?.length)options('plug',d.plugs,x=>x.id,x=>x.name,state.settings.plug);if(d.volcano?.length)options('volcano',d.volcano,x=>x.id,x=>`${x.name} · ${x.id}`,state.settings.volcanoId);
 
@@ -59,6 +61,8 @@ $('save-hue').onclick=()=>act({command:'configure',settings:{plug:$('plug').valu
 $('ble-search').onclick=()=>act({command:'bleScan'});$('save-volcano').onclick=()=>{const v=state?.discoveries.volcano?.find(v=>v.id===$('volcano').value);if(v)act({command:'configure',settings:{volcanoId:v.id,volcanoType:v.addressType}});};
 
 $('bypass').onclick=()=>act({command:'connect',bypassHue:true});$('save-display').onclick=()=>act({command:'configure',settings:{brightness:Number($('brightness').value),sound:$('sound').checked,sleepEnabled:$('sleep-enabled').checked,sleepDimSeconds:Number($('sleep-dim').value),sleepOffSeconds:Number($('sleep-off').value)}});$('clock').onclick=()=>act({command:'clock',epoch:Math.floor(Date.now()/1000)});$('rfid').onclick=()=>act({command:'rfidLearn'});$('diagnostics').onclick=()=>download('volcano-dial-diagnose.json',JSON.stringify(state,null,2));
+for(const id of ['balloon-fill','balloon-confirm'])$(id).addEventListener('input',()=>{balloonDirty=true;});
+$('save-balloon').onclick=async()=>{if(await act({command:'configure',settings:{balloonFillSeconds:Number($('balloon-fill').value),balloonConfirm:$('balloon-confirm').checked}})){balloonDirty=false;await poll();}};
 
 if(api.isLoggedIn())poll();setInterval(()=>{if(api.isLoggedIn())poll();},1000);
 
