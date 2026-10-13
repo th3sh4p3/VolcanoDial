@@ -2,7 +2,7 @@
 #include "core.hpp"
 #include <atomic>
 namespace vd {
-enum class KeyContext {Idle,Running,Checkpoint,HoseHeating,HoseReady,Fault};
+enum class KeyContext {Idle,Running,Checkpoint,BalloonReady,HoseHeating,HoseReady,Fault};
 enum class InputAction {None,Activate,Stop,FanOn,FanOff};
 enum class Readiness {Waiting,Ready,Cancelled,TimedOut};
 inline Readiness startReadiness(bool wifi,bool clock,bool stop,uint64_t elapsed){if(stop)return Readiness::Cancelled;if(wifi&&clock)return Readiness::Ready;return elapsed>=30000?Readiness::TimedOut:Readiness::Waiting;}
@@ -50,7 +50,7 @@ public:
   if(!lastRaw){lastRaw=true;changedAt=now;}
   if(!armed||now<changedAt||now-changedAt<35)return InputAction::None;
   if(!fired){fired=true;pressedAt=now;
-   if(context==KeyContext::Idle||context==KeyContext::Checkpoint)return InputAction::Activate;
+   if(context==KeyContext::Idle||context==KeyContext::Checkpoint||context==KeyContext::BalloonReady)return InputAction::Activate;
    if(context==KeyContext::HoseReady){fan=true;return InputAction::FanOn;}
   }
   if(context==KeyContext::Running&&pressedAt&&now>=pressedAt&&now-pressedAt>=800){armed=false;return InputAction::Stop;}

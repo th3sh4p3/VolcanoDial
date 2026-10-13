@@ -42,6 +42,10 @@ int main(){
  k.tick(false,true,KeyContext::Checkpoint,4010);k.tick(true,true,KeyContext::Checkpoint,4050);
  assert(k.tick(true,true,KeyContext::Checkpoint,4090)==InputAction::Activate);
  assert(k.tick(true,true,KeyContext::Running,4100)==InputAction::None);
+ k.tick(false,true,KeyContext::BalloonReady,4200);k.tick(true,true,KeyContext::BalloonReady,4240);
+ assert(k.tick(true,true,KeyContext::BalloonReady,4280)==InputAction::Activate);
+ assert(k.tick(true,true,KeyContext::BalloonReady,4300)==InputAction::None);
+ assert(k.tick(true,true,KeyContext::Running,4310)==InputAction::None);
  assert(k.tick(true,true,KeyContext::Checkpoint,8000)==InputAction::None);
  k.tick(false,true,KeyContext::HoseHeating,8100);k.tick(true,true,KeyContext::HoseHeating,8140);k.tick(true,true,KeyContext::HoseHeating,8180);
  assert(k.tick(true,true,KeyContext::HoseReady,8200)==InputAction::None);

@@ -316,6 +316,7 @@ function defaultNode(type, presetId = null) {
   if (type === 'reachTemperature') item.config = { temperature: { mode: 'literal', value: 170 }, timeout: { mode: 'literal', value: 360 } };
   if (type === 'wait') item.config = { duration: { mode: 'literal', value: 2 } };
   if (type === 'air') item.config = { duration: { mode: 'literal', value: 30 } };
+  if (type === 'confirmBalloon') item.config = { timeout: { mode: 'literal', value: 120 } };
   if (type === 'preset') item.config = { presetId: presetId || library.presets[0]?.id };
   return item;
 }
@@ -362,7 +363,7 @@ function renderPalette() {
   } else {
     makePaletteMenu('Add action', [
       [labels.reachTemperature, () => addNode('reachTemperature')], [labels.wait, () => addNode('wait')],
-      [labels.air, () => addNode('air')], [labels.heaterOff, () => addNode('heaterOff')],
+      [labels.air, () => addNode('air')], [labels.confirmBalloon, () => addNode('confirmBalloon')], [labels.heaterOff, () => addNode('heaterOff')],
     ]);
     const hint = document.createElement('span'); hint.className = 'hint'; hint.textContent = 'Select a step to insert after it. Drag steps or use Earlier/Later to reorder.'; palette.appendChild(hint);
   }
@@ -372,6 +373,7 @@ function nodeSummary(item) {
   const binding = (value, suffix) => value?.mode === 'expression' ? value.expression : `${value?.value ?? '--'}${suffix}`;
   if (item.type === 'reachTemperature') return binding(item.config?.temperature, '°C');
   if (item.type === 'wait' || item.type === 'air') return binding(item.config?.duration, 's');
+  if (item.type === 'confirmBalloon') return `Confirm within ${binding(item.config?.timeout, 's')}`;
   if (item.type === 'preset') return library.presets.find(({ id }) => id === item.config?.presetId)?.name || 'Missing preset';
   if (item.type === 'start') return 'Execution begins'; if (item.type === 'end') return 'Outputs safely off'; return 'Turn heater off';
 }
@@ -512,6 +514,8 @@ function renderInspector() {
     bindingEditor(panel, 'Maximum wait (seconds)', item.config.timeout, 'duration', (binding) => { item.config.timeout = binding; }, `node-${item.id}-timeout`);
   } else if (item.type === 'wait' || item.type === 'air') {
     bindingEditor(panel, 'Duration (seconds)', item.config.duration, 'duration', (binding) => { item.config.duration = binding; }, `node-${item.id}-duration`);
+  } else if (item.type === 'confirmBalloon') {
+    bindingEditor(panel, 'Confirmation timeout (seconds)', item.config.timeout, 'duration', (binding) => { item.config.timeout = binding; }, `node-${item.id}-timeout`);
   } else if (item.type === 'preset') {
     labeledSelect(panel, 'Referenced preset', library.presets.map((preset) => [`${preset.name} · ${kindForPreset(preset)}`, preset.id]), item.config.presetId, (value) => { mutate(() => { item.config.presetId = value; }, false); updateSelectedNodeSummary(); }, `node-${item.id}-preset`);
   }

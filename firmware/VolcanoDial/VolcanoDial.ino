@@ -58,6 +58,7 @@ vd::KeyContext context(){vd::KeyContext base=vd::KeyContext::Idle;
  if(!operation.isEmpty()||recoveryOff)base=vd::KeyContext::Fault;
  else if(hose.busy())base=hose.ready()?vd::KeyContext::HoseReady:vd::KeyContext::HoseHeating;
  else if(engine.phase==vd::Phase::AwaitingNext)base=vd::KeyContext::Checkpoint;
+ else if(engine.awaitingBalloon())base=vd::KeyContext::BalloonReady;
  else if(engine.busy())base=vd::KeyContext::Running;
  else if((!hoseSelected()&&engine.phase==vd::Phase::Error)||(hoseSelected()&&hose.phase==vd::HosePhase::Error))base=vd::KeyContext::Fault;
  return vd::gatedContext(base,uiInhibited);
@@ -139,8 +140,8 @@ void setupAP(){
   if(apOn)return;WiFi.mode(WIFI_AP_STA);WiFi.softAP(apName.c_str(),apPassword.c_str());dns.start(53,"*",WiFi.softAPIP());apOn=true;apSince=nowMs();
 }
 void publish(){
-  JsonDocument d;auto s=volcano.snapshot();d["version"]="0.2.8";d["connected"]=s.connected;d["current"]=std::isfinite(s.current)?s.current:0;d["target"]=std::isfinite(s.target)?s.target:210;d["temperatureValid"]=s.connected&&std::isfinite(s.current)&&nowMs()>=s.sampleAt&&nowMs()-s.sampleAt<1500;
-  d["heat"]=s.heat;d["fan"]=s.fan;d["fault"]=s.fault;d["statusValid"]=s.valid;d["phase"]=hose.busy()?(hose.ready()?"hoseReady":"hoseHeating"):hoseSelected()&&hose.phase==vd::HosePhase::Error?"error":hoseSelected()&&hose.phase==vd::HosePhase::Complete?"complete":vd::phaseName(engine.phase);d["busy"]=busy()||!operation.isEmpty();d["stage"]=engine.stageIndex+1;d["action"]=engine.actionIndex+1;d["remaining"]=engine.remaining;
+  JsonDocument d;auto s=volcano.snapshot();d["version"]="0.2.10";d["connected"]=s.connected;d["current"]=std::isfinite(s.current)?s.current:0;d["target"]=std::isfinite(s.target)?s.target:210;d["temperatureValid"]=s.connected&&std::isfinite(s.current)&&nowMs()>=s.sampleAt&&nowMs()-s.sampleAt<1500;
+  d["heat"]=s.heat;d["fan"]=s.fan;d["fault"]=s.fault;d["statusValid"]=s.valid;d["phase"]=hose.busy()?(hose.ready()?"hoseReady":"hoseHeating"):hoseSelected()&&hose.phase==vd::HosePhase::Error?"error":hoseSelected()&&hose.phase==vd::HosePhase::Complete?"complete":engine.awaitingBalloon()?"balloonReady":vd::phaseName(engine.phase);d["busy"]=busy()||!operation.isEmpty();d["stage"]=engine.stageIndex+1;d["action"]=engine.actionIndex+1;d["remaining"]=engine.remaining;
   auto& plan=engine.currentPlan();refreshPreview();d["stages"]=plan.stages.size();if(engine.stageIndex<plan.stages.size()){d["stageName"]=plan.stages[engine.stageIndex].name;d["actions"]=plan.stages[engine.stageIndex].actions.size();if(engine.actionIndex<plan.stages[engine.stageIndex].actions.size())d["actionType"]=vd::actionName(plan.stages[engine.stageIndex].actions[engine.actionIndex].type);}
   bool explicitStage=stageChoice>0&&stageChoiceId==String(library["activeRunnable"]["id"]|"")&&stageChoiceRevision==revision;
   bool retryStage=stageRetryAvailable()&&!explicitStage;d["retryAvailable"]=retryStage;
@@ -161,7 +162,7 @@ void publish(){
   copy(u.name,sizeof u.name,d["selected"]["name"]|"Keine Auswahl");copy(u.stageName,sizeof u.stageName,d["stageName"]|"");if(engine.phase==vd::Phase::AwaitingNext&&engine.stageIndex+1<plan.stages.size())copy(u.stageName,sizeof u.stageName,plan.stages[engine.stageIndex+1].name.c_str());
   copy(u.message,sizeof u.message,!operation.isEmpty()?operation.c_str():!d["error"].as<String>().isEmpty()?d["error"].as<const char*>():notice.c_str());
   copy(u.ip,sizeof u.ip,d["ip"]|"");copy(u.pin,sizeof u.pin,pin.c_str());copy(u.apName,sizeof u.apName,apName.c_str());copy(u.apPassword,sizeof u.apPassword,apPassword.c_str());
-  String phase=d["phase"]|"idle";u.phase=!operation.isEmpty()?vd::UiPhase::Connecting:phase=="running"?vd::UiPhase::Running:phase=="awaitingNext"?vd::UiPhase::Checkpoint:phase=="complete"?vd::UiPhase::Complete:phase=="aborted"?vd::UiPhase::Stopped:phase=="error"?vd::UiPhase::Error:phase=="hoseHeating"?vd::UiPhase::HoseHeating:phase=="hoseReady"?vd::UiPhase::HoseReady:vd::UiPhase::Idle;
+  String phase=d["phase"]|"idle";u.phase=!operation.isEmpty()?vd::UiPhase::Connecting:phase=="running"?vd::UiPhase::Running:phase=="balloonReady"?vd::UiPhase::BalloonReady:phase=="awaitingNext"?vd::UiPhase::Checkpoint:phase=="complete"?vd::UiPhase::Complete:phase=="aborted"?vd::UiPhase::Stopped:phase=="error"?vd::UiPhase::Error:phase=="hoseHeating"?vd::UiPhase::HoseHeating:phase=="hoseReady"?vd::UiPhase::HoseReady:vd::UiPhase::Idle;
   u.programActive=engine.busy();u.retryStage=retryStage;u.connected=s.connected;u.wifi=d["wifi"];u.keyAlive=d["keyAlive"];u.heat=s.heat;u.fan=s.fan;u.valid=d["temperatureValid"];u.cooling=cooldown.armed;u.busy=d["busy"].as<bool>();u.hose=hoseSelected();u.workflow=String(library["activeRunnable"]["kind"]|"")=="workflow"&&!u.hose;u.simple=String(choice["kind"]|"")=="simple";u.fillEditable=!u.hose&&(u.simple||(u.workflow&&String(choice["fillTimeSource"]|"presets")=="ui"));u.ap=apOn;u.sound=config["sound"]|true;u.autoOff=hue.autoOff;
   u.current=std::isfinite(s.current)?int(std::round(s.current)):0;u.target=std::isfinite(s.target)?int(std::round(s.target)):210;u.stage=d["stage"];u.stages=u.workflow&&!u.busy?previewStages:d["stages"].as<int>();u.startStage=explicitStage?stageChoice:retryStage?int(engine.restartStageIndex()+1):1;u.action=d["action"];u.actions=d["actions"];u.remaining=int(std::ceil(engine.remaining));if(engine.stageIndex<plan.stages.size()&&engine.actionIndex<plan.stages[engine.stageIndex].actions.size()){u.actionTarget=int(plan.stages[engine.stageIndex].actions[engine.actionIndex].value);u.temperatureProgress=std::clamp(int((s.current-40)/std::max(1.0,u.actionTarget-40.0)*100),0,100);}
   u.actionType=String(d["actionType"]|"")=="air"?2:String(d["actionType"]|"")=="reachTemperature"?0:1;
@@ -230,6 +231,7 @@ bool runSelected(bool fromInput=false){
     return hose.start(config["hoseTemperature"]|210.0,nowMs());
   }
   if(engine.phase==vd::Phase::AwaitingNext){cooldown.cancel();bool ok=engine.next(nowMs());if(!ok&&engine.phase==vd::Phase::AwaitingNext)notice="Volcano-Status pruefen; erneut druecken";return ok;}
+  if(engine.awaitingBalloon()){bool ok=engine.confirmBalloon(nowMs());if(!ok&&engine.awaitingBalloon())notice="Volcano-Status pruefen; erneut druecken";return ok;}
   if(engine.busy())return false;vd::Compiler compiler;vd::Plan plan;
   if(!compiler.compile(library,library["activeRunnable"],plan)){notice=compiler.error.c_str();return false;}
   // Resolve the requested stage before Hue temporarily releases/reloads the
@@ -246,7 +248,7 @@ bool execute(JsonVariant r){
   notice="";
   if(command=="wifiRetry"){wifiRetryRequested=true;return true;}
   if(command=="stop"){cooldown.cancel();airOwner=0;activationPending=false;volcano.manualHold=false;if(hose.busy())hose.stop(nowMs());else engine.stop(nowMs());stopRequested=false;runLocksKey=engine.busy();return hoseSelected()?hose.phase!=vd::HosePhase::Error:engine.phase!=vd::Phase::Error;}
-  if(command=="run"||command=="next"){if(hose.busy()){bool ok=hose.stop(nowMs());airOwner=0;if(ok&&hue.enabled&&hue.autoOff&&sessionHue){coolCancel=false;cooldown.arm(std::string(config["volcanoId"]|""));}return ok;}if(engine.busy()&&engine.phase!=vd::Phase::AwaitingNext){engine.stop(nowMs());return engine.phase!=vd::Phase::Error;}return runSelected();}
+  if(command=="run"||command=="next"){if(hose.busy()){bool ok=hose.stop(nowMs());airOwner=0;if(ok&&hue.enabled&&hue.autoOff&&sessionHue){coolCancel=false;cooldown.arm(std::string(config["volcanoId"]|""));}return ok;}if(engine.busy()&&engine.phase!=vd::Phase::AwaitingNext&&!engine.awaitingBalloon()){engine.stop(nowMs());return engine.phase!=vd::Phase::Error;}return runSelected();}
   if(command=="hoseTarget"){
     if(engine.busy())return false;
     double value=r["value"].as<double>();if(!r["value"].is<double>()||!std::isfinite(value)||value<40||value>230)return false;
@@ -377,7 +379,7 @@ void worker(void*){
       done(q.id,ok,message,!ok||!displayCommand);
     }
     if(uxQueueMessagesWaiting(requests)==0&&activationPending.exchange(false)&&activationContext.load()==context()){
-      if(context()==vd::KeyContext::Idle||context()==vd::KeyContext::Checkpoint){bool ok=runSelected(true);if(!ok&&notice.isEmpty())notice="Start nicht bestätigt";}
+      if(context()==vd::KeyContext::Idle||context()==vd::KeyContext::Checkpoint||context()==vd::KeyContext::BalloonReady){bool ok=runSelected(true);if(!ok&&notice.isEmpty())notice="Start nicht bestätigt";}
     }
     if(coolCancel){cooldown.cancel();coolCancel=false;}
     recoverCooling(WiFi.status()==WL_CONNECTED&&time(nullptr)>=1735689600);
@@ -424,7 +426,7 @@ void keyWorker(void*){
   } io;
   vd::KeyLink<KeyIO> link(io);vd::KeyInput keyInput;vd::WakePress wakeKey;uint64_t ledAt=0;int rgb=0;
   for(;;){
-    uint64_t n=nowMs();if(n-ledAt>=100){ledAt=n;int intensity=8+int((std::sin(double(n%2400)/2400*6.283)+1)*10);switch(keyColor.load()){case 1:rgb=0x00283c;break;case 2:rgb=(intensity<<16)|(intensity/2<<8);break;case 3:rgb=(n%800<400?0x380000:0x080000);break;case 4:rgb=intensity<<8;break;case 5:rgb=intensity*0x010101;break;default:rgb=0x001800;}}
+    uint64_t n=nowMs();if(n-ledAt>=100){ledAt=n;int intensity=8+int((std::sin(double(n%2400)/2400*6.283)+1)*10);switch(keyColor.load()){case 1:rgb=0x00283c;break;case 2:rgb=(intensity<<16)|(intensity/2<<8);break;case 3:rgb=(n%800<400?0x380000:0x080000);break;case 4:rgb=intensity<<8;break;case 5:rgb=intensity*0x010101;break;case 6:rgb=(intensity<<8)|intensity;break;default:rgb=0x001800;}}
     link.tick(vd::dimLed(rgb,keyBrightness.load()));bool wakeOnly=wakeKey.consume(link.held,displayResting.load());if(wakeOnly)displayWakeRequested=true;keyHeld=link.held;if(link.alive)keySeen=link.seen;
     inputAction(keyInput.tick(link.held,link.alive,wakeOnly?vd::KeyContext::Fault:inputContext.load(),nowMs()),1);keyStackFree=uxTaskGetStackHighWaterMark(nullptr);
     vTaskDelay(pdMS_TO_TICKS(15));
@@ -479,7 +481,7 @@ void menuAction(const vd::UiSnapshot& u){int i=uiState.menu;if(i==0){uiState.scr
  if(i==8)localCommand("timer");if(i==9)localCommand(u.connected?"disconnect":"connect");if(i==10)localCommand("heat");if(i==11)localCommand("fan");if(i==16)localCommand("rfidLearn");if(i==17){localCommand("setupAP");uiState.screen=vd::Screen::Info;return;}
  if(i==13||i==14){JsonDocument q;q["command"]="configure";q["settings"][i==13?"sound":"autoOff"]=i==13?!u.sound:!u.autoOff;String t;serializeJson(q,t);enqueue(t,0);}uiState.screen=vd::Screen::Home;
 }
-void primary(const vd::UiSnapshot& u){if(uiState.screen==vd::Screen::Menu)menuAction(u);else if(uiState.screen==vd::Screen::Edit)finishEdit(u);else if(uiState.screen==vd::Screen::Details)uiState.value=(uiState.value+1)%4;else if(uiState.screen!=vd::Screen::Home)uiState.screen=vd::Screen::Home;else if(u.busy&&u.phase!=vd::UiPhase::Checkpoint&&u.phase!=vd::UiPhase::HoseHeating&&u.phase!=vd::UiPhase::HoseReady){stopRequested=true;localCommand("stop");}else if(!u.hose||!u.busy)localCommand("run");}
+void primary(const vd::UiSnapshot& u){if(uiState.screen==vd::Screen::Menu)menuAction(u);else if(uiState.screen==vd::Screen::Edit)finishEdit(u);else if(uiState.screen==vd::Screen::Details)uiState.value=(uiState.value+1)%4;else if(uiState.screen!=vd::Screen::Home)uiState.screen=vd::Screen::Home;else if(u.busy&&u.phase!=vd::UiPhase::Checkpoint&&u.phase!=vd::UiPhase::BalloonReady&&u.phase!=vd::UiPhase::HoseHeating&&u.phase!=vd::UiPhase::HoseReady){stopRequested=true;localCommand("stop");}else if(!u.hose||!u.busy)localCommand("run");}
 void setup(){
   auto cfg=M5.config();M5Dial.begin(cfg,true,true);auto speaker=M5Dial.Speaker.config();speaker.dma_buf_len=128;speaker.dma_buf_count=2;M5Dial.Speaker.config(speaker);M5Dial.Display.setBrightness(160);Serial.begin(115200);
   stateMutex=xSemaphoreCreateMutex();requests=xQueueCreate(8,sizeof(Request));preferences.begin("volcano-dial",false);
@@ -505,7 +507,7 @@ void usbConsole(){
     if(c!='\n'){if(line.length()<512)line+=c;else discarded=true;continue;}
     JsonDocument q;if(discarded||deserializeJson(q,line)){Serial.println("{\"error\":\"USB JSON ungueltig/zu lang\"}");}
     else if(String(q["command"]|"")=="info"){
-      JsonDocument d;d["device"]="VolcanoDial";d["version"]="0.2.8";d["pin"]=pin;d["apName"]=apName;d["apPassword"]=apPassword;d["ip"]=WiFi.localIP().toString();d["ap"]=apOn.load();d["heap"]=ESP.getFreeHeap();d["filesystem"]=fsReady;serializeJson(d,Serial);Serial.println();
+      JsonDocument d;d["device"]="VolcanoDial";d["version"]="0.2.10";d["pin"]=pin;d["apName"]=apName;d["apPassword"]=apPassword;d["ip"]=WiFi.localIP().toString();d["ap"]=apOn.load();d["heap"]=ESP.getFreeHeap();d["filesystem"]=fsReady;serializeJson(d,Serial);Serial.println();
     }else if(String(q["command"]|"")=="status"){
       xSemaphoreTake(stateMutex,portMAX_DELAY);auto s=stateText;xSemaphoreGive(stateMutex);Serial.println(*s);
     }else{if(String(q["command"]|"")=="stop")stopRequested=true;Serial.println(enqueue(line,0,String(q["command"]|"")!="sleepDisplay"&&String(q["command"]|"")!="wakeDisplay",String(q["command"]|"")!="sleepDisplay")?"{\"accepted\":true}":"{\"error\":\"Warteschlange voll\"}");}
@@ -559,7 +561,7 @@ void loop(){
   if(M5Dial.Rfid.PICC_IsNewCardPresent()&&M5Dial.Rfid.PICC_ReadCardSerial()){
     bool wakeOnly=displayResting.load();displayIdle.wake(n);dirtyFrame.invalidate();String uid;for(byte i=0;i<M5Dial.Rfid.uid.size;++i){if(M5Dial.Rfid.uid.uidByte[i]<16)uid+='0';uid+=String(M5Dial.Rfid.uid.uidByte[i],HEX);}JsonDocument q;q["command"]="rfidSeen";q["uid"]=uid;String text;serializeJson(q,text);if(!wakeOnly)enqueue(text,0);M5Dial.Rfid.PICC_HaltA();
   }
-  static vd::UiPhase previous=vd::UiPhase::Idle;if(u.phase!=previous&&(u.phase==vd::UiPhase::Complete||u.phase==vd::UiPhase::Checkpoint||u.phase==vd::UiPhase::HoseReady||u.phase==vd::UiPhase::Error)){displayIdle.wake(n);dirtyFrame.invalidate();}if(u.phase!=previous&&(u.phase==vd::UiPhase::Complete||u.phase==vd::UiPhase::Checkpoint||u.phase==vd::UiPhase::HoseReady||u.phase==vd::UiPhase::Error)&&u.sound)M5Dial.Speaker.tone(u.phase==vd::UiPhase::Error?400:1500,120);previous=u.phase;
+  static vd::UiPhase previous=vd::UiPhase::Idle;if(u.phase!=previous&&(u.phase==vd::UiPhase::Complete||u.phase==vd::UiPhase::Checkpoint||u.phase==vd::UiPhase::BalloonReady||u.phase==vd::UiPhase::HoseReady||u.phase==vd::UiPhase::Error)){displayIdle.wake(n);dirtyFrame.invalidate();}if(u.phase!=previous&&(u.phase==vd::UiPhase::Complete||u.phase==vd::UiPhase::Checkpoint||u.phase==vd::UiPhase::BalloonReady||u.phase==vd::UiPhase::HoseReady||u.phase==vd::UiPhase::Error)&&u.sound)M5Dial.Speaker.tone(u.phase==vd::UiPhase::Error?400:1500,120);previous=u.phase;
   if(M5Dial.Speaker.isRunning()&&!M5Dial.Speaker.isPlaying())M5Dial.Speaker.end();
   bool sleepAsked=displaySleepRequested.exchange(false);if(sleepAsked&&!keepAwake){displayIdle.sleepNow();uiState.screen=vd::Screen::Home;}
   uint32_t visibleHash=vd::visualHash(u,uiState);static uint32_t previousVisibleHash=0;static bool visualInitialized=false;

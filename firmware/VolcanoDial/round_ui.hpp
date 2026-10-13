@@ -8,6 +8,7 @@ constexpr uint16_t INK=0xffff,MUTED=0x8c92,BG=0x0863,PANEL=0x1927,GREEN=0x4f57,A
 inline uint32_t codepoint(const char*& p){uint8_t c=*p++;if(c<128)return c;int n=c<224?1:c<240?2:3;uint32_t v=c&(n==1?31:n==2?15:7);while(n--){if(!*p||(uint8_t(*p)&192)!=128)return '?';v=(v<<6)|(uint8_t(*p++)&63);}return v;}
 inline const Glyph* glyph(const Font& f,uint32_t c){for(int i=0;i<f.count;++i)if(f.glyphs[i].code==c)return f.glyphs+i;return f.glyphs+('?' -32);}
 inline int textWidth(const Font& f,const char* p){int w=0;while(*p)w+=glyph(f,codepoint(p))->advance;return w;}
+inline const Font& titleFont(const char* name){return textWidth(font22,name)<=178?font22:textWidth(font18,name)<=178?font18:font14;}
 inline uint16_t blend(uint16_t a,uint16_t b,int coverage){int r=((a>>11)*(15-coverage)+(b>>11)*coverage)/15,g=(((a>>5)&63)*(15-coverage)+((b>>5)&63)*coverage)/15,bl=((a&31)*(15-coverage)+(b&31)*coverage)/15;return r<<11|g<<5|bl;}
 inline const char* menuLabel(int i){static const char* a[]={"Zurück","Zieltemperatur","Starttemperatur","Endtemperatur","Füllzeit","Heizschritte","Timer: Sekunden","Timer: Temperatur","Timer starten","Bluetooth","Heizung","Lüftung","Helligkeit","Signaltöne","Hue Automatik","Hue Schwelle","RFID zuordnen","Einrichtungs-WLAN","Geräteinfo","Schlauch beenden","Display aus"};return a[std::clamp(i,0,20)];}
 inline int parameter(const UiSnapshot& s,int i){switch(i){case 1:return s.hose?s.hoseTemperature:s.target;case 2:return s.startTemp;case 3:return s.endTemp;case 4:return s.fillTime;case 5:return s.steps;case 6:return s.timerSeconds;case 7:return s.timerTemperature;case 12:return s.brightness;case 15:return s.threshold;default:return 0;}}
@@ -60,16 +61,16 @@ template<class Canvas> void paint(Canvas& c,const UiSnapshot& s,const UiState& u
  // The top menu target is separate from all start/air/stop targets.
  p.rounded(100,22,40,24,12,PANEL);p.text(font18,"···",120,20,32,MUTED,PANEL);
  p.text(font12,s.connected?"BT":"BT aus",74,43,54,s.connected?GREEN:MUTED);p.text(font12,s.wifi?"WLAN":"OFF",166,43,52,s.wifi?MUTED:AMBER);
- p.text(font22,s.name[0]?s.name:"Keine Auswahl",120,54,178);
+ const char* title=s.name[0]?s.name:"Keine Auswahl";p.text(titleFont(title),title,120,54,178);
  if(s.valid)snprintf(b,sizeof b,"%d°",s.current);else snprintf(b,sizeof b,"--");p.text(font40,b,120,76,180);
  if(s.workflow&&(s.busy||s.retryStage)){snprintf(b,sizeof b,s.retryStage?"Erneut: %s":s.phase==UiPhase::Checkpoint?"Weiter: %s":"Preset: %s",s.stageName);p.text(font14,b,120,118,200,MUTED);}else if(s.fillEditable&&!s.busy){snprintf(b,sizeof b,"Ziel %d°",s.target);p.text(font12,b,75,119,78,MUTED);snprintf(b,sizeof b,"Füllzeit %d s",s.fillTime);p.text(font12,b,166,119,86,BLUE);}else{snprintf(b,sizeof b,"Ziel %d °C",s.hose?s.hoseTemperature:s.target);p.text(font14,b,120,118,182,MUTED);}
- const char* line=s.phase==UiPhase::Connecting?"Verbinden …":s.phase==UiPhase::Checkpoint?"Bereit für nächste Stufe":s.phase==UiPhase::Error?"Fehler · Gerät prüfen":s.phase==UiPhase::HoseHeating?"Heizt · danach Luft halten":s.phase==UiPhase::HoseReady?(s.fan?"Luft läuft · loslassen = AUS":"Bereit · für Luft halten"):s.cooling?"Kühlt ab · Hue schaltet aus":s.phase==UiPhase::Complete?"Abgeschlossen":s.workflow?"WORKFLOW":s.hose?"MANUELL · SCHLAUCH":"PRESET";
+ const char* line=s.phase==UiPhase::Connecting?"Verbinden …":s.phase==UiPhase::BalloonReady?"Ballon aufsetzen":s.phase==UiPhase::Checkpoint?"Bereit für nächste Stufe":s.phase==UiPhase::Error?"Fehler · Gerät prüfen":s.phase==UiPhase::HoseHeating?"Heizt · danach Luft halten":s.phase==UiPhase::HoseReady?(s.fan?"Luft läuft · loslassen = AUS":"Bereit · für Luft halten"):s.cooling?"Kühlt ab · Hue schaltet aus":s.phase==UiPhase::Complete?"Abgeschlossen":s.workflow?"WORKFLOW":s.hose?"MANUELL · SCHLAUCH":"PRESET";
  if(s.phase==UiPhase::Running){if(s.actionType==0)snprintf(b,sizeof b,"Heizt auf %d °C",s.actionTarget);else snprintf(b,sizeof b,"%s · %d s",s.actionType==2?"Lüftet":"Wartet",s.remaining);line=b;}
  if(s.message[0]&&(s.phase==UiPhase::Error||!s.busy))line=s.message;
  if(s.workflow&&!s.busy&&!s.retryStage&&s.startStage>1&&s.stages>1&&s.phase!=UiPhase::Error){snprintf(b,sizeof b,"Start ab Stufe %d / %d",s.startStage,s.stages);line=b;}
  p.text(font12,line,120,135,204,s.phase==UiPhase::Error?RED:MUTED);
  if(s.hose&&(s.phase==UiPhase::HoseReady||s.phase==UiPhase::HoseHeating)){p.button(29,112,s.phase==UiPhase::HoseReady?"Luft halten":"Heizt …",s.phase==UiPhase::HoseReady?BLUE:PANEL);p.button(147,64,"Ende",RED);}
- else p.button(42,156,s.phase==UiPhase::Checkpoint?"Weiter":s.busy?"Stoppen":s.retryStage?"Preset erneut":s.hose?"Heizen starten":"Starten",s.busy&&s.phase!=UiPhase::Checkpoint?RED:GREEN);
+ else p.button(42,156,s.phase==UiPhase::BalloonReady?"Ballon bereit":s.phase==UiPhase::Checkpoint?"Weiter":s.busy?"Stoppen":s.retryStage?"Preset erneut":s.hose?"Heizen starten":"Starten",s.busy&&s.phase!=UiPhase::Checkpoint&&s.phase!=UiPhase::BalloonReady?RED:GREEN);
  if(s.workflow&&s.busy)snprintf(b,sizeof b,"Stufe %d / %d",s.stage,s.stages);else snprintf(b,sizeof b,"H %s · L %s",s.heat?"AN":"AUS",s.fan?"AN":"AUS");p.text(font12,b,120,202,100,MUTED);
 }
 }

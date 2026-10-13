@@ -103,5 +103,20 @@ int main(int argc,char**argv) {
  keyIO.colorOK=true;keyIO.clock=1120;link.tick(1);assert(keyIO.colors==4);
  keyIO.clock=1140;link.tick(1);assert(keyIO.colors==4);
  keyIO.readOK=false;keyIO.pressed=true;keyIO.clock=1160;link.tick(1);assert(!link.alive&&!link.held);
+ // A balloon may only be filled after a fresh, explicit confirmation.
+ Fake balloon;Engine be(balloon);Plan bp;bp.workflow=true;
+ bp.stages={{"balloon",{{ActionType::Heat,180,360},{ActionType::Wait,0,5},{ActionType::Confirm,0,120},{ActionType::Air,0,1}}}};
+ assert(be.start(bp,100));balloon.s.sampleAt=balloon.s.statusAt=100;be.tick(100);
+ balloon.s.sampleAt=balloon.s.statusAt=120;be.tick(120);
+ balloon.s.sampleAt=balloon.s.statusAt=5140;be.tick(5140);
+ balloon.s.sampleAt=balloon.s.statusAt=5160;be.tick(5160);
+ assert(be.awaitingBalloon()&&balloon.ons==0&&!balloon.s.fan&&balloon.s.heat);
+ assert(be.confirmBalloon(5170));assert(!be.awaitingBalloon()&&balloon.ons==0);
+ balloon.s.sampleAt=balloon.s.statusAt=5180;be.tick(5180);assert(balloon.ons==1);
+ be.stop(5200);assert(!balloon.s.fan&&!balloon.s.heat);
+ assert(be.start(bp,6000));balloon.s.sampleAt=balloon.s.statusAt=6000;be.tick(6000);balloon.s.sampleAt=balloon.s.statusAt=6020;be.tick(6020);
+ balloon.s.sampleAt=balloon.s.statusAt=11040;be.tick(11040);balloon.s.sampleAt=balloon.s.statusAt=11060;be.tick(11060);
+ balloon.s.sampleAt=balloon.s.statusAt=131061;be.tick(131061);
+ assert(be.phase==Phase::Error&&balloon.ons==1&&!balloon.s.heat&&!balloon.s.fan);
  std::cout<<"Engine / cooldown / optional key tests passed\n";
 }

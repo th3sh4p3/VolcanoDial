@@ -1,7 +1,7 @@
 import { MAX_TEMP, MIN_TEMP, MIN_FILL_TIME, MAX_FILL_TIME, MIN_STEPS, MAX_STEPS } from '../ble/ble-constants.js';
 import { createVariableContext, evaluateBinding } from './expression.js';
 
-const NODE_TYPES = new Set(['start', 'end', 'reachTemperature', 'wait', 'air', 'heaterOff']);
+const NODE_TYPES = new Set(['start', 'end', 'reachTemperature', 'wait', 'air', 'heaterOff', 'confirmBalloon']);
 const WORKFLOW_NODE_TYPES = new Set(['start', 'end', 'preset']);
 
 function clone(value) {
@@ -106,6 +106,9 @@ export function compileAdvancedPreset(preset, globalVariables = []) {
       actions.push({ type: node.type, nodeId: node.id, durationSeconds });
     } else if (node.type === 'heaterOff') {
       actions.push({ type: node.type, nodeId: node.id });
+    } else if (node.type === 'confirmBalloon') {
+      const timeoutSeconds = range(evaluateBinding(config.timeout || { mode: 'literal', value: 120 }, 'duration', context), 1, 600, 'Balloon confirmation timeout');
+      actions.push({ type: node.type, nodeId: node.id, durationSeconds: timeoutSeconds });
     }
   }
   return { presetId: preset.id, presetName: preset.name, actions };

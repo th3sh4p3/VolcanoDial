@@ -1,6 +1,6 @@
 # VolcanoDial
 
-Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Vorbereiteter Quellstand **0.2.8**; zuletzt am Gerät bestätigte Version **0.2.7**.
+Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Aktueller Quellstand **0.2.10**, auf dem Entwicklungsgerät installiert und geprüft. Das zuletzt veröffentlichte Installationspaket ist weiterhin **0.2.7**.
 
 ## Vom Einkauf zum laufenden Gerät
 
@@ -12,6 +12,8 @@ Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1
 
 **[Vollständige Bedienungsanleitung als PDF](docs/VolcanoDial_Bedienungsanleitung.pdf)**
 
+Die PDF-Datei enthält die neu hinzugefügte Aroma-Kurve 3 noch nicht; die [aktuelle Online-Anleitung](docs/BEDIENUNGSANLEITUNG.md) und die [Aroma-Anleitung](docs/AROMA-KURVE-3.md) ergänzen sie.
+
 Der Windows-Installer braucht keine Arduino-Installation. Grundaufbau und Nutzung benötigen keinen Akku und keine 3D-Druckteile. Der Dial enthält bereits Mikrocontroller, WLAN/Bluetooth, Anzeige, Touch und Drehgeber.
 
 ## Funktionen
@@ -20,7 +22,8 @@ Der Windows-Installer braucht keine Arduino-Installation. Grundaufbau und Nutzun
 - Drehknopf, Klick und Touch für Auswahl, Start, Weiter, Stop und Werte.
 - Einfache/erweiterte Presets, lineare Workflows, Variablen und Formeln; lokaler Browsereditor mit JSON-Import/Export.
 - Workflow-Zwischenpause wartet auf bewusste Bedienung. Nach manuellem Abbruch bietet **Preset erneut** die unterbrochene Stufe von Anfang an an; abgeschlossene Stufen werden übersprungen.
-- Im vorbereiteten Stand 0.2.8 wählt ein Tipp auf den äußeren Ring eine Workflow-Startstufe; erst „Starten“ führt diese und die folgenden Stufen aus. Die gemeinsame Daily-Ballonfüllzeit lässt sich direkt im Hauptbild antippen und gilt für alle drei Daily-Stufen.
+- Ein Tipp auf den äußeren Ring wählt eine Workflow-Startstufe; erst „Starten“ führt diese und die folgenden Stufen aus. Die gemeinsame Ballonfüllzeit lässt sich direkt im Hauptbild antippen und gilt für alle drei Daily- oder Aroma-Kurve-3-Stufen.
+- **[Aroma-Kurve 3](docs/AROMA-KURVE-3.md)** ergänzt Daily um drei Ballons mit abgestuften Temperaturen. Vor der ersten Lüftung jedes Ballons verlangt der Dial „Ballon aufsetzen“; die Bestätigung funktioniert am Dial oder mit dem optionalen Zusatztaster.
 - **Schlauchmodus**, standardmäßig 210 °C: heizen, dann neu halten für Luft; Loslassen fordert AUS an.
 - Optionaler **Chain Key U206** wird automatisch erkannt: Start/Weiter, langer Druck für Stop, Halten im bereiten Schlauchmodus. Ohne Taste bleiben die Grundfunktionen am Dial verfügbar.
 - Hue-Steckdose vor dem Start einschalten, nach Ende/Stop und Abkühlen ausschalten; Abschaltauftrag übersteht einen Dial-Neustart.
@@ -31,7 +34,7 @@ Die Remote-Abschaltung benötigt eine funktionierende Funkverbindung. Bei „AUS
 
 ## Aktueller Prüfstand
 
-Der vorbereitete Stand 0.2.8 besteht 98/98 automatisierte Fälle und native UI-Prüfungen. Er wurde noch nicht am Dial installiert; der oben verlinkte Download bleibt deshalb die zuletzt installierte Version 0.2.7. Diese wurde auf einem Dial v1.1 per USB mit bestätigtem Schreibhash installiert; Bibliothek und Einstellungen blieben erhalten, HEAT/AIR waren aus und kein Ablauf startete automatisch. Das installierte 0.2.7-Image hat 1.824.387 Byte Programm und 69.768 Byte statisches RAM, kein PSRAM. Der seltene Statusfehler beim Wechsel einer Daily-Stufe wurde im Test nachgestellt und korrigiert; ein vollständiger realer Daily-Heizlauf zur erneuten Prüfung steht noch aus. Ältere Geräteprüfungen und Grenzen sind getrennt dokumentiert.
+Version 0.2.10 besteht 100/100 automatisierte Fälle einschließlich Compiler-Parität, Ablaufsteuerung, Eingaben und runder UI. Das Geräteabbild benötigt 1.828.963 Byte Programm und 69.856 Byte statisches RAM, ohne PSRAM. Auf dem Dial wurde nur die App-Partition per USB aktualisiert und der Schreibhash bestätigt. Die ergänzte Bibliothek und sämtliche Einstellungen blieben erhalten; der Neustart endete ohne automatischen Ablauf, mit HEAT/AIR AUS und WLAN verbunden. Bei einem vorherigen USB-Neustart brauchte die WLAN-Anmeldung mehrere automatische Versuche. Ein beaufsichtigter realer Drei-Ballon-Heizlauf steht noch aus. Das oben verlinkte Release-ZIP 0.2.7 enthält die neue Funktion nicht; zum Nachbau des aktuellen Quellstands die [Entwickleranleitung](docs/ENTWICKLUNG.md) verwenden.
 
 - [Prüfbericht](docs/PRUEFBERICHT.md), [maschinenlesbare Prüfung](docs/verification.json)
 - [Stufe erneut starten](docs/WORKFLOW_STAGE_RETRY.md)

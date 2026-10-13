@@ -12,8 +12,8 @@
 
 namespace vd {
 inline std::string str(JsonVariantConst v) { const char* p=v.as<const char*>(); return p?p:""; }
-enum class ActionType { Heat, Wait, Air, HeatOff };
-inline const char* actionName(ActionType t) { switch(t){case ActionType::Heat:return "reachTemperature";case ActionType::Wait:return "wait";case ActionType::Air:return "air";default:return "heaterOff";} }
+enum class ActionType { Heat, Wait, Air, HeatOff, Confirm };
+inline const char* actionName(ActionType t) { switch(t){case ActionType::Heat:return "reachTemperature";case ActionType::Wait:return "wait";case ActionType::Air:return "air";case ActionType::Confirm:return "confirmBalloon";default:return "heaterOff";} }
 struct Action { ActionType type; double value=0,seconds=0; };
 struct Stage { std::string name; std::vector<Action> actions; };
 struct Plan { bool workflow=false; std::string name; std::vector<Stage> stages; };
@@ -103,7 +103,7 @@ class Compiler {
       if(id.empty()||id.size()>80||nodes.count(id))return fail("Knoten-ID fehlt oder doppelt");nodes[id]=n;
       if(t=="start"){if(!start.empty())return fail("Mehrere Startknoten");start=id;}
       else if(t=="end"){if(!end.empty())return fail("Mehrere Endknoten");end=id;}
-      else if(workflow?t!="preset":(t!="reachTemperature"&&t!="wait"&&t!="air"&&t!="heaterOff"))return fail("Unbekannter Knotentyp: "+t);
+      else if(workflow?t!="preset":(t!="reachTemperature"&&t!="wait"&&t!="air"&&t!="heaterOff"&&t!="confirmBalloon"))return fail("Unbekannter Knotentyp: "+t);
     }
     if(start.empty()||end.empty())return fail("Start oder Ende fehlt");
     for(auto e:g["edges"].as<JsonArrayConst>()){
@@ -134,6 +134,9 @@ class Compiler {
         if(!number(temp,40,230,"Temperatur")||!number(timeout,1,1800,"Heizzeitlimit")||!action(st,{ActionType::Heat,temp,timeout}))return false;
       }else if(t=="air"||t=="wait"){
         double secs=binding(cfg["duration"],"duration");if(!number(secs,0.1,3600,"Dauer")||!action(st,{t=="air"?ActionType::Air:ActionType::Wait,0,secs}))return false;
+      }else if(t=="confirmBalloon"){
+        double secs=cfg["timeout"].isNull()?120:binding(cfg["timeout"],"duration");
+        if(!number(secs,1,600,"Ballon-Bestaetigungszeit")||!action(st,{ActionType::Confirm,0,secs}))return false;
       }else if(t=="heaterOff"&&!action(st,{ActionType::HeatOff}))return false;
       if(!error.empty())return false;
     }return true;
@@ -200,6 +203,14 @@ class Engine {
   Phase phase=Phase::Idle;size_t stageIndex=0,actionIndex=0;std::string error;double remaining=0;uint64_t checkpointAt=0;
   explicit Engine(DeviceIO& device):io(device){}
   bool busy()const{return phase==Phase::Running||phase==Phase::AwaitingNext;}
+  bool awaitingBalloon()const{return phase==Phase::Running&&active&&stageIndex<plan.stages.size()&&actionIndex<plan.stages[stageIndex].actions.size()&&plan.stages[stageIndex].actions[actionIndex].type==ActionType::Confirm;}
+  bool confirmBalloon(uint64_t now){
+    if(!awaitingBalloon())return false;
+    now=stamp(now);auto s=io.snapshot();
+    if(!s.connected||!s.valid||s.fault||now<s.statusAt||now-s.statusAt>1500||!s.heat||!s.heatRequested||s.fan||s.fanRequested||s.interlock==false){failed(now,"Ballon-Bestaetigung: Volcano-Status ungueltig");return false;}
+    if(now>=deadline){failed(now,"Ballon nicht bestaetigt (Zeitlimit)");return false;}
+    ++actionIndex;active=false;remaining=0;lastTick=now;return true;
+  }
   const Plan& currentPlan()const{return plan;}
   bool canRestartStage()const{return restartPending&&phase==Phase::Aborted&&plan.workflow&&stoppedStage<plan.stages.size();}
   size_t restartStageIndex()const{return stoppedStage;}
@@ -249,7 +260,7 @@ class Engine {
     if(!active){
       began=now;
       if(a.type==ActionType::Heat){if(!io.target(a.value)){failed(now,"Solltemperatur nicht bestaetigt");return;}if(!io.heat(true)){failed(now,"Heizen nicht bestaetigt");return;}deadline=stamp(now)+uint64_t(a.seconds*1000);if(!io.refreshTemperature()){failed(now,"Temperaturmessung nicht bestaetigt");return;}}
-      else if(a.type==ActionType::Wait)deadline=now+uint64_t(a.seconds*1000);
+      else if(a.type==ActionType::Wait||a.type==ActionType::Confirm){deadline=now+uint64_t(a.seconds*1000);if(a.type==ActionType::Confirm&&(s.fan||s.fanRequested||!s.heat||!s.heatRequested)){failed(now,"Ballon-Bestaetigung: Ausgangszustand ungueltig");return;}}
       else if(a.type==ActionType::Air){airGoalMs+=a.seconds*1000;if(airElapsedMs<airGoalMs){if(!io.fan(true)){failed(now,"Lueftung EIN nicht bestaetigt");return;}airOn=true;lastTick=stamp(now);}}
       else if(!io.heat(false)){failed(now,"Heizung AUS nicht bestaetigt");return;}
       active=true;now=stamp(now);s=io.snapshot();if(std::isfinite(s.fanTotalMs)&&std::isfinite(fanBaseline))airElapsedMs=std::max(0.0,s.fanTotalMs-fanBaseline);
@@ -257,6 +268,7 @@ class Engine {
     bool done=false;
     if(a.type==ActionType::Heat){if(!std::isfinite(s.current)||now-s.sampleAt>1500){failed(now,"Temperaturmessung veraltet");return;}done=s.current>=a.value-1;remaining=double(deadline>now?deadline-now:0)/1000;if(!done&&now>=deadline){failed(now,"Heizzeitlimit ueberschritten");return;}}
     else if(a.type==ActionType::Wait){done=now>=deadline;remaining=double(deadline>now?deadline-now:0)/1000;}
+    else if(a.type==ActionType::Confirm){remaining=double(deadline>now?deadline-now:0)/1000;if(!s.heat||!s.heatRequested||s.fan||s.fanRequested){failed(now,"Ballon-Bestaetigung: Ausgangszustand ungueltig");return;}if(now>=deadline){failed(now,"Ballon nicht bestaetigt (Zeitlimit)");return;}}
     else if(a.type==ActionType::Air){remaining=std::max(0.0,airGoalMs-airElapsedMs)/1000;done=remaining<=0;if(!done&&!s.fan){failed(now,"Lueftung vorzeitig ausgefallen");return;}if(done){if(!io.fan(false)){failed(now,"Lueftung AUS nicht bestaetigt");return;}auto after=io.snapshot();if(std::isfinite(after.fanTotalMs)&&std::isfinite(fanBaseline))airElapsedMs=std::max(0.0,after.fanTotalMs-fanBaseline);else airElapsedMs+=double(stamp(now)-lastTick);airOn=false;}}
     else done=true;
     if(done){++actionIndex;active=false;remaining=0;}

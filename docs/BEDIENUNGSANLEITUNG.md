@@ -1,6 +1,6 @@
 # Volcano Dial - Einrichtung und Bedienung
 
-Version 0.2.8 (vorbereitet, noch nicht auf dem Gerät installiert) | 12.10.2026 | M5Stack Dial v1.1 / Volcano Hybrid
+Version 0.2.10 | 13.10.2026 | M5Stack Dial v1.1 / Volcano Hybrid
 
 Vor dem Installieren: [Einkaufsliste](../hardware/EINKAUFSLISTE.md) und [Hardware zusammenbauen](../hardware/AUFBAU.md).
 
@@ -66,7 +66,8 @@ Die große Zahl ist die gemessene Temperatur. Darunter stehen Zieltemperatur ode
 | Namen antippen | Vollständigen Namen, aktuellen/nächsten Presetnamen und Meldung ansehen; drehen oder tippen blättert |
 | Temperatur antippen | Zieltemperatur ändern, soweit für den aktuellen Zustand verfügbar |
 | Einen Abschnitt des äußeren Rings antippen | Bei ausgewähltem Workflow im Leerlauf die Startstufe auswählen; erst „Starten“ beginnt den Ablauf. Ab dort läuft der Workflow bis zum Ende. Bei Daily bedeutet Stufe 3 nur „03“. |
-| „Füllzeit … s“ im Hauptbild antippen | Gemeinsame Ballonfüllzeit direkt ändern: drehen und mit „Übernehmen“ speichern. Bei Daily gilt der neue Wert für alle drei Stufen. |
+| „Füllzeit … s“ im Hauptbild antippen | Gemeinsame Ballonfüllzeit direkt ändern: drehen und mit „Übernehmen“ speichern. Bei Daily und Aroma-Kurve 3 gilt der neue Wert für alle drei Stufen. |
+| „Ballon bereit“ bei Aroma-Kurve 3 antippen oder den Dial klicken | Bestätigt erst nach dem Aufsetzen des Ballons die erste Lüftung dieser Stufe. Bis dahin bleibt die Lüftung aus. |
 | Im Menü drehen oder ober-/unterhalb des gewählten Eintrags tippen | Vorherigen/nächsten verfügbaren Eintrag wählen |
 | Menüeintrag anklicken oder antippen | Öffnen; Zahlenwert drehen und mit Klick/„Übernehmen“ speichern |
 | Oben „Zurück“ antippen | Zum Hauptbild zurück |
@@ -99,7 +100,7 @@ Im Menü „Display aus“ schaltet die Anzeige sonst sofort ab. Im Browser unte
 
 Der grafische Editor wird unter „Presets & Workflows“ geöffnet. Seine Bezeichnungen wurden aus der PC-App übernommen und sind teilweise englisch. „New preset“ erzeugt ein einfaches oder erweitertes Preset, „New workflow“ eine Abfolge vorhandener Presets. Mit „Save“ speichern. „More → Validate now“ prüft die Definition. Nur lineare, vollständig verbundene Graphen ohne Verzweigung oder Schleifen sind zulässig.
 
-Einfache Presets: Start-/Endtemperatur 40-230 °C, Füllzeit 5-300 Sekunden, 1-20 Schritte. Erweiterte Presets unterstützen Zieltemperatur erreichen, warten, Luft fördern und Heizung ausschalten. Globale und lokale Variablen, Einheiten und Rechenausdrücke werden wie in der PC-App ausgewertet. Allgemeiner JavaScript-Code wird nicht ausgeführt.
+Einfache Presets: Start-/Endtemperatur 40-230 °C, Füllzeit 5-300 Sekunden, 1-20 Schritte. Erweiterte Presets unterstützen Zieltemperatur erreichen, warten, Luft fördern, Heizung ausschalten und eine bestätigte Ballonfreigabe mit Zeitlimit. Globale und lokale Variablen, Einheiten und Rechenausdrücke werden wie in der PC-App ausgewertet. Allgemeiner JavaScript-Code wird nicht ausgeführt.
 
 Workflow-Stufen verwenden vorhandene Presets. Nach jeder Stufe gehen Heizung und Lüftung AUS; der nächste Abschnitt wartet auf einen bewussten Weiter-Befehl am Dial, optionalen Zusatztaster oder im Browser. Bei der Füllzeitquelle „ui“ lässt sich die gemeinsame Füllzeit am Dial einstellen; sie gilt je Preset-Stufe und verteilt deren Luftaktionen proportional. Bei „presets“ bleiben die jeweiligen Preset-Füllzeiten erhalten. Heizungs-Rückmeldungen und die HEAT-Taste direkt am Volcano starten oder erweitern keinen Workflow. Nach einem Fehler startet der Ablauf erst nach einer erneuten bewussten Bedienung.
 
@@ -110,6 +111,8 @@ Die eigentliche Luftlaufzeit wird anhand bestätigter Lüftungszustände gezähl
 Bibliotheksänderungen und manuelle HEAT/AIR-Schalter sind während eines Laufs und seiner Zwischenpausen gesperrt. Stop und Weiter bleiben verfügbar. Schließen des Browsers stoppt einen laufenden Workflow nicht.
 
 Das beiliegende Daily-Beispiel enthält drei Stufen: „Preset 03“, „02“ mit 221 °C und „03“ mit konstant 222 °C. Die gemeinsame Füllzeit beträgt 53 Sekunden je Stufe; nach jeder Stufe wird auf Weiter gewartet. „Schlauch“ ist ein eingebauter manueller Modus und wird nicht als PC-Preset exportiert.
+
+**Aroma-Kurve 3** liegt in der Auswahlliste direkt hinter Daily und verwendet dieselbe Start-, Ring- und Weiter-Bedienung. Die drei neuen Presets heizen in kleinen Schritten auf 175–185, 195–205 und 220–230 °C. Vor der ersten Lüftung jedes Ballons fordert der Dial zum Aufsetzen und Bestätigen des Ballons auf. Nach 120 Sekunden ohne Bestätigung schaltet der Ablauf die Ausgänge aus. Die [genaue Bedienfolge und Temperaturaufteilung](AROMA-KURVE-3.md) sind separat beschrieben.
 
 ### Nach einem manuellen Workflow-Abbruch
 
@@ -122,6 +125,8 @@ Stop in einer Zwischenpause merkt die nächste noch offene Stufe. Zweites Stoppe
 In der PC-App die Bibliothek als JSON exportieren. Im Dial-Editor „More → Import library…“ wählen und die Datei auswählen. Im folgenden Dialog ersetzt „OK“ die Bibliothek nach einem Backup-Download; „Cancel“ führt zusammen. Danach Auswahl und Werte prüfen. „More → Export library…“ lädt die Dial-Bibliothek als JSON herunter. Diese Datei ist dein portables Backup, enthält jedoch keine Geräte-Zugangsdaten.
 
 Für Daily liegt zusätzlich `examples/Daily.json` bei. Auf einem neu eingerichteten Dial muss sie erst importiert werden; sie ist nicht automatisch in jeder Gerätebibliothek enthalten. Für eine erneute gezielte Übertragung mit Node.js: `VD_PIN` als Umgebungsvariable setzen und `node tools/transfer_daily.mjs http://Dial-IP examples/Daily.json Sicherung.json` ausführen. Die Sicherungsdatei darf noch nicht existieren; der Helfer ergänzt ausschließlich die drei Daily-Presets und den Workflow anhand ihrer IDs. PIN anschließend aus der Umgebung entfernen. Der normale Browserimport bleibt für eigene PC-Exporte verfügbar.
+
+Aroma-Kurve 3 kann ebenso additiv übertragen werden: `VD_PIN` setzen und `node tools/transfer_aroma.mjs http://Dial-IP Sicherung-Aroma.json` ausführen. Die Sicherungsdatei muss neu sein. Der Helfer ergänzt nur die drei AK3-Presets und den Workflow, setzt die bisherige Auswahl nicht um und platziert ihn direkt hinter Daily. Die Firmware muss dafür mindestens Version 0.2.9 unterstützen.
 
 Grenzen: 32 KiB Bibliothek, 32 Presets, 16 Workflows, 32 Variablen pro Liste, 128 Graphknoten je Graph, 32 Workflow-Stufen und 512 kompilierte Aktionen. Zu große Bibliotheken vor dem Import aufteilen. Bei konkurrierenden Änderungen meldet der Editor eine zwischenzeitlich geänderte Bibliothek: neu laden, statt fremde Änderungen zu überschreiben.
 
@@ -138,6 +143,7 @@ Beim Anschluss oder Wiederanschluss den Taster zuerst loslassen. Ein bereits ged
 | Preset oder Workflow ausgewählt, kein Lauf | Einmal drücken startet die Auswahl samt Hue/Bluetooth-Verbindung |
 | Workflow manuell gestoppt, Wiederholung verfügbar | Einmal drücken startet das angezeigte Preset erneut |
 | Workflow wartet zwischen zwei Stufen | Einmal drücken startet das nächste Preset |
+| „Ballon aufsetzen“ wird angezeigt | Nach Aufsetzen neu drücken; erst dann beginnt die Lüftung |
 | Preset/Workflow läuft | Neuer Druck etwa 0,8 s gehalten fordert Stop an; kurze Betätigung startet keine zusätzliche Luft |
 | Schlauch ausgewählt, noch nicht gestartet | Einmal drücken startet das Heizen |
 | Schlauch heizt | Warten; keine zusätzliche Luft |
@@ -146,7 +152,7 @@ Beim Anschluss oder Wiederanschluss den Taster zuerst loslassen. Ein bereits ged
 
 Der Startdruck wird bei Zustandswechseln nicht als Stop oder Halteanforderung weiterverwendet: zuerst loslassen, dann erneut drücken. Ein durchgehend gehaltener Taster überspringt keine Workflow-Stufen. Ohne Zubehör stehen dieselben Aktionen am Dial bereit.
 
-RGB-LED: Grün bereit, weiß pulsierend beim Verbinden, Gelb beim Heizen/laufenden Ablauf, grün pulsierend in der Zwischenpause, Blau bei laufender Luft, rot blinkend bei Fehler. Im bereiten Schlauchbetrieb leuchtet sie Grün. Die LED dimmt zusammen mit dem Bildschirm bis AUS und zeigt nach dem Aufwecken wieder die aktuelle Statusfarbe. Der Taster bleibt auch im dunklen Zustand ansprechbar; der erste Druck weckt ausschließlich. Die Funkübertragung braucht Zeit; eine AUS-Anforderung kann bei Funkverlust nicht garantiert übertragen werden.
+RGB-LED: Grün bereit, weiß pulsierend beim Verbinden, Gelb beim Heizen/laufenden Ablauf, grün pulsierend in der Zwischenpause, türkis pulsierend bei „Ballon aufsetzen“, Blau bei laufender Luft, rot blinkend bei Fehler. Im bereiten Schlauchbetrieb leuchtet sie Grün. Die LED dimmt zusammen mit dem Bildschirm bis AUS und zeigt nach dem Aufwecken wieder die aktuelle Statusfarbe. Der Taster bleibt auch im dunklen Zustand ansprechbar; der erste Druck weckt ausschließlich. Die Funkübertragung braucht Zeit; eine AUS-Anforderung kann bei Funkverlust nicht garantiert übertragen werden.
 
 ## 10. Timer, RFID und Diagnose
 

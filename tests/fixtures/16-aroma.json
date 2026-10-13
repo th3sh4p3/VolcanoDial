@@ -1,0 +1,673 @@
+{
+  "library": {
+    "settingsVersion": 2,
+    "presets": [
+      {
+        "id": "4b555acd-7c41-4cac-a287-f151ed561c84",
+        "name": "AK3 Aroma",
+        "kind": "advanced",
+        "variables": [],
+        "graph": {
+          "nodes": [
+            {
+              "id": "n0",
+              "type": "start"
+            },
+            {
+              "id": "n1",
+              "type": "reachTemperature",
+              "config": {
+                "temperature": {
+                  "mode": "literal",
+                  "value": 175
+                },
+                "timeout": {
+                  "mode": "literal",
+                  "value": 360
+                }
+              }
+            },
+            {
+              "id": "n2",
+              "type": "wait",
+              "config": {
+                "duration": {
+                  "mode": "literal",
+                  "value": 5
+                }
+              }
+            },
+            {
+              "id": "n3",
+              "type": "confirmBalloon",
+              "config": {
+                "timeout": {
+                  "mode": "literal",
+                  "value": 120
+                }
+              }
+            },
+            {
+              "id": "n4",
+              "type": "air",
+              "config": {
+                "duration": {
+                  "mode": "literal",
+                  "value": 13.25
+                }
+              }
+            },
+            {
+              "id": "n5",
+              "type": "reachTemperature",
+              "config": {
+                "temperature": {
+                  "mode": "literal",
+                  "value": 180
+                },
+                "timeout": {
+                  "mode": "literal",
+                  "value": 360
+                }
+              }
+            },
+            {
+              "id": "n6",
+              "type": "air",
+              "config": {
+                "duration": {
+                  "mode": "literal",
+                  "value": 26.5
+                }
+              }
+            },
+            {
+              "id": "n7",
+              "type": "reachTemperature",
+              "config": {
+                "temperature": {
+                  "mode": "literal",
+                  "value": 185
+                },
+                "timeout": {
+                  "mode": "literal",
+                  "value": 360
+                }
+              }
+            },
+            {
+              "id": "n8",
+              "type": "air",
+              "config": {
+                "duration": {
+                  "mode": "literal",
+                  "value": 13.25
+                }
+              }
+            },
+            {
+              "id": "n9",
+              "type": "end"
+            }
+          ],
+          "edges": [
+            {
+              "id": "e0",
+              "source": "n0",
+              "target": "n1"
+            },
+            {
+              "id": "e1",
+              "source": "n1",
+              "target": "n2"
+            },
+            {
+              "id": "e2",
+              "source": "n2",
+              "target": "n3"
+            },
+            {
+              "id": "e3",
+              "source": "n3",
+              "target": "n4"
+            },
+            {
+              "id": "e4",
+              "source": "n4",
+              "target": "n5"
+            },
+            {
+              "id": "e5",
+              "source": "n5",
+              "target": "n6"
+            },
+            {
+              "id": "e6",
+              "source": "n6",
+              "target": "n7"
+            },
+            {
+              "id": "e7",
+              "source": "n7",
+              "target": "n8"
+            },
+            {
+              "id": "e8",
+              "source": "n8",
+              "target": "n9"
+            }
+          ]
+        }
+      },
+      {
+        "id": "3d9052c2-6f49-46b0-8f0b-d9c480e40f7d",
+        "name": "AK3 Balance",
+        "kind": "advanced",
+        "variables": [],
+        "graph": {
+          "nodes": [
+            {
+              "id": "n0",
+              "type": "start"
+            },
+            {
+              "id": "n1",
+              "type": "reachTemperature",
+              "config": {
+                "temperature": {
+                  "mode": "literal",
+                  "value": 195
+                },
+                "timeout": {
+                  "mode": "literal",
+                  "value": 360
+                }
+              }
+            },
+            {
+              "id": "n2",
+              "type": "wait",
+              "config": {
+                "duration": {
+                  "mode": "literal",
+                  "value": 5
+                }
+              }
+            },
+            {
+              "id": "n3",
+              "type": "confirmBalloon",
+              "config": {
+                "timeout": {
+                  "mode": "literal",
+                  "value": 120
+                }
+              }
+            },
+            {
+              "id": "n4",
+              "type": "air",
+              "config": {
+                "duration": {
+                  "mode": "literal",
+                  "value": 13.25
+                }
+              }
+            },
+            {
+              "id": "n5",
+              "type": "reachTemperature",
+              "config": {
+                "temperature": {
+                  "mode": "literal",
+                  "value": 200
+                },
+                "timeout": {
+                  "mode": "literal",
+                  "value": 360
+                }
+              }
+            },
+            {
+              "id": "n6",
+              "type": "air",
+              "config": {
+                "duration": {
+                  "mode": "literal",
+                  "value": 26.5
+                }
+              }
+            },
+            {
+              "id": "n7",
+              "type": "reachTemperature",
+              "config": {
+                "temperature": {
+                  "mode": "literal",
+                  "value": 205
+                },
+                "timeout": {
+                  "mode": "literal",
+                  "value": 360
+                }
+              }
+            },
+            {
+              "id": "n8",
+              "type": "air",
+              "config": {
+                "duration": {
+                  "mode": "literal",
+                  "value": 13.25
+                }
+              }
+            },
+            {
+              "id": "n9",
+              "type": "end"
+            }
+          ],
+          "edges": [
+            {
+              "id": "e0",
+              "source": "n0",
+              "target": "n1"
+            },
+            {
+              "id": "e1",
+              "source": "n1",
+              "target": "n2"
+            },
+            {
+              "id": "e2",
+              "source": "n2",
+              "target": "n3"
+            },
+            {
+              "id": "e3",
+              "source": "n3",
+              "target": "n4"
+            },
+            {
+              "id": "e4",
+              "source": "n4",
+              "target": "n5"
+            },
+            {
+              "id": "e5",
+              "source": "n5",
+              "target": "n6"
+            },
+            {
+              "id": "e6",
+              "source": "n6",
+              "target": "n7"
+            },
+            {
+              "id": "e7",
+              "source": "n7",
+              "target": "n8"
+            },
+            {
+              "id": "e8",
+              "source": "n8",
+              "target": "n9"
+            }
+          ]
+        }
+      },
+      {
+        "id": "7dbb94d1-f467-418e-bb30-ed94bd8c590b",
+        "name": "AK3 Finish",
+        "kind": "advanced",
+        "variables": [],
+        "graph": {
+          "nodes": [
+            {
+              "id": "n0",
+              "type": "start"
+            },
+            {
+              "id": "n1",
+              "type": "reachTemperature",
+              "config": {
+                "temperature": {
+                  "mode": "literal",
+                  "value": 220
+                },
+                "timeout": {
+                  "mode": "literal",
+                  "value": 360
+                }
+              }
+            },
+            {
+              "id": "n2",
+              "type": "wait",
+              "config": {
+                "duration": {
+                  "mode": "literal",
+                  "value": 5
+                }
+              }
+            },
+            {
+              "id": "n3",
+              "type": "confirmBalloon",
+              "config": {
+                "timeout": {
+                  "mode": "literal",
+                  "value": 120
+                }
+              }
+            },
+            {
+              "id": "n4",
+              "type": "air",
+              "config": {
+                "duration": {
+                  "mode": "literal",
+                  "value": 10.6
+                }
+              }
+            },
+            {
+              "id": "n5",
+              "type": "reachTemperature",
+              "config": {
+                "temperature": {
+                  "mode": "literal",
+                  "value": 225
+                },
+                "timeout": {
+                  "mode": "literal",
+                  "value": 360
+                }
+              }
+            },
+            {
+              "id": "n6",
+              "type": "air",
+              "config": {
+                "duration": {
+                  "mode": "literal",
+                  "value": 15.9
+                }
+              }
+            },
+            {
+              "id": "n7",
+              "type": "reachTemperature",
+              "config": {
+                "temperature": {
+                  "mode": "literal",
+                  "value": 230
+                },
+                "timeout": {
+                  "mode": "literal",
+                  "value": 360
+                }
+              }
+            },
+            {
+              "id": "n8",
+              "type": "air",
+              "config": {
+                "duration": {
+                  "mode": "literal",
+                  "value": 26.5
+                }
+              }
+            },
+            {
+              "id": "n9",
+              "type": "end"
+            }
+          ],
+          "edges": [
+            {
+              "id": "e0",
+              "source": "n0",
+              "target": "n1"
+            },
+            {
+              "id": "e1",
+              "source": "n1",
+              "target": "n2"
+            },
+            {
+              "id": "e2",
+              "source": "n2",
+              "target": "n3"
+            },
+            {
+              "id": "e3",
+              "source": "n3",
+              "target": "n4"
+            },
+            {
+              "id": "e4",
+              "source": "n4",
+              "target": "n5"
+            },
+            {
+              "id": "e5",
+              "source": "n5",
+              "target": "n6"
+            },
+            {
+              "id": "e6",
+              "source": "n6",
+              "target": "n7"
+            },
+            {
+              "id": "e7",
+              "source": "n7",
+              "target": "n8"
+            },
+            {
+              "id": "e8",
+              "source": "n8",
+              "target": "n9"
+            }
+          ]
+        }
+      }
+    ],
+    "workflows": [
+      {
+        "id": "a847fe34-93c1-472a-9750-d4b473c5f78d",
+        "name": "Aroma-Kurve 3",
+        "fillTimeSource": "ui",
+        "fillTime": 53,
+        "graph": {
+          "nodes": [
+            {
+              "id": "n0",
+              "type": "start"
+            },
+            {
+              "id": "n1",
+              "type": "preset",
+              "config": {
+                "presetId": "4b555acd-7c41-4cac-a287-f151ed561c84"
+              }
+            },
+            {
+              "id": "n2",
+              "type": "preset",
+              "config": {
+                "presetId": "3d9052c2-6f49-46b0-8f0b-d9c480e40f7d"
+              }
+            },
+            {
+              "id": "n3",
+              "type": "preset",
+              "config": {
+                "presetId": "7dbb94d1-f467-418e-bb30-ed94bd8c590b"
+              }
+            },
+            {
+              "id": "n4",
+              "type": "end"
+            }
+          ],
+          "edges": [
+            {
+              "id": "e0",
+              "source": "n0",
+              "target": "n1"
+            },
+            {
+              "id": "e1",
+              "source": "n1",
+              "target": "n2"
+            },
+            {
+              "id": "e2",
+              "source": "n2",
+              "target": "n3"
+            },
+            {
+              "id": "e3",
+              "source": "n3",
+              "target": "n4"
+            }
+          ]
+        }
+      }
+    ],
+    "globalVariables": [],
+    "runnableOrder": [],
+    "activeRunnable": {
+      "kind": "workflow",
+      "id": "a847fe34-93c1-472a-9750-d4b473c5f78d"
+    }
+  },
+  "ref": {
+    "kind": "workflow",
+    "id": "a847fe34-93c1-472a-9750-d4b473c5f78d"
+  },
+  "expected": [
+    {
+      "name": "AK3 Aroma",
+      "actions": [
+        {
+          "type": "reachTemperature",
+          "temperature": 175,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 5
+        },
+        {
+          "type": "confirmBalloon",
+          "durationSeconds": 120
+        },
+        {
+          "type": "air",
+          "durationSeconds": 13.25
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 180,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "air",
+          "durationSeconds": 26.5
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 185,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "air",
+          "durationSeconds": 13.25
+        }
+      ]
+    },
+    {
+      "name": "AK3 Balance",
+      "actions": [
+        {
+          "type": "reachTemperature",
+          "temperature": 195,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 5
+        },
+        {
+          "type": "confirmBalloon",
+          "durationSeconds": 120
+        },
+        {
+          "type": "air",
+          "durationSeconds": 13.25
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 200,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "air",
+          "durationSeconds": 26.5
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 205,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "air",
+          "durationSeconds": 13.25
+        }
+      ]
+    },
+    {
+      "name": "AK3 Finish",
+      "actions": [
+        {
+          "type": "reachTemperature",
+          "temperature": 220,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "wait",
+          "durationSeconds": 5
+        },
+        {
+          "type": "confirmBalloon",
+          "durationSeconds": 120
+        },
+        {
+          "type": "air",
+          "durationSeconds": 10.6
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 225,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "air",
+          "durationSeconds": 15.9
+        },
+        {
+          "type": "reachTemperature",
+          "temperature": 230,
+          "timeoutSeconds": 360
+        },
+        {
+          "type": "air",
+          "durationSeconds": 26.5
+        }
+      ]
+    }
+  ]
+}

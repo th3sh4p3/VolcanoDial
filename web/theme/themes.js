@@ -23,7 +23,7 @@ const defaultCopy = {
   editor: {
     title: 'Presets & Workflows', presets: 'Presets', workflows: 'Workflows', advanced: 'Advanced',
     start: 'Start', reachTemperature: 'Reach Temperature', wait: 'Wait', air: 'Run Air',
-    heaterOff: 'Heater Off', preset: 'Preset Step', end: 'End', save: 'Save',
+    heaterOff: 'Heater Off', confirmBalloon: 'Confirm Balloon', preset: 'Preset Step', end: 'End', save: 'Save',
   },
 };
 
@@ -39,7 +39,7 @@ const overdriveCopy = {
   editor: {
     title: 'The Stash & Smoke Sessions', presets: 'The Stash', workflows: 'Smoke Sessions',
     advanced: 'Secret Garden', start: 'Spark Up', reachTemperature: 'Get Toasty',
-    wait: 'Let It Mellow', air: 'Cloud Time', heaterOff: 'Kill the Heat',
+    wait: 'Let It Mellow', air: 'Cloud Time', heaterOff: 'Kill the Heat', confirmBalloon: 'Balloon Ready',
     preset: 'Stash Pick', end: 'Touch Grass', save: 'Save the Stash',
   },
 };
@@ -56,7 +56,7 @@ const dankCopy = {
   editor: {
     title: 'Dank Dimension Mission Control', presets: 'Cosmic Stash', workflows: 'Joint Journeys',
     advanced: 'Forbidden Greenhouse', start: 'Ignite the Nug', reachTemperature: 'Enter Kush Cruise',
-    wait: 'Orbit & Mellow', air: 'Open Cloud Portal', heaterOff: 'Cool Bong Thrusters',
+    wait: 'Orbit & Mellow', air: 'Open Cloud Portal', heaterOff: 'Cool Bong Thrusters', confirmBalloon: 'Balloon Ready',
     preset: 'Stash Jar Stop', end: 'Mission Baked', save: 'Seal the Stash Jar',
   },
 };

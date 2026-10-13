@@ -5,9 +5,9 @@
     "sha256": "af65eda2482e1f08362e495287b0bf4c764052ff2e475c319d2a3a3c1e77f668"
   },
   "/app.js": {
-    "bytes": 7757,
-    "gzip": 2983,
-    "sha256": "681a9d6f4327f6e62ca80a58c117cc698178b9c049bbdd9c46a91b0ac57408cc"
+    "bytes": 8015,
+    "gzip": 3058,
+    "sha256": "18a066a75375665bba9203b5a8094c424cb8a7cf71d5eb3416b79831857fef35"
   },
   "/ble/ble-constants.js": {
     "bytes": 2241,
@@ -45,9 +45,9 @@
     "sha256": "3e0466cfa9d48f7d461e830bfb96fe68213ad9e8a568ea3630bc664868cf073a"
   },
   "/editor.js": {
-    "bytes": 52208,
-    "gzip": 12692,
-    "sha256": "73534fa8dc52c2114f7ddbed6764817576f824ed3550e08a70455523ad1311cc"
+    "bytes": 52676,
+    "gzip": 12768,
+    "sha256": "86267e8ea3617d1a1f2254e2c204000bdccac6d21c29b9ff34e0ef875efa5810"
   },
   "/hose-hold.js": {
     "bytes": 1416,
@@ -70,14 +70,14 @@
     "sha256": "341f6825d55456269f6877de4e5bfe7a2f1fbe97fd7141b219a6b9a4f9b96be3"
   },
   "/theme/themes.js": {
-    "bytes": 4772,
-    "gzip": 1727,
-    "sha256": "7e5d2714fec05114d08a220efe018c9af174b18536797b48f4c0fee97b8d7455"
+    "bytes": 4873,
+    "gzip": 1754,
+    "sha256": "36d21fc1b055d1905dae31d908d535fcebb8018a6c950f31e5dd7b19ebd2670b"
   },
   "/workflow/compiler.js": {
-    "bytes": 9255,
-    "gzip": 2587,
-    "sha256": "b430ff005aa0aa9c2245bf018c630d86f40f4696edd29cc8294c716fed17133c"
+    "bytes": 9578,
+    "gzip": 2632,
+    "sha256": "398cc73f57ac168c866f2028fc315dfa0d8038b7d6571a40bb3d308d890b93d0"
   },
   "/workflow/expression.js": {
     "bytes": 5608,
