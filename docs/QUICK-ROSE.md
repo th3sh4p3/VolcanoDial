@@ -1,6 +1,6 @@
 # Schnellmenü und Balloneinstellungen
 
-**Stand:** Firmware 0.2.12 wurde auf dem Entwicklungs-Dial installiert. Die Programm- und Einstellungsübernahme nach dem Neustart ist geprüft; die Bedienung des Kreismenüs am physischen Touchscreen steht noch aus.
+**Stand:** Firmware 0.2.12 wurde auf dem Entwicklungs-Dial installiert. Die Programm- und Einstellungsübernahme nach dem Neustart ist geprüft. Der Nutzer hat die Zwei-Finger-Geste zum ausführlichen Einstellungsmenü am Gerät bestätigt; die übrigen Kreismenü-Touchflächen sind noch nicht einzeln geprüft.
 
 ## Schnelle Bedienung am Dial
 
@@ -19,6 +19,6 @@ Die **Füllzeit und Ballonbestätigung lassen sich auch während der Pause zwisc
 
 Im ausführlichen Menü stehen „Ruhezeit“ und „Ballon bestätigen“ ebenfalls bereit. Der lokale Browser erhält einen eigenen Abschnitt „Ballon & Workflows“, der in einer Zwischenpause gespeichert werden kann.
 
-Ein längerer Kontakt mit zwei ausreichend voneinander entfernten Fingern ist als optionaler Zugang zum ausführlichen Menü implementiert. Die kleine Displayfläche und die tatsächliche Mehrpunkterkennung müssen am physischen Gerät überprüft werden. Die Ein-Finger-Bedienung ist der Standardweg.
+Ein längerer Kontakt mit zwei ausreichend voneinander entfernten Fingern öffnet als optionaler Zugang das ausführliche Menü. Der Nutzer hat bestätigt, dass diese Geste am physischen Dial funktioniert. Die Ein-Finger-Bedienung bleibt der Standardweg.
 
 Die sechs Richtungen bleiben immer an derselben Position, und die Mitte schließt ohne Aktion. Das folgt der Untersuchung von [Kurtenbach und Buxton zu Pie Menus](https://www.microsoft.com/en-us/research/wp-content/uploads/2016/08/marking-menus-93.pdf): gerade Sektoranzahlen und Positionen wie auf einem Zifferblatt waren leichter zu merken als fünf ungleich aufgeteilte Optionen. Die Sektoren nutzen die Fläche des 240-Pixel-Displays als große Touchziele; [Googles Touch-Guideline](https://support.google.com/accessibility/android/answer/7101858?hl=en-GB) empfiehlt ungefähr 9 mm physische Zielgröße und sichtbare Trennung. Diese Richtwerte sind eine Gestaltungshilfe, keine bestätigte Messung der Berührungsgenauigkeit am konkreten Dial.
