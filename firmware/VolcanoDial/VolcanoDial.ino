@@ -27,12 +27,13 @@ std::atomic<vd::KeyContext> inputContext{vd::KeyContext::Fault},activationContex
 std::atomic<bool> activationPending{false},uiInhibited{false},endHoseRequested{false},localHeld{false},webHeld{false};
 std::atomic<uint64_t> localSeen{0},webSeen{0};std::atomic<int> airOwner{0};
 vd::WebHoldLease webLease;portMUX_TYPE webMux=portMUX_INITIALIZER_UNLOCKED;vd::RequestFence requestFence;std::atomic<int> selectionPending{0};
-std::atomic<bool> displayWakeRequested{false},displaySleepRequested{false},displayResting{false},powerOffRequested{false};std::atomic<int> displayBrightness{160};vd::DisplayIdle displayIdle;
+std::atomic<bool> displayWakeRequested{false},displaySleepRequested{false},displayResting{false},powerOffRequested{false},powerOffInProgress{false};std::atomic<int> displayBrightness{160};vd::DisplayIdle displayIdle;
 vd::UiSnapshot uiShared;vd::UiState uiState;vd::DirtyFrame dirtyFrame;
 alignas(4) uint16_t stripPixels[240*4];M5Canvas strip(&M5Dial.Display);
-bool manualDemandValid(){if(uiInhibited||endHoseRequested||stopRequested)return false;uint64_t n=nowMs();switch(airOwner.load()){case 1:return vd::holdFresh(keyHeld,n,keySeen,150);case 2:return vd::holdFresh(localHeld,n,localSeen,150);case 3:return vd::holdFresh(webHeld,n,webSeen,450);default:return false;}}
+bool manualDemandValid(){if(uiInhibited||endHoseRequested||stopRequested||powerOffInProgress)return false;uint64_t n=nowMs();switch(airOwner.load()){case 1:return vd::holdFresh(keyHeld,n,keySeen,150);case 2:return vd::holdFresh(localHeld,n,localSeen,150);case 3:return vd::holdFresh(webHeld,n,webSeen,450);default:return false;}}
 void inputAction(vd::InputAction a,int owner){
  if(a!=vd::InputAction::None)displayWakeRequested=true;
+ if(powerOffInProgress&&a!=vd::InputAction::Stop)return;
  if(a==vd::InputAction::FanOn&&!uiInhibited){int none=0;airOwner.compare_exchange_strong(none,owner);}
  if(a==vd::InputAction::FanOff){int mine=owner;airOwner.compare_exchange_strong(mine,0);}
  if(a==vd::InputAction::Stop)stopRequested=true;
@@ -56,6 +57,17 @@ unsigned reconnectAttempt=0;uint64_t retryAt=0;uint32_t lastGeneration=0;
 vd::Phase lastPhase=vd::Phase::Idle;
 bool hoseSelected(){return String(config["selectedMode"]|"library")=="hose";}
 bool busy(){return engine.busy()||hose.busy();}
+vd::PowerSafety powerSafety(){
+  auto s=volcano.snapshot();vd::PowerSafety safe{};
+  safe.programActive=engine.busy();safe.busy=busy();safe.cooling=cooldown.armed;
+  safe.coolingPending=coolingIntent.pending();safe.coolingRestore=coolingRestore&&safe.coolingPending;
+  safe.heat=s.heat;safe.fan=s.fan;safe.heatRequested=s.heatRequested;
+  safe.fanRequested=s.fanRequested;safe.interlock=s.interlock;
+  safe.operation=!operation.isEmpty();safe.queued=uxQueueMessagesWaiting(requests)>0;
+  safe.activationPending=activationPending;safe.stopping=stopRequested||recoveryOff;
+  safe.manualHeld=keyHeld||localHeld||webHeld||volcano.manualHold;
+  return safe;
+}
 bool stageRetryAvailable(){return !hoseSelected()&&engine.canRestartStage()&&String(library["activeRunnable"]["kind"]|"")=="workflow"&&String(library["activeRunnable"]["id"]|"")==lastRunId&&revision==lastRunRevision;}
 vd::KeyContext context(){vd::KeyContext base=vd::KeyContext::Idle;
  if(!operation.isEmpty()||recoveryOff)base=vd::KeyContext::Fault;
@@ -152,7 +164,7 @@ void setupAP(){
   if(apOn)return;WiFi.mode(WIFI_AP_STA);WiFi.softAP(apName.c_str(),apPassword.c_str());dns.start(53,"*",WiFi.softAPIP());apOn=true;apSince=nowMs();
 }
 void publish(){
-  JsonDocument d;auto s=volcano.snapshot();d["version"]="0.2.14";d["connected"]=s.connected;d["current"]=std::isfinite(s.current)?s.current:0;d["target"]=std::isfinite(s.target)?s.target:210;d["temperatureValid"]=s.connected&&std::isfinite(s.current)&&nowMs()>=s.sampleAt&&nowMs()-s.sampleAt<1500;
+  JsonDocument d;auto s=volcano.snapshot();d["version"]="0.2.15";d["connected"]=s.connected;d["current"]=std::isfinite(s.current)?s.current:0;d["target"]=std::isfinite(s.target)?s.target:210;d["temperatureValid"]=s.connected&&std::isfinite(s.current)&&nowMs()>=s.sampleAt&&nowMs()-s.sampleAt<1500;
   d["heat"]=s.heat;d["fan"]=s.fan;d["fault"]=s.fault;d["statusValid"]=s.valid;d["phase"]=hose.busy()?(hose.ready()?"hoseReady":"hoseHeating"):hoseSelected()&&hose.phase==vd::HosePhase::Error?"error":hoseSelected()&&hose.phase==vd::HosePhase::Complete?"complete":engine.awaitingBalloon()?"balloonReady":vd::phaseName(engine.phase);d["busy"]=busy()||!operation.isEmpty();d["stage"]=engine.stageIndex+1;d["action"]=engine.actionIndex+1;d["remaining"]=engine.remaining;
   auto& plan=engine.currentPlan();refreshPreview();d["stages"]=plan.stages.size();if(engine.stageIndex<plan.stages.size()){d["stageName"]=plan.stages[engine.stageIndex].name;d["actions"]=plan.stages[engine.stageIndex].actions.size();if(engine.actionIndex<plan.stages[engine.stageIndex].actions.size())d["actionType"]=vd::actionName(plan.stages[engine.stageIndex].actions[engine.actionIndex].type);}
   bool explicitStage=stageChoice>0&&stageChoiceId==String(library["activeRunnable"]["id"]|"")&&stageChoiceRevision==revision;
@@ -419,6 +431,28 @@ void worker(void*){
       if(engine.phase==vd::Phase::Aborted||engine.phase==vd::Phase::Error)cooldown.cancel();lastPhase=engine.phase;
     }
     inputContext=context();
+    if(powerOffRequested.exchange(false)){
+      // Hue and BLE belong to this task. Never block the UI task on network
+      // confirmation, or release the battery latch after a Hue failure.
+      if(!vd::canPowerOff(powerSafety()))notice="Ausschalten erst nach Ablauf, Luft AUS und Hue-Abkuehlung.";
+      else{
+        powerOffInProgress=true;inputContext=vd::KeyContext::Fault;
+        notice=hue.enabled?"Hue-Steckdose wird ausgeschaltet":"Dial wird ausgeschaltet";publish();
+        bool telemetryOk=!volcano.snapshot().connected||volcano.poll();
+        bool hueConfirmed=!hue.enabled;
+        bool off=telemetryOk&&vd::confirmedPowerOff(hue.enabled,
+          [&](){return vd::canPowerOff(powerSafety());},
+          [&](){hueConfirmed=hue.power(false,[&](){return vd::canPowerOff(powerSafety());});return hueConfirmed;},
+          [&](){
+            wantConnection=false;sessionHue=false;volcano.disconnect();
+            // On battery GPIO46 releases HOLD; USB continues to supply power.
+            pinMode(46,OUTPUT);digitalWrite(46,LOW);delay(200);
+            digitalWrite(46,HIGH);notice="USB versorgt weiter. Zum Ausschalten USB trennen.";
+          });
+        if(!off)notice=!telemetryOk?"Volcano-Status nicht bestaetigt":!hueConfirmed&&!hue.error.isEmpty()?hue.error:"Ausschalten nicht sicher bestaetigt";
+        powerOffInProgress=false;powerOffRequested=false;
+      }
+    }
     Request q;
     if(xQueueReceive(requests,&q,0)==pdTRUE){
       JsonDocument req;auto err=deserializeJson(req,q.text);free(q.text);String command=req["command"]|"";
@@ -482,6 +516,7 @@ void keyWorker(void*){
   }
 }
 bool enqueue(const String& body,uint32_t id,bool interruptCooling=true,bool wake=true){
+  if(powerOffInProgress)return false;
   if(wake)displayWakeRequested=true;
   if(body.length()>LIBRARY_LIMIT+1024)return false;char* p=(char*)malloc(body.length()+1);if(!p)return false;memcpy(p,body.c_str(),body.length()+1);Request r{p,id,requestFence.snapshot()};if(xQueueSend(requests,&r,0)!=pdTRUE){free(p);return false;}if(interruptCooling)coolCancel=true;return true;
 }
@@ -578,7 +613,7 @@ void usbConsole(){
     if(c!='\n'){if(line.length()<512)line+=c;else discarded=true;continue;}
     JsonDocument q;if(discarded||deserializeJson(q,line)){Serial.println("{\"error\":\"USB JSON ungueltig/zu lang\"}");}
     else if(String(q["command"]|"")=="info"){
-      JsonDocument d;d["device"]="VolcanoDial";d["version"]="0.2.14";d["pin"]=pin;d["apName"]=apName;d["apPassword"]=apPassword;d["ip"]=WiFi.localIP().toString();d["ap"]=apOn.load();d["heap"]=ESP.getFreeHeap();d["filesystem"]=fsReady;serializeJson(d,Serial);Serial.println();
+      JsonDocument d;d["device"]="VolcanoDial";d["version"]="0.2.15";d["pin"]=pin;d["apName"]=apName;d["apPassword"]=apPassword;d["ip"]=WiFi.localIP().toString();d["ap"]=apOn.load();d["heap"]=ESP.getFreeHeap();d["filesystem"]=fsReady;serializeJson(d,Serial);Serial.println();
     }else if(String(q["command"]|"")=="status"){
       xSemaphoreTake(stateMutex,portMAX_DELAY);auto s=stateText;xSemaphoreGive(stateMutex);Serial.println(*s);
     }else{if(String(q["command"]|"")=="stop")stopRequested=true;Serial.println(enqueue(line,0,String(q["command"]|"")!="sleepDisplay"&&String(q["command"]|"")!="wakeDisplay",String(q["command"]|"")!="sleepDisplay")?"{\"accepted\":true}":"{\"error\":\"Warteschlange voll\"}");}
@@ -662,22 +697,6 @@ void loop(){
   if(light&&dirtyFrame.begin(visibleHash)){frame=u;frameState=uiState;}
   // Each strip is complete before transfer. The panel never shows a cleared frame.
   for(int k=0;light&&k<4;++k){int y=dirtyFrame.next();if(y<0)break;vd::paint(strip,frame,frameState,y);strip.pushSprite(&M5Dial.Display,0,y);}
-  if(powerOffRequested.exchange(false)){
-    auto s=volcano.snapshot();
-    vd::PowerSafety safe{};
-    safe.programActive=engine.busy();safe.busy=busy();safe.cooling=cooldown.armed;
-    safe.coolingPending=coolingIntent.pending();safe.coolingRestore=coolingRestore&&safe.coolingPending;
-    safe.heat=s.heat;safe.fan=s.fan;safe.heatRequested=s.heatRequested;
-    safe.fanRequested=s.fanRequested;safe.interlock=s.interlock;
-    safe.operation=!operation.isEmpty();safe.queued=uxQueueMessagesWaiting(requests)>0;
-    safe.activationPending=activationPending;safe.stopping=stopRequested||recoveryOff;
-    safe.manualHeld=keyHeld||localHeld||webHeld||volcano.manualHold;
-    if(vd::canPowerOff(safe)){
-      // Battery power is latched by GPIO46. With USB present the pin cannot cut power.
-      pinMode(46,OUTPUT);digitalWrite(46,LOW);delay(200);
-      digitalWrite(46,HIGH);notice="USB versorgt weiter. Zum Ausschalten USB trennen.";
-    }else notice="Ausschalten erst nach Ablauf, Luft AUS und Hue-Abkühlung.";
-  }
   delay(2);
 }
 

@@ -12,7 +12,7 @@ Im Leerlauf oder in der Pause zwischen zwei Workflow-Stufen die **Mitte des wach
 | Ballon | Globale Bestätigung vor der ersten Lüftung jeder geeigneten Stufe ein-/ausschalten; standardmäßig AUS. |
 | Display | Sekunden bis Display AUS ändern; die Dimmzeit bleibt separat im Browser einstellbar. |
 | Temperatur | Endtemperatur eines einfachen Einzelpresets oder Zieltemperatur im Schlauchmodus ändern. |
-| Dial AUS | Nur bei inaktivem Programm, ausgeschalteten Ausgängen und abgeschlossener Hue-Abkühlung verfügbar. Ein zweiter Klick bzw. Tipp bestätigt das Abschalten; bei USB-Stromversorgung bleibt der Dial an. |
+| Dial AUS | Nur bei inaktivem Programm, ausgeschalteten Ausgängen und abgeschlossener Hue-Abkühlung verfügbar. Ein zweiter Klick bzw. Tipp bestätigt. Die konfigurierte Hue-Steckdose wird ausgeschaltet und ihr AUS-Zustand bestätigt, bevor der Dial seine Akkuversorgung trennt. Schlägt das fehl, bleibt der Dial an und zeigt den Fehler. Bei USB-Stromversorgung bleibt er auch nach erfolgreichem Hue AUS an. |
 | Mehr | Ausführliches Einstellungsmenü öffnen. Dort steht **Hue AUS** als eigener Eintrag mit zweifacher Bestätigung bereit, sobald eine sichere manuelle Abschaltung möglich ist. |
 
 Die **Füllzeit und Ballonbestätigung lassen sich auch während der Pause zwischen zwei Stufen ändern**. Das Dial speichert beide Werte sofort dauerhaft. Die bereits durchlaufene Stufe bleibt unverändert; die nächste und alle späteren Stufen verwenden die neuen Werte. Sie gelten ebenso für den nächsten Start und nach Trennen der USB-Stromversorgung. Außerhalb eines Workflows behalten einzelne Presets ihre eigene Füllzeit.

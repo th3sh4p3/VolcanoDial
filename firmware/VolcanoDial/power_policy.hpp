@@ -14,4 +14,15 @@ inline bool canPowerOff(const PowerSafety& s) {
          !s.fanRequested && !s.interlock && !s.operation && !s.queued &&
          !s.activationPending && !s.stopping && !s.manualHeld;
 }
+
+// The power latch may be released only after Hue reports the configured plug
+// OFF and the safety conditions still hold at the end of that network call.
+template<class Safe, class HueOff, class CutPower>
+bool confirmedPowerOff(bool hueEnabled, Safe safe, HueOff hueOff, CutPower cutPower) {
+  if (!safe()) return false;
+  if (hueEnabled && !hueOff()) return false;
+  if (!safe()) return false;
+  cutPower();
+  return true;
+}
 }
