@@ -78,8 +78,16 @@ int main(){vd::UiSnapshot s;vd::UiState u;
  assert(vd::roseAt(120,120)==-1);assert(vd::roseAt(120,12)==0);
  assert(vd::hit(120,120,s,u)==vd::Hit::Back);assert(vd::hit(120,234,s,u)==vd::Hit::None);
  assert(vd::roseAvailable(s,0));assert(!vd::roseAvailable(s,3));
+ assert(vd::roseAvailable(s,4));assert(!vd::menuAvailable(s,25));
+ assert(!vd::confirmOnce(u.powerConfirm));assert(u.powerConfirm);
+ assert(vd::confirmOnce(u.powerConfirm));assert(!u.powerConfirm);
+ s.hueOffAvailable=true;assert(vd::menuAvailable(s,25));assert(vd::nextMenu(s,24,1)==25);s.hueOffAvailable=false;
+ s.coolingPending=true;assert(!vd::roseAvailable(s,4));s.coolingPending=false;
+ s.heat=true;assert(!vd::roseAvailable(s,4));s.heat=false;
+ s.programActive=true;assert(!vd::roseAvailable(s,4));s.programActive=false;
  s.simple=true;s.fillTime=17;s.globalFillSeconds=61;assert(vd::roseAvailable(s,3));assert(vd::parameter(s,23)==61);assert(vd::parameter(s,4)==17);
  s.busy=true;s.phase=vd::UiPhase::Checkpoint;assert(vd::roseAvailable(s,0));assert(vd::roseAvailable(s,1));assert(!vd::roseAvailable(s,2));
+ assert(!vd::roseAvailable(s,4));assert(!vd::menuAvailable(s,25));
  assert(vd::menuAvailable(s,23));
  s.phase=vd::UiPhase::Running;assert(!vd::roseAvailable(s,0));
  puts("Circle hit regions and stable dirty-frame tests passed");}

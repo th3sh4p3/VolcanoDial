@@ -1,6 +1,6 @@
 # Schnellmenü und Balloneinstellungen
 
-**Stand:** Firmware 0.2.12 wurde auf dem Entwicklungs-Dial installiert. Die Programm- und Einstellungsübernahme nach dem Neustart ist geprüft. Der Nutzer hat die Zwei-Finger-Geste zum ausführlichen Einstellungsmenü am Gerät bestätigt; die übrigen Kreismenü-Touchflächen sind noch nicht einzeln geprüft.
+**Stand:** Firmware 0.2.14 ist auf dem Entwicklungs-Dial installiert. Der Nutzer hat die Zwei-Finger-Geste zum ausführlichen Einstellungsmenü am Gerät bestätigt; die übrigen Kreismenü-Touchflächen sind noch nicht einzeln geprüft.
 
 ## Schnelle Bedienung am Dial
 
@@ -10,10 +10,10 @@ Im Leerlauf oder in der Pause zwischen zwei Workflow-Stufen die **Mitte des wach
 | --- | --- |
 | Füllzeit | Gemeinsame Ballonfüllzeit von 5 bis 300 Sekunden für Workflows mit UI-Füllzeit, insbesondere Daily und Aroma-Kurve 3. Sie ist unabhängig vom gerade ausgewählten Programm zugänglich. |
 | Ballon | Globale Bestätigung vor der ersten Lüftung jeder geeigneten Stufe ein-/ausschalten; standardmäßig AUS. |
-| Ruhezeit | Sekunden bis Display AUS ändern; die Dimmzeit bleibt separat im Browser einstellbar. |
+| Display | Sekunden bis Display AUS ändern; die Dimmzeit bleibt separat im Browser einstellbar. |
 | Temperatur | Endtemperatur eines einfachen Einzelpresets oder Zieltemperatur im Schlauchmodus ändern. |
-| Hue AUS | Nur bei sicheren, inaktiven Ausgängen verfügbar. Ein zweiter Klick bzw. Tipp bestätigt das Trennen und Ausschalten. Während der Abkühlüberwachung gesperrt. |
-| Mehr | Ausführliches Einstellungsmenü öffnen. |
+| Dial AUS | Nur bei inaktivem Programm, ausgeschalteten Ausgängen und abgeschlossener Hue-Abkühlung verfügbar. Ein zweiter Klick bzw. Tipp bestätigt das Abschalten; bei USB-Stromversorgung bleibt der Dial an. |
+| Mehr | Ausführliches Einstellungsmenü öffnen. Dort steht **Hue AUS** als eigener Eintrag mit zweifacher Bestätigung bereit, sobald eine sichere manuelle Abschaltung möglich ist. |
 
 Die **Füllzeit und Ballonbestätigung lassen sich auch während der Pause zwischen zwei Stufen ändern**. Das Dial speichert beide Werte sofort dauerhaft. Die bereits durchlaufene Stufe bleibt unverändert; die nächste und alle späteren Stufen verwenden die neuen Werte. Sie gelten ebenso für den nächsten Start und nach Trennen der USB-Stromversorgung. Außerhalb eines Workflows behalten einzelne Presets ihre eigene Füllzeit.
 
