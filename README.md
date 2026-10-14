@@ -1,6 +1,6 @@
 # VolcanoDial
 
-Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Aktueller Quellstand **0.2.12**, auf dem Entwicklungsgerät installiert und ohne Heizlauf geprüft. Das zuletzt veröffentlichte Installationspaket ist weiterhin **0.2.7**.
+Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Aktueller Quellstand **0.2.13**; er wurde auf dem Entwicklungsgerät installiert. Das zuletzt veröffentlichte Installationspaket ist weiterhin **0.2.7**.
 
 ## Vom Einkauf zum laufenden Gerät
 
@@ -22,6 +22,8 @@ Der Windows-Installer braucht keine Arduino-Installation. Grundaufbau und Nutzun
 - Drehknopf, Klick und Touch für Auswahl, Start, Weiter, Stop und Werte.
 - Einfache/erweiterte Presets, lineare Workflows, Variablen und Formeln; lokaler Browsereditor mit JSON-Import/Export.
 - Workflow-Zwischenpause wartet auf bewusste Bedienung. Nach manuellem Abbruch bietet **Preset erneut** die unterbrochene Stufe von Anfang an an; abgeschlossene Stufen werden übersprungen.
+- Ab Version 0.2.13 meldet der Buzzer den bestätigten Abschluss jeder Workflow-Stufe, einschließlich der letzten, mit zwei kurzen Tönen. „Signaltöne“ kann diese Meldung stummschalten; ein Vibrationsmotor ist im Dial nicht eingebaut.
+- Für den optionalen Akku gibt es im Menü **Ausschalten** mit zweifacher Bestätigung. Der Dial trennt seine Akkuversorgung nur bei inaktivem Programm, ausgeschalteten Volcano-Ausgängen und erledigter Hue-Abkühlung. Ein Radklick schaltet ihn wieder ein; bei USB-Versorgung bleibt er eingeschaltet. [Akku-Anbau und Polungsprüfung](hardware/AKKU_UND_GEHAEUSE.md).
 - Ein Tipp auf den äußeren Ring wählt eine Workflow-Startstufe; erst „Starten“ führt diese und die folgenden Stufen aus. Die gemeinsame Ballonfüllzeit lässt sich direkt im Hauptbild antippen und gilt für alle drei Daily- oder Aroma-Kurve-3-Stufen.
 - **[Aroma-Kurve 3](docs/AROMA-KURVE-3.md)** ergänzt Daily um drei Ballons mit abgestuften Temperaturen. Die globale Bestätigung „Ballon aufsetzen“ ist optional und standardmäßig AUS; eingeschaltet funktioniert sie am Dial oder mit dem optionalen Zusatztaster.
 - Die Auswahlfolge am Rad und im Browser ist **Daily → Aroma-Kurve 3 → Schlauch → AK3 Aroma → AK3 Balance → AK3 Finish**; weitere vorhandene Presets bleiben in ihrer gespeicherten Reihenfolge.
@@ -39,7 +41,7 @@ Die Mitte des wachen Touchscreens etwa 0,7 Sekunden halten: Sechs sichtbare Krei
 
 ## Aktueller Prüfstand
 
-Version 0.2.12 besteht 105/105 automatisierte Fälle einschließlich Compiler-Parität, Ablaufsteuerung, Eingaben und radialer UI. Der Build benötigt 1.837.711 Byte Programm und 69.912 Byte statisches RAM, ohne PSRAM. Auf dem Dial wurde nur die App-Partition per USB aktualisiert und der Schreibhash bestätigt. Nach dem Neustart blieben Einstellungen, alle 18 Presets, drei Workflows und die vorherige Auswahl erhalten; kein Ablauf startete selbsttätig, HEAT/AIR waren AUS. Das Heim-WLAN verband sich wieder. Der Dial übernahm die bisherige Daily-Füllzeit von 55 Sekunden als gemeinsamen Wert und setzte die Ballonbestätigung standardmäßig auf AUS. Die Zwei-Finger-Geste wurde am physischen Gerät bestätigt; die übrigen Kreismenü-Touchflächen und ein realer Heizlauf sind noch nicht geprüft. Das oben verlinkte Release-ZIP 0.2.7 enthält die neue Funktion nicht; zum Nachbau des aktuellen Quellstands die [Entwickleranleitung](docs/ENTWICKLUNG.md) verwenden.
+Version 0.2.13 besteht 105/105 automatisierte Fälle einschließlich der Tests für das zweistufige Workflow-Abschlusssignal und die Abschaltsperren. Der Build benötigt 1.838.615 Byte Programm und 69.928 Byte statisches RAM, ohne PSRAM. Die Firmware wurde per USB auf das inaktive Entwicklungsgerät geschrieben; das Flash-Tool bestätigte den Hash. Einstellungen, Presets und Workflows blieben nach dem Neustart erhalten; Heizung und Lüftung waren aus. Ein realer Workflow-Abschlusston, Akkubetrieb, Laden und physisches Abschalten/Aufwecken sind noch nicht geprüft. Das oben verlinkte Release-ZIP 0.2.7 enthält die neuen Funktionen nicht; zum Nachbau des aktuellen Quellstands die [Entwickleranleitung](docs/ENTWICKLUNG.md) verwenden.
 
 - [Prüfbericht](docs/PRUEFBERICHT.md), [maschinenlesbare Prüfung](docs/verification.json)
 - [Stufe erneut starten](docs/WORKFLOW_STAGE_RETRY.md)

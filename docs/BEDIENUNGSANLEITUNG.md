@@ -1,6 +1,6 @@
 # Volcano Dial - Einrichtung und Bedienung
 
-Version 0.2.12 | 13.10.2026 | M5Stack Dial v1.1 / Volcano Hybrid
+Quellstand 0.2.13 | 14.10.2026 | M5Stack Dial v1.1 / Volcano Hybrid
 
 Vor dem Installieren: [Einkaufsliste](../hardware/EINKAUFSLISTE.md) und [Hardware zusammenbauen](../hardware/AUFBAU.md).
 
@@ -105,7 +105,9 @@ Der grafische Editor wird unter „Presets & Workflows“ geöffnet. Seine Bezei
 
 Einfache Presets: Start-/Endtemperatur 40-230 °C, Füllzeit 5-300 Sekunden, 1-20 Schritte. Erweiterte Presets unterstützen Zieltemperatur erreichen, warten, Luft fördern, Heizung ausschalten und eine bestätigte Ballonfreigabe mit Zeitlimit. Globale und lokale Variablen, Einheiten und Rechenausdrücke werden wie in der PC-App ausgewertet. Allgemeiner JavaScript-Code wird nicht ausgeführt.
 
-Workflow-Stufen verwenden vorhandene Presets. Nach jeder Stufe gehen Heizung und Lüftung AUS; der nächste Abschnitt wartet auf einen bewussten Weiter-Befehl am Dial, optionalen Zusatztaster oder im Browser. Bei der Füllzeitquelle „ui“ lässt sich die gemeinsame Füllzeit am Dial einstellen; sie gilt je Preset-Stufe und verteilt deren Luftaktionen proportional. Bei „presets“ bleiben die jeweiligen Preset-Füllzeiten erhalten. Heizungs-Rückmeldungen und die HEAT-Taste direkt am Volcano starten oder erweitern keinen Workflow. Nach einem Fehler startet der Ablauf erst nach einer erneuten bewussten Bedienung.
+Workflow-Stufen verwenden vorhandene Presets. Nach jeder Stufe gehen Heizung und Lüftung AUS; der nächste Abschnitt wartet auf einen bewussten Weiter-Befehl am Dial, optionalen Zusatztaster oder im Browser. Ab Firmware 0.2.13 meldet der eingebaute Buzzer den bestätigten Abschluss jeder Stufe mit zwei kurzen Tönen. Das gilt auch für die letzte Stufe; ein Abbruch oder Fehler löst diese Abschlussfolge nicht aus. Ist „Signaltöne“ ausgeschaltet, bleibt der Buzzer stumm. Der Dial besitzt keinen Vibrationsmotor. Bei der Füllzeitquelle „ui“ lässt sich die gemeinsame Füllzeit am Dial einstellen; sie gilt je Preset-Stufe und verteilt deren Luftaktionen proportional. Bei „presets“ bleiben die jeweiligen Preset-Füllzeiten erhalten. Heizungs-Rückmeldungen und die HEAT-Taste direkt am Volcano starten oder erweitern keinen Workflow. Nach einem Fehler startet der Ablauf erst nach einer erneuten bewussten Bedienung.
+
+Mit dem optionalen Akku lässt sich der Dial im Menü über **Ausschalten** und einen zweiten bestätigenden Klick abschalten. Während eines Programms, bei aktiver Heizung/Lüftung oder solange ein Hue-Abschaltauftrag läuft, ist dieser Punkt gesperrt. Ohne USB trennt der Dial die Akkuversorgung; ein Radklick startet ihn erneut. Bei USB-Versorgung bleibt er an und zeigt einen Hinweis. **Display aus** ist der bisherige Ruhemodus mit weiterlaufender Steuerung und Funk. Der vollständige Akkuanschluss erfordert einen geprüften 2,0-auf-1,25-mm-Adapter; siehe [Akku-Anbau](../hardware/AKKU_UND_GEHAEUSE.md).
 
 Wird während der Zwischenpause ein einzelner Bluetooth-Statuswert verpasst, bleibt der Workflow an dieser Stelle stehen. Vor „Weiter“ prüft der Dial den Status erneut und bestätigt Heizung und Lüftung AUS. Gelingt das gerade nicht, erscheint „Volcano-Status prüfen; erneut drücken“; nach stabiler Verbindung denselben Weiter-Befehl erneut auslösen. Ein echter Gerätefehler oder eine unterbrochene Verbindung wird weiterhin als Fehler behandelt.
 

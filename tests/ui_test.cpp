@@ -3,7 +3,36 @@
 #include "../firmware/VolcanoDial/ui_model.hpp"
 #include "../firmware/VolcanoDial/round_ui.hpp"
 #include "../firmware/VolcanoDial/display_idle.hpp"
+#include "../firmware/VolcanoDial/stage_feedback.hpp"
+#include "../firmware/VolcanoDial/power_policy.hpp"
 int main(){vd::UiSnapshot s;vd::UiState u;
+ vd::PowerSafety safe{};
+ assert(vd::canPowerOff(safe));
+ safe.coolingPending=true;assert(!vd::canPowerOff(safe));safe.coolingPending=false;
+ safe.programActive=true;assert(!vd::canPowerOff(safe));safe.programActive=false;
+ safe.heatRequested=true;assert(!vd::canPowerOff(safe));safe.heatRequested=false;
+ safe.fan=true;assert(!vd::canPowerOff(safe));safe.fan=false;
+ safe.queued=true;assert(!vd::canPowerOff(safe));safe.queued=false;
+ assert(vd::menuAvailable(s,24));s.coolingPending=true;assert(!vd::menuAvailable(s,24));s.coolingPending=false;
+ assert(vd::nextMenu(s,23,1)==24);
+ vd::StageFeedback feedback;
+ assert(feedback.tick(vd::UiPhase::Idle,true,true,0)==vd::StageTone::None);
+ assert(feedback.tick(vd::UiPhase::Running,true,true,10)==vd::StageTone::None);
+ assert(feedback.tick(vd::UiPhase::Checkpoint,true,true,100)==vd::StageTone::First);
+ assert(feedback.tick(vd::UiPhase::Checkpoint,true,true,200)==vd::StageTone::None);
+ assert(feedback.tick(vd::UiPhase::Checkpoint,true,true,270)==vd::StageTone::Second);
+ assert(feedback.tick(vd::UiPhase::Checkpoint,true,true,500)==vd::StageTone::None);
+ assert(feedback.tick(vd::UiPhase::Running,true,true,600)==vd::StageTone::None);
+ assert(feedback.tick(vd::UiPhase::Complete,true,true,700)==vd::StageTone::First);
+ assert(feedback.tick(vd::UiPhase::Complete,true,true,870)==vd::StageTone::Second);
+ assert(feedback.tick(vd::UiPhase::Running,true,true,900)==vd::StageTone::None);
+ assert(feedback.tick(vd::UiPhase::Error,true,true,1000)==vd::StageTone::None);
+ assert(feedback.tick(vd::UiPhase::Running,true,true,1100)==vd::StageTone::None);
+ assert(feedback.tick(vd::UiPhase::Stopped,true,true,1200)==vd::StageTone::None);
+ assert(feedback.tick(vd::UiPhase::Running,false,true,1300)==vd::StageTone::None);
+ assert(feedback.tick(vd::UiPhase::Complete,false,true,1400)==vd::StageTone::None);
+ assert(feedback.tick(vd::UiPhase::Running,true,false,1500)==vd::StageTone::None);
+ assert(feedback.tick(vd::UiPhase::Complete,true,false,1600)==vd::StageTone::None);
  vd::DisplayIdle display;display.wake(1000);assert(display.brightness(31000,160,true,30,90)==160);assert(display.brightness(36000,160,true,30,90)<160);assert(display.brightness(41000,160,true,30,90)>0);assert(display.brightness(91000,160,true,30,90)==0);display.wake(92000);assert(display.brightness(92000,160,true,30,90)==160);display.sleepNow();assert(display.brightness(92000,160,false,30,90)==0);display.wake(93000);assert(display.brightness(200000,160,false,30,90)==160);
  assert(display.brightness(95000,1,true,30,30)==1);assert(display.brightness(133000,1,true,30,30)==0);
  vd::WakePress wakePress;assert(wakePress.consume(true,true));assert(wakePress.consume(true,false));assert(!wakePress.consume(false,false));assert(!wakePress.consume(true,false));

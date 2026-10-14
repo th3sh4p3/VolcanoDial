@@ -10,11 +10,11 @@ inline const Glyph* glyph(const Font& f,uint32_t c){for(int i=0;i<f.count;++i)if
 inline int textWidth(const Font& f,const char* p){int w=0;while(*p)w+=glyph(f,codepoint(p))->advance;return w;}
 inline const Font& titleFont(const char* name){return textWidth(font22,name)<=178?font22:textWidth(font18,name)<=178?font18:font14;}
 inline uint16_t blend(uint16_t a,uint16_t b,int coverage){int r=((a>>11)*(15-coverage)+(b>>11)*coverage)/15,g=(((a>>5)&63)*(15-coverage)+((b>>5)&63)*coverage)/15,bl=((a&31)*(15-coverage)+(b&31)*coverage)/15;return r<<11|g<<5|bl;}
-inline const char* menuLabel(int i){static const char* a[]={"Zurück","Zieltemperatur","Starttemperatur","Endtemperatur","Füllzeit","Heizschritte","Timer: Sekunden","Timer: Temperatur","Timer starten","Bluetooth","Heizung","Lüftung","Helligkeit","Signaltöne","Hue Automatik","Hue Schwelle","RFID zuordnen","Einrichtungs-WLAN","Geräteinfo","Schlauch beenden","Display aus","Ruhezeit","Ballon bestätigen","Ballonfüllzeit"};return a[std::clamp(i,0,23)];}
+inline const char* menuLabel(int i){static const char* a[]={"Zurück","Zieltemperatur","Starttemperatur","Endtemperatur","Füllzeit","Heizschritte","Timer: Sekunden","Timer: Temperatur","Timer starten","Bluetooth","Heizung","Lüftung","Helligkeit","Signaltöne","Hue Automatik","Hue Schwelle","RFID zuordnen","Einrichtungs-WLAN","Geräteinfo","Schlauch beenden","Display aus","Ruhezeit","Ballon bestätigen","Ballonfüllzeit","Ausschalten"};return a[std::clamp(i,0,24)];}
 inline int parameter(const UiSnapshot& s,int i){switch(i){case 1:return s.hose?s.hoseTemperature:s.target;case 2:return s.startTemp;case 3:return s.endTemp;case 4:return s.fillTime;case 5:return s.steps;case 6:return s.timerSeconds;case 7:return s.timerTemperature;case 12:return s.brightness;case 15:return s.threshold;case 21:return s.sleepOffSeconds;case 23:return s.globalFillSeconds;default:return 0;}}
 inline bool editable(int i){return (i>=1&&i<=7)||i==12||i==15||i==21||i==23;}
-inline bool menuAvailable(const UiSnapshot& s,int i){if(i==20)return !s.programActive&&(!s.busy||s.hose);if(i==19)return s.hose&&s.busy;if(s.busy)return i==0||(s.phase==UiPhase::Checkpoint&&((i==4&&s.fillEditable)||i==22||i==23))||(s.hose&&i==1)||i==18;if(i==4)return s.fillEditable;if(i>=2&&i<=5)return !s.hose&&s.simple;return true;}
-inline int nextMenu(const UiSnapshot& s,int i,int delta){int step=delta<0?-1:1;for(int n=0;n<std::abs(delta);++n)do{i=(i+step+24)%24;}while(!menuAvailable(s,i));return i;}
+inline bool menuAvailable(const UiSnapshot& s,int i){if(i==24)return !s.programActive&&!s.busy&&!s.cooling&&!s.coolingPending&&!s.heat&&!s.fan;if(i==20)return !s.programActive&&(!s.busy||s.hose);if(i==19)return s.hose&&s.busy;if(s.busy)return i==0||(s.phase==UiPhase::Checkpoint&&((i==4&&s.fillEditable)||i==22||i==23))||(s.hose&&i==1)||i==18;if(i==4)return s.fillEditable;if(i>=2&&i<=5)return !s.hose&&s.simple;return true;}
+inline int nextMenu(const UiSnapshot& s,int i,int delta){int step=delta<0?-1:1;for(int n=0;n<std::abs(delta);++n)do{i=(i+step+25)%25;}while(!menuAvailable(s,i));return i;}
 inline const char* wrapLine(const Font& font,const char* input,char* line,size_t capacity,int width){int used=0;size_t bytes=0;while(*input){const char* start=input;uint32_t cp=codepoint(input);int advance=glyph(font,cp)->advance;size_t n=input-start;if(bytes+n>=capacity||used+advance>width){input=start;break;}if(cp=='\n')break;memcpy(line+bytes,start,n);bytes+=n;used+=advance;}line[bytes]=0;return input;}
 template<class Canvas> class Painter {
  Canvas& c;int offset;
@@ -72,8 +72,8 @@ template<class Canvas> void paint(Canvas& c,const UiSnapshot& s,const UiState& u
   p.text(font12,"‹ ZURÜCK",120,23,120,MUTED);
   int prev=nextMenu(s,u.menu,-1),next=nextMenu(s,u.menu,1);
   p.text(font14,menuLabel(prev),120,64,172,MUTED);
-  p.rounded(24,99,192,48,16,PANEL);p.text(font18,menuLabel(u.menu),120,112,176,INK,PANEL);
-  p.text(font14,menuLabel(next),120,166,174,MUTED);p.text(font12,"Drehen · Klick",120,202,110,MUTED);return;
+  p.rounded(24,99,192,48,16,PANEL);p.text(font18,u.menu==24&&u.powerConfirm?"Wirklich aus?":menuLabel(u.menu),120,112,176,u.menu==24&&u.powerConfirm?AMBER:INK,PANEL);
+  p.text(font14,menuLabel(next),120,166,174,MUTED);p.text(font12,u.menu==24&&u.powerConfirm?"Nochmals klicken":"Drehen · Klick",120,202,130,MUTED);return;
  }
  if(u.screen==Screen::Edit){
   p.text(font12,"‹ ZURÜCK",120,23,120,MUTED);p.text(font18,menuLabel(u.menu),120,59,192);
