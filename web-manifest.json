@@ -5,9 +5,9 @@
     "sha256": "af65eda2482e1f08362e495287b0bf4c764052ff2e475c319d2a3a3c1e77f668"
   },
   "/app.js": {
-    "bytes": 8724,
-    "gzip": 3220,
-    "sha256": "87cfe36390be1fe6bf1bcf2ff05a54a0fc670f36299c3410dcc443b024770dd2"
+    "bytes": 8803,
+    "gzip": 3246,
+    "sha256": "fa11164cff30ac0b0e65134bc1f53554e055178a29b9c6b01bea38953abce9bb"
   },
   "/ble/ble-constants.js": {
     "bytes": 2241,
@@ -55,9 +55,9 @@
     "sha256": "3b1343a19fec220319de596b753b7b2effd198e2510b43f9fb73b9c17bd8fbf8"
   },
   "/index.html": {
-    "bytes": 6716,
-    "gzip": 2708,
-    "sha256": "61a3c029eb78c1f29550beb741f936e5b1dad09537acef459bbdb30f838107de"
+    "bytes": 6997,
+    "gzip": 2822,
+    "sha256": "08af8a9e733f3a12e5da5802e8725980e145509ca17b4c19134cd3f2c44b82e4"
   },
   "/library-bridge.js": {
     "bytes": 1824,

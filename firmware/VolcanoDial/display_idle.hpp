@@ -17,6 +17,8 @@ class DisplayIdle {
 public:
  void wake(uint64_t now){last=now;forced=false;}
  void sleepNow(){forced=true;}
+ uint64_t lastWakeAt()const{return last;}
+ uint64_t idleMs(uint64_t now)const{return now>=last?now-last:0;}
  bool resting(uint64_t now,bool enabled,uint32_t dimSeconds)const{return forced||(enabled&&now>=last&&now-last>=uint64_t(dimSeconds)*1000);}
  int brightness(uint64_t now,int normal,bool enabled,uint32_t dimSeconds,uint32_t offSeconds,bool preventSleep=false)const{
   normal=std::clamp(normal,1,255);if(preventSleep)return normal;if(forced)return 0;if(!enabled||now<last)return normal;uint64_t idle=now-last,dim=uint64_t(dimSeconds)*1000,off=std::max(uint64_t(offSeconds)*1000,dim+10000);

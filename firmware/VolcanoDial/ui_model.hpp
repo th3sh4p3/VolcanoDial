@@ -10,7 +10,7 @@ enum class UiPhase:uint8_t {Idle,Running,Checkpoint,Complete,Stopped,Error,HoseH
 struct UiSnapshot {
  char name[97]{},stageName[97]{},message[144]{},ip[20]{},pin[8]{},apName[32]{},apPassword[16]{};
  UiPhase phase=UiPhase::Idle;bool connected=false,wifi=false,keyAlive=false,heat=false,fan=false,valid=false,cooling=false,coolingPending=false,busy=false,hose=false,workflow=false,simple=false,fillEditable=false,ap=false,sound=true,autoOff=false,sleepEnabled=true,programActive=false,retryStage=false,balloonConfirm=false,hueOffAvailable=false;
- int sleepDimSeconds=30,sleepOffSeconds=90;
+ int sleepDimSeconds=30,sleepOffSeconds=90,powerIdleMinutes=30;
  int current=0,target=210,stage=0,stages=0,startStage=1,action=0,actions=0,remaining=0,actionType=0,brightness=160,startTemp=170,endTemp=210,fillTime=55,globalFillSeconds=53,steps=3,timerSeconds=55,timerTemperature=210,threshold=50,hoseTemperature=210,actionTarget=210,temperatureProgress=0;
 };
 inline int ledMode(const UiSnapshot& s){return s.phase==UiPhase::Error?3:s.phase==UiPhase::Connecting?5:s.phase==UiPhase::BalloonReady?6:s.fan?1:s.phase==UiPhase::Checkpoint?4:s.phase==UiPhase::HoseReady?0:s.heat?2:0;}

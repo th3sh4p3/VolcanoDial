@@ -1,4 +1,5 @@
 #pragma once
+#include <cstdint>
 
 namespace vd {
 struct PowerSafety {
@@ -13,6 +14,11 @@ inline bool canPowerOff(const PowerSafety& s) {
          !s.coolingRestore && !s.heat && !s.fan && !s.heatRequested &&
          !s.fanRequested && !s.interlock && !s.operation && !s.queued &&
          !s.activationPending && !s.stopping && !s.manualHeld;
+}
+
+inline bool autoPowerOffDue(uint64_t idleMs,int minutes,bool eligible,bool attempted) {
+  return eligible && !attempted && minutes>=1 && minutes<=240 &&
+         idleMs>=uint64_t(minutes)*60000;
 }
 
 // The power latch may be released only after Hue reports the configured plug
