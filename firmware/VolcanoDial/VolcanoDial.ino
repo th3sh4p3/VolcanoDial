@@ -142,7 +142,11 @@ void defaults(){
 }
 JsonVariant selected(){auto r=library["activeRunnable"];const char* list=String(r["kind"]|"")=="workflow"?"workflows":"presets";for(auto e:library[list].as<JsonArray>())if(String(e["id"]|"")==String(r["id"]|""))return e;return JsonVariant{};}
 bool selectedUsesGlobalFill(){auto choice=selected();return !hoseSelected()&&String(library["activeRunnable"]["kind"]|"")=="workflow"&&String(choice["fillTimeSource"]|"presets")=="ui";}
-void tuneSelectedPlan(vd::Plan& plan){vd::tunePlan(plan,config["balloonConfirm"]|false,config["balloonFillSeconds"]|53.0,selectedUsesGlobalFill());}
+void tuneSelectedPlan(vd::Plan& plan){
+  bool globalFill=selectedUsesGlobalFill();
+  bool aroma=globalFill&&String(library["activeRunnable"]["id"]|"")=="a847fe34-93c1-472a-9750-d4b473c5f78d";
+  vd::tunePlan(plan,config["balloonConfirm"]|false,config["balloonFillSeconds"]|53.0,globalFill,aroma);
+}
 void refreshPreview(){
   if(hoseSelected()||String(library["activeRunnable"]["kind"]|"")!="workflow")return;
   String id=library["activeRunnable"]["id"]|"";
@@ -164,7 +168,7 @@ void setupAP(){
   if(apOn)return;WiFi.mode(WIFI_AP_STA);WiFi.softAP(apName.c_str(),apPassword.c_str());dns.start(53,"*",WiFi.softAPIP());apOn=true;apSince=nowMs();
 }
 void publish(){
-  JsonDocument d;auto s=volcano.snapshot();d["version"]="0.2.16";d["connected"]=s.connected;d["current"]=std::isfinite(s.current)?s.current:0;d["target"]=std::isfinite(s.target)?s.target:210;d["temperatureValid"]=s.connected&&std::isfinite(s.current)&&nowMs()>=s.sampleAt&&nowMs()-s.sampleAt<1500;
+  JsonDocument d;auto s=volcano.snapshot();d["version"]="0.2.17";d["connected"]=s.connected;d["current"]=std::isfinite(s.current)?s.current:0;d["target"]=std::isfinite(s.target)?s.target:210;d["temperatureValid"]=s.connected&&std::isfinite(s.current)&&nowMs()>=s.sampleAt&&nowMs()-s.sampleAt<1500;
   d["heat"]=s.heat;d["fan"]=s.fan;d["fault"]=s.fault;d["statusValid"]=s.valid;d["phase"]=hose.busy()?(hose.ready()?"hoseReady":"hoseHeating"):hoseSelected()&&hose.phase==vd::HosePhase::Error?"error":hoseSelected()&&hose.phase==vd::HosePhase::Complete?"complete":engine.awaitingBalloon()?"balloonReady":vd::phaseName(engine.phase);d["busy"]=busy()||!operation.isEmpty();d["stage"]=engine.stageIndex+1;d["action"]=engine.actionIndex+1;d["remaining"]=engine.remaining;
   auto& plan=engine.currentPlan();refreshPreview();d["stages"]=plan.stages.size();if(engine.stageIndex<plan.stages.size()){d["stageName"]=plan.stages[engine.stageIndex].name;d["actions"]=plan.stages[engine.stageIndex].actions.size();if(engine.actionIndex<plan.stages[engine.stageIndex].actions.size())d["actionType"]=vd::actionName(plan.stages[engine.stageIndex].actions[engine.actionIndex].type);}
   bool explicitStage=stageChoice>0&&stageChoiceId==String(library["activeRunnable"]["id"]|"")&&stageChoiceRevision==revision;
@@ -614,7 +618,7 @@ void usbConsole(){
     if(c!='\n'){if(line.length()<512)line+=c;else discarded=true;continue;}
     JsonDocument q;if(discarded||deserializeJson(q,line)){Serial.println("{\"error\":\"USB JSON ungueltig/zu lang\"}");}
     else if(String(q["command"]|"")=="info"){
-      JsonDocument d;d["device"]="VolcanoDial";d["version"]="0.2.16";d["pin"]=pin;d["apName"]=apName;d["apPassword"]=apPassword;d["ip"]=WiFi.localIP().toString();d["ap"]=apOn.load();d["heap"]=ESP.getFreeHeap();d["filesystem"]=fsReady;serializeJson(d,Serial);Serial.println();
+      JsonDocument d;d["device"]="VolcanoDial";d["version"]="0.2.17";d["pin"]=pin;d["apName"]=apName;d["apPassword"]=apPassword;d["ip"]=WiFi.localIP().toString();d["ap"]=apOn.load();d["heap"]=ESP.getFreeHeap();d["filesystem"]=fsReady;serializeJson(d,Serial);Serial.println();
     }else if(String(q["command"]|"")=="status"){
       xSemaphoreTake(stateMutex,portMAX_DELAY);auto s=stateText;xSemaphoreGive(stateMutex);Serial.println(*s);
     }else{if(String(q["command"]|"")=="stop")stopRequested=true;Serial.println(enqueue(line,0,String(q["command"]|"")!="sleepDisplay"&&String(q["command"]|"")!="wakeDisplay",String(q["command"]|"")!="sleepDisplay")?"{\"accepted\":true}":"{\"error\":\"Warteschlange voll\"}");}

@@ -1,0 +1,21 @@
+{
+  "version": "0.2.17",
+  "verifiedDate": "2026-10-19",
+  "board": "M5Stack Dial v1.1 / ESP32-S3 8 MB, no PSRAM",
+  "tests": 106,
+  "passed": 106,
+  "failed": 0,
+  "programBytes": 1841147,
+  "staticRamBytes": 69976,
+  "appBinaryBytes": 1841296,
+  "appSHA256": "4EF582B15F9AA715E2D357717E2F6ED0EC82C276813C9AE0D0784736D0D731D7",
+  "installedVersion": "0.2.17",
+  "usbUpdateHashVerified": true,
+  "libraryPreserved": true,
+  "settingsPreserved": true,
+  "outputsOffAfterUpdate": true,
+  "automaticProgramRestart": false,
+  "aromaFinishFillAtShared56Seconds": 52,
+  "aromaFirstTwoFillAtShared56Seconds": 56,
+  "pendingHardwareVerification": ["Aroma-Kurve 3 third balloon actual fill level after calibration"]
+}

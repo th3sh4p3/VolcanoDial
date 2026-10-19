@@ -1,4 +1,12 @@
-# Prüfbericht – Volcano Dial 0.2.7
+# Prüfbericht – Volcano Dial
+
+## Aktueller Stand 0.2.17 – 19.10.2026
+
+Die dritte Stufe von Aroma-Kurve 3 wurde nach einer vom Nutzer beobachteten Überfüllung von ungefähr vier Sekunden bei 56 Sekunden gemeinsamer Einstellung auf 52 Sekunden kalibriert. Die ersten beiden Stufen bleiben bei 56 Sekunden. Eine neue C++-Prüfung scheiterte vor der Korrektur an 11,2 statt der erwarteten 10,4 Sekunden für den ersten Lüftungsabschnitt von AK3 Finish und bestand danach. Die vollständige Host-Suite bestand mit 106/106 Fällen. Der ESP32-S3-Build benötigt 1.841.147 Byte Programm und 69.976 Byte statisches RAM; das App-Image ist 1.841.296 Byte groß (SHA-256 `4EF582B15F9AA715E2D357717E2F6ED0EC82C276813C9AE0D0784736D0D731D7`).
+
+Das Image wurde über COM3 als App-Update auf den Dial v1.1 geschrieben; das Flash-Tool bestätigte den Hash. Vor dem Update war der Ablauf beendet (Status „abgebrochen“), HEAT/AIR AUS und kein Abkühlauftrag offen. Nach dem Neustart meldete der Dial 0.2.17 im Leerlauf mit HEAT/AIR AUS; Bibliothek und Einstellungen waren unverändert. Ein echter erneuter Ballonlauf zur Bestätigung des Füllstands steht noch aus. [Maschinenlesbare aktuelle Prüfung](verification-0.2.17.json). Die folgenden Abschnitte dokumentieren frühere Versionen.
+
+## Historischer Stand 0.2.7
 
 Stand 12.10.2026: 95/95 automatisierte Tests bestanden. Ein gezielter Test stellte nach, dass eine vorübergehend ungültige Bluetooth-Statusabfrage in der AUS-Zwischenpause den Workflow 0.2.6 abbrach; er scheiterte vor der Korrektur und besteht danach. Die neue Firmware hält die Zwischenpause, verlangt vor „Weiter“ eine frische Bestätigung für HEAT/AIR AUS und unterscheidet einen fehlenden zweiten Statuswert von einem echten Gerätefehler. Echte Fehler und ungültiger Status während eines aktiven Ablaufs führen weiterhin zum sicheren Abbruch.
 

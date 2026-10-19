@@ -1,5 +1,10 @@
 # Versionsstand
 
+## 0.2.17 - 19.10.2026
+
+- AK3 Finish erhält innerhalb von Aroma-Kurve 3 nach beobachteter Überfüllung eine empirische Füllkorrektur: bei 56 Sekunden gemeinsamer Ballonzeit läuft der dritte Ballon 52 Sekunden. Seine Temperatur- und Luftabschnitte behalten das Verhältnis 20/30/50. Die ersten beiden Aroma-Ballons, Daily und einzeln gestartete Presets bleiben unverändert.
+- Die Korrektur skaliert mit einer später geänderten gemeinsamen Füllzeit. Der tatsächliche Ballonfüllstand ist eine noch offene Geräteprüfung.
+
 ## 0.2.10 - 13.10.2026
 
 - Lange Programmnamen werden auf dem runden Display automatisch kleiner gesetzt. Dadurch erscheint „Aroma-Kurve 3“ vollständig und mit Abstand zum äußeren Ring. Die übrige Bedienung und Bibliothek bleiben unverändert.

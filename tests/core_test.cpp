@@ -131,6 +131,17 @@ int main(int argc,char**argv) {
  tunePlan(tuned,true,60,true);
  assert(std::count_if(tuned.stages[0].actions.begin(),tuned.stages[0].actions.end(),[](const Action& a){return a.type==ActionType::Confirm;})==1);
  assert(std::count_if(tuned.stages[1].actions.begin(),tuned.stages[1].actions.end(),[](const Action& a){return a.type==ActionType::Confirm;})==1);
+ // The reported third-balloon overfill is about four seconds at a 56 s
+ // shared setting. Preserve the first two balloons and the 20/30/50 split.
+ Plan aroma;aroma.name="Aroma-Kurve 3";aroma.workflow=true;
+ aroma.stages={{"AK3 Aroma",{{ActionType::Air,0,13.25},{ActionType::Air,0,26.5},{ActionType::Air,0,13.25}}},
+               {"AK3 Balance",{{ActionType::Air,0,13.25},{ActionType::Air,0,26.5},{ActionType::Air,0,13.25}}},
+               {"AK3 Finish",{{ActionType::Air,0,10.6},{ActionType::Air,0,15.9},{ActionType::Air,0,26.5}}}};
+ tunePlan(aroma,false,56,true,true);
+ for(size_t i=0;i<2;++i){double total=0;for(auto a:aroma.stages[i].actions)total+=a.seconds;assert(std::abs(total-56)<0.001);}
+ assert(std::abs(aroma.stages[2].actions[0].seconds-10.4)<0.001);
+ assert(std::abs(aroma.stages[2].actions[1].seconds-15.6)<0.001);
+ assert(std::abs(aroma.stages[2].actions[2].seconds-26.0)<0.001);
  Plan single;single.stages={{"preset",{{ActionType::Heat,180,360},{ActionType::Air,0,7}}}};tunePlan(single,false,80,false);assert(single.stages[0].actions.back().seconds==7);tunePlan(single,true,80,false);assert(single.stages[0].actions[1].type==ActionType::Confirm);
  Fake upcoming;Engine ue(upcoming);Plan two;two.workflow=true;two.stages={{"done",{}},{"next",{{ActionType::Heat,200,360},{ActionType::Air,0,53}}}};
  assert(ue.start(two,100));upcoming.s.statusAt=100;ue.tick(100);assert(ue.phase==Phase::AwaitingNext);

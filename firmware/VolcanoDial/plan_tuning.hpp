@@ -3,7 +3,7 @@
 
 namespace vd {
 // Adjust a compiled copy for this run. Stored graphs and preset values stay intact.
-inline void tunePlan(Plan& plan,bool requireBalloon,double fillSeconds,bool useGlobalFill){
+inline void tunePlan(Plan& plan,bool requireBalloon,double fillSeconds,bool useGlobalFill,bool aromaFinishCalibration=false){
  for(auto& stage:plan.stages){
   double originalAir=0;
   double confirmTimeout=120;
@@ -15,7 +15,12 @@ inline void tunePlan(Plan& plan,bool requireBalloon,double fillSeconds,bool useG
   actions.reserve(stage.actions.size()+1);
   for(auto action:stage.actions){
    if(action.type==ActionType::Confirm)continue;
-   if(useGlobalFill&&action.type==ActionType::Air&&originalAir>0)action.seconds*=fillSeconds/originalAir;
+   if(useGlobalFill&&action.type==ActionType::Air&&originalAir>0){
+    action.seconds*=fillSeconds/originalAir;
+    // The built-in Finish balloon was reported to overfill by about 4 s at 56 s.
+    // Preserve its 20/30/50 profile; the adjusted volume still needs a live test.
+    if(aromaFinishCalibration&&stage.name=="AK3 Finish")action.seconds*=13.0/14.0;
+   }
    actions.push_back(action);
   }
   if(requireBalloon){
