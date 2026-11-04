@@ -1,3 +1,11 @@
+# Prüfbericht – Volcano Dial 0.2.18
+
+Stand 04.11.2026: 145/145 Fälle und native Prüfungen bestanden. Zwei neue Tests des tatsächlichen Board-GPIO-Wrappers reproduzierten den Fehler digitalWrite vor pinMode bei noch fehlender Arduino-GPIO-Registrierung. Die Korrektur entspricht dem gepinnten M5Unified-Ablauf: HIGH direkt vorladen, dann Ausgang aktivieren. Eine gezielte unabhängige Prüfung der Vendor-APIs fand keinen wichtigen offenen Befund.
+
+0.2.18 wurde app-only an 0x10000 installiert; Schreibhash, direkte USB-Version, Leerlauf und Datenerhalt wurden geprüft. Programm 1.852.571 Byte, statisches RAM 70.256 Byte, kein PSRAM. USB-Daten mit Akku und Adapter gleichzeitig angeschlossen wurden nachgewiesen; der fehlende Windows-Ton bewies keine Störung. Physischer Akku-Kaltstart nach der Korrektur und gemessenes Laden bleiben zu prüfen. [Details](BATTERY_HOLD_FIX_0.2.18.md), [Nachweis](verification.json).
+
+## Frühere Nachweise und damaliger Kenntnisstand
+
 # Prüfbericht – Volcano Dial 0.2.17
 
 Stand 04.11.2026: **143/143 automatisierte Fälle** und native Sicherheits-/Speicher-/UI-Prüfungen bestanden. Unabhängige Gegenprüfung: vier wichtige Befunde vor Installation reproduziert und korrigiert. Finaler Build: 1.852.579 Byte Programm, 70.256 Byte statisches RAM, kein PSRAM.

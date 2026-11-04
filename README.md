@@ -1,8 +1,8 @@
 # VolcanoDial
 
-Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Aktueller Quellstand **0.2.17**. Das zuletzt veröffentlichte Installationspaket ist weiterhin **0.2.7**.
+Eigenständige Fernbedienung für den **Volcano Hybrid** auf **M5Stack Dial v1.1**. Presets und Workflows laufen auf dem Dial, ohne laufenden PC. Bluetooth steuert den Volcano; WLAN verbindet die lokale Hue Bridge. Aktueller Quellstand **0.2.18**. Das zuletzt veröffentlichte Installationspaket ist weiterhin **0.2.7**.
 
-**0.2.17 ist auf dem Entwicklungs-Dial per USB installiert und nach Neustart bestätigt**: Schreibhash geprüft, Bibliothek und alle 21 bisherigen Status-Einstellungen erhalten, HEAT/AIR AUS und Zusatztaster erkannt. [Firmware und Bedienung](docs/BATTERY_FIRMWARE_0.2.17.md). Der frei endende zweipolige Akkukabelanschluss verhindert derzeit USB; Entfernen stellt COM3 wieder her. Akku-Kaltstart und gleichzeitiges USB-Daten/Laden sind deshalb weiter offen. Die Monitorplatine behebt diesen Anschlussfehler nicht. [Hardware-Abnahme](docs/BATTERY_HARDWARE_ACCEPTANCE.md), [Teile-Recherche](hardware/BATTERY_RESEARCH_2026-11-03.md).
+**0.2.18 ist auf dem Entwicklungs-Dial per USB installiert und nach Neustart bestätigt**: Schreibhash geprüft, Bibliothek und Einstellungen erhalten, HEAT/AIR AUS. Ein Fehler im frühen HOLD-GPIO-Aufruf von 0.2.17 wurde korrigiert; die tatsächliche Akku-Kaltstartprüfung folgt. **USB-Datentransfer mit gleichzeitig angeschlossenem Akku und Adapter wurde nachgewiesen**, obwohl kein Windows-Verbindungston zu hören war. Die frühere Vermutung eines weiterhin bestehenden USB-/Adapterfehlers gilt für den aktuellen Aufbau nicht. Gemessenes Laden und Akku-Kaltstart bleiben offen. [HOLD-Korrektur](docs/BATTERY_HOLD_FIX_0.2.18.md), [Hardware-Abnahme](docs/BATTERY_HARDWARE_ACCEPTANCE.md), [Teile-Recherche](hardware/BATTERY_RESEARCH_2026-11-03.md).
 
 ## Vom Einkauf zum laufenden Gerät
 
@@ -44,7 +44,7 @@ Die Mitte des wachen Touchscreens etwa 0,7 Sekunden halten: Sechs sichtbare Krei
 
 ## Aktueller Prüfstand
 
-Version 0.2.17 besteht **143/143 automatisierte Fälle** sowie native Sicherheits-, Speicher- und UI-Prüfungen. Der finale Build benötigt 1.852.579 Byte Programm und 70.256 Byte statisches RAM, ohne PSRAM. App-only-USB-Update und laufende Version wurden bestätigt; Bibliothek und bisherige Einstellungen bleiben erhalten. Hintergrundänderungen wecken das Display nicht mehr, die sichere Abschaltung prüft frische OFF-Daten und erhält AUS-Aufträge nach Reset. Battery-only-Kaltstart, reales Abschalten/Wiederwecken und USB-Daten während gemessenem Laden benötigen weiterhin die [physische Abnahme](docs/BATTERY_HARDWARE_ACCEPTANCE.md). Das oben verlinkte Release-ZIP 0.2.7 enthält diese Funktionen nicht.
+Version 0.2.18 besteht **145/145 automatisierte Fälle** sowie native Sicherheits-, Speicher- und UI-Prüfungen. Der finale Build benötigt 1.852.571 Byte Programm und 70.256 Byte statisches RAM, ohne PSRAM. Der reale GPIO-Wrapper wird jetzt mit dem Verhalten der gepinnten Arduino-GPIO-Verwaltung geprüft; HIGH wird vor dem Aktivieren des Ausgangs vorgeladen. USB-App-Update, laufende Version, Datenerhalt und USB-Daten bei angeschlossenem Akku sind bestätigt. Batterie-Kaltstart, reales Ausschalten/Wiederwecken, gemessener Ladestrom und Ruhestrom benötigen die [physische Abnahme](docs/BATTERY_HARDWARE_ACCEPTANCE.md). Das oben verlinkte Release-ZIP 0.2.7 enthält diese Funktionen nicht.
 
 - [Prüfbericht](docs/PRUEFBERICHT.md), [maschinenlesbare Prüfung](docs/verification.json)
 - [Stufe erneut starten](docs/WORKFLOW_STAGE_RETRY.md)

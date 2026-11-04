@@ -22,7 +22,9 @@
 #include <esp_system.h>
 #include <esp_sleep.h>
 struct DialPowerIO {
- void latch(bool high){digitalWrite(46,high?HIGH:LOW);pinMode(46,OUTPUT);}
+ // Match M5Unified: preload the output latch before enabling the pin.
+ // Arduino digitalWrite ignores an unregistered pin in ESP32 core 3.x.
+ void latch(bool high){if(high)m5gfx::gpio_hi(GPIO_NUM_46);else m5gfx::gpio_lo(GPIO_NUM_46);m5gfx::pinMode(GPIO_NUM_46,m5gfx::pin_mode_t::output);}
  bool clearRtc(){
   M5Dial.Rtc.disableIRQ();M5Dial.Rtc.clearIRQ();uint8_t control=0,timer=0,alarms[4]{};
   auto& bus=M5Dial.In_I2C;
@@ -202,7 +204,7 @@ void setupAP(){
   if(apOn)return;WiFi.mode(WIFI_AP_STA);WiFi.softAP(apName.c_str(),apPassword.c_str());dns.start(53,"*",WiFi.softAPIP());apOn=true;apSince=nowMs();
 }
 void publish(){
-  JsonDocument d;auto s=volcano.snapshot();d["version"]="0.2.17";d["connected"]=s.connected;d["current"]=std::isfinite(s.current)?s.current:0;d["target"]=std::isfinite(s.target)?s.target:210;d["temperatureValid"]=s.connected&&std::isfinite(s.current)&&nowMs()>=s.sampleAt&&nowMs()-s.sampleAt<1500;
+  JsonDocument d;auto s=volcano.snapshot();d["version"]="0.2.18";d["connected"]=s.connected;d["current"]=std::isfinite(s.current)?s.current:0;d["target"]=std::isfinite(s.target)?s.target:210;d["temperatureValid"]=s.connected&&std::isfinite(s.current)&&nowMs()>=s.sampleAt&&nowMs()-s.sampleAt<1500;
   d["powerState"]=powerStandby?"standby":powerOffInProgress?"confirming":!powerBlock.isEmpty()?"blocked":"awake";
   d["shutdownBlockedReason"]=powerBlock;d["idleRemainingSeconds"]=idleRemainingSeconds.load();
   d["outputOffPending"]=outputIntent.pending();d["backgroundRecovery"]=backgroundConnection;
@@ -709,7 +711,7 @@ void usbConsole(){
     if(c!='\n'){if(line.length()<512)line+=c;else discarded=true;continue;}
     JsonDocument q;if(discarded||deserializeJson(q,line)){Serial.println("{\"error\":\"USB JSON ungueltig/zu lang\"}");}
     else if(String(q["command"]|"")=="info"){
-      JsonDocument d;d["device"]="VolcanoDial";d["version"]="0.2.17";d["pin"]=pin;d["apName"]=apName;d["apPassword"]=apPassword;d["ip"]=WiFi.localIP().toString();d["ap"]=apOn.load();d["heap"]=ESP.getFreeHeap();d["filesystem"]=fsReady;serializeJson(d,Serial);Serial.println();
+      JsonDocument d;d["device"]="VolcanoDial";d["version"]="0.2.18";d["pin"]=pin;d["apName"]=apName;d["apPassword"]=apPassword;d["ip"]=WiFi.localIP().toString();d["ap"]=apOn.load();d["heap"]=ESP.getFreeHeap();d["filesystem"]=fsReady;serializeJson(d,Serial);Serial.println();
     }else if(String(q["command"]|"")=="status"){
       xSemaphoreTake(stateMutex,portMAX_DELAY);auto s=stateText;xSemaphoreGive(stateMutex);Serial.println(*s);
     }else{if(String(q["command"]|"")=="stop")stopRequested=true;Serial.println(enqueue(line,0,String(q["command"]|"")!="sleepDisplay"&&String(q["command"]|"")!="wakeDisplay",String(q["command"]|"")!="sleepDisplay")?"{\"accepted\":true}":"{\"error\":\"Warteschlange voll\"}");}

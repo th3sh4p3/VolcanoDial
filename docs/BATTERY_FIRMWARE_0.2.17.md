@@ -1,5 +1,7 @@
 # Battery firmware 0.2.17
 
+**Superseded by 0.2.18:** a follow-up found and corrected an early HOLD GPIO API error that the policy-only tests missed. Actual USB data with the battery and adapter connected now works; an ongoing cable fault is not established. See [HOLD correction](BATTERY_HOLD_FIX_0.2.18.md).
+
 Implemented on 4 November 2026. Installation evidence is recorded separately in `verification.json`; a successful build alone is not an installation.
 
 ## Operation
@@ -31,6 +33,6 @@ Status includes `powerState`, `shutdownBlockedReason`, `idleRemainingSeconds`, `
 
 143 automated host cases plus native safety/storage/UI checks passed. The actual shutdown branch and output-writing method are tested with external transports substituted. Tests reproduced the background-wake bug, queued-shutdown activity race and all four important independent-review findings before their corrections. The 240-pixel round info view was rendered and inspected.
 
-The [hardware acceptance record](BATTERY_HARDWARE_ACCEPTANCE.md) remains authoritative for physical limitations: USB returned when the disconnected two-wire battery cable was removed from the Dial socket. USB data plus battery charging must work together after that connector/assembly fault is resolved. A monitor board does not repair it. Battery-only startup, charging current/termination, cutoff current, repeated wake cycles and the quiet soak remain physical acceptance tasks.
+The [hardware acceptance record](BATTERY_HARDWARE_ACCEPTANCE.md) remains authoritative for physical limitations: USB returned when the disconnected two-wire battery cable was removed from the Dial socket. Actual USB data with the adapter and battery connected was subsequently confirmed; charging current and cold startup remain to be measured. A monitor board does not repair it. Battery-only startup, charging current/termination, cutoff current, repeated wake cycles and the quiet soak remain physical acceptance tasks.
 
 Implementation decisions: work stayed on the existing IDE feature branch to preserve the approved planning files; one integrated implementation commit covers the shared worker/power changes. The optional gauge remains disabled until accepted, so no battery telemetry is promised before fitting it. Electrical acceptance remains open because software and remote USB tests cannot prove rail behavior; treating these tests as a hardware repair would risk a wrong purchase or a false completion claim. The existing charger remains the sole charging path, based on the schematic; adding the monitor is conditional on repairing the current connection first.

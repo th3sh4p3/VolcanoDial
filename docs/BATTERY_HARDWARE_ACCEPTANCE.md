@@ -1,5 +1,7 @@
 # Battery / USB acceptance record — 4 November 2026
 
+**Later same-day correction:** with USB, battery and adapter all attached (explicitly confirmed by the user), healthy COM3 enumeration and actual USB `info`/`status` replies were verified. The missing connection sound did not indicate loss of data. USB plus an attached battery works in this observed configuration; the earlier disappearance does not establish a continuing adapter fault. The user can also run on battery after USB-assisted startup, but battery-only cold start still fails. A concrete early-HOLD API error was found in 0.2.17 and corrected for 0.2.18; see [HOLD investigation and next physical test](BATTERY_HOLD_FIX_0.2.18.md). Measured charging remains unverified.
+
 **Software update:** 0.2.17 subsequently installed app-only with verified write hash; direct USB and Wi-Fi readback confirmed the version, idle outputs and preserved library/settings. This does not close the hardware checks below.
 
 ## Observed on this prototype
@@ -10,7 +12,7 @@
 - Removing the adapter from the Dial and reconnecting USB restored the connection sound. Windows then showed the same Espressif device and **COM3, present, problem code 0**. The USB console answered `info` with version 0.2.16. No driver replacement or new firmware was involved in that restoration.
 - Historical driver records show a successful USB serial installation on 2 November. Earlier driver-cleaner activity is not evidence that the current driver is faulty; the restored device works with Windows' existing drivers.
 
-This isolates a strong association with the adapter installation, not its exact electrical cause. The cable, mating contacts, insulation, routing beneath the removable Stamp, module seating and pressure on nearby controls remain unverified. A closed or open battery connection cannot be inferred from Windows device history.
+The initial observations suggested an association with adapter installation, not an established electrical cause. The later successful both-connected data exchange supersedes a claim of continuing USB incompatibility. Cable fit, mating contacts, insulation and rail behavior remain physically unmeasured.
 
 ## USB data and charging are a required combined function
 
@@ -22,11 +24,12 @@ The previously suggested ADA3922 was a connector **candidate**, not a proven Dia
 
 ## Required inspection and acceptance
 
-Keep the suspect adapter disconnected until checked with all power removed. A qualified supplier/technician should inspect the assembled adapter and module seating, verify the mating connector against M5Stack's [connector drawing](https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/M5Dial/1.25WT-2P.pdf), check insulation/continuity/polarity and supply rails, and supply a finished tested replacement if needed. The user's requirement remains no soldering, repinning or cable fabrication by the user. Do not add a second charger in parallel as a workaround.
+Do not rewire the assembly based only on cable colours or a missing Windows sound. If the earlier physical USB failure recurs, inspect it with all power removed against M5Stack's [connector drawing](https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/M5Dial/1.25WT-2P.pdf), including module seating, insulation, continuity and polarity. A qualified supplier/technician can supply a finished tested replacement if one is needed. The user's requirement remains no soldering, repinning or cable fabrication by the user. Do not add a second charger in parallel as a workaround.
 
 Acceptance must establish:
 
 - [x] USB-only enumeration and USB console data with the adapter removed.
+- [x] Later same-day USB enumeration and real data exchange with USB, adapter and battery all connected.
 - [ ] USB data remains available with a verified empty adapter fitted and Stamp correctly seated.
 - [ ] USB data and positive battery charge current together with the actual EREMIT battery fitted; charging within its specifications and correct termination.
 - [ ] Stable USB/battery operation and supply handover with Chain Key attached and detached.

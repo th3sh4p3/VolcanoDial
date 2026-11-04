@@ -89,7 +89,7 @@ template<class Canvas> void paint(Canvas& c,const UiSnapshot& s,const UiState& u
   if(s.batteryValid)snprintf(b,sizeof b,"Akku ~%d%% · Laden unbekannt",s.batteryPercent);else snprintf(b,sizeof b,"Akku / Ladestatus unbekannt");p.text(font12,b,120,129,206,s.batteryLow?AMBER:MUTED);
   if(s.powerBlocked)snprintf(b,sizeof b,"AUS gesperrt · Meldung prüfen");else if(s.busy||s.cooling||s.coolingPending)snprintf(b,sizeof b,"Auto AUS pausiert");else if(s.idleRemainingSeconds<0)snprintf(b,sizeof b,"Auto AUS deaktiviert");else snprintf(b,sizeof b,"Auto AUS in %d:%02d",s.idleRemainingSeconds/60,s.idleRemainingSeconds%60);p.text(font12,b,120,150,206,MUTED);
   if(s.ap){snprintf(b,sizeof b,"WLAN: %s",s.apPassword);p.text(font12,b,120,172,192);}else p.text(font12,s.keyAlive?"Zusatztaster verbunden":"Ohne Zusatztaster",120,172,192,MUTED);
-  p.text(font12,s.ecoMode?"Firmware 0.2.17 · Eco":"Firmware 0.2.17",120,194,148,MUTED);return;
+  p.text(font12,s.ecoMode?"Firmware 0.2.18 · Eco":"Firmware 0.2.18",120,194,148,MUTED);return;
  }
  if(u.screen==Screen::Details){p.text(font12,"‹ ZURÜCK",120,23,120,MUTED);const char* headings[]={"Vollständiger Name","Aktuelles / nächstes Preset","Meldung","Meldung · Fortsetzung"};p.text(font12,headings[u.value%4],120,41,164,MUTED);const char* content=u.value%4==0?s.name:u.value%4==1?s.stageName:s.message;p.wrapped(font14,content[0]?content:"Keine Meldung",58,8,u.value%4>=2&&s.phase==UiPhase::Error?RED:INK,u.value%4==3?8:0);snprintf(b,sizeof b,"%d/4 · Drehen / Tippen",u.value%4+1);p.text(font12,b,120,202,100,MUTED);return;}
  // The top menu target is separate from all start/air/stop targets.

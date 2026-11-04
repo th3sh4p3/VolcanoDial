@@ -1,5 +1,11 @@
 # Versionsstand
 
+## 0.2.18 - 04.11.2026
+
+- Frühen HOLD-Fehler korrigiert: Arduino 3.x ignoriert digitalWrite vor GPIO-Registrierung. Der Wrapper verwendet jetzt wie M5Unified direktes HIGH-Vorladen vor dem Aktivieren des Ausgangs; LOW funktioniert ebenfalls ohne Arduino-Registrierung.
+- Zwei neue Tests des tatsächlichen GPIO-Wrappers scheiterten vor der Korrektur und bestehen danach; 145/145 Fälle bestanden. App-only per USB installiert, Schreibhash, Version und gespeicherte Daten geprüft. Akku-Kaltstart muss physisch wiederholt werden.
+- USB-Datentransfer mit Akku und Adapter gleichzeitig angeschlossen tatsächlich nachgewiesen. Ein fehlender Windows-Verbindungston war kein Nachweis einer Datenstörung. [Details](docs/BATTERY_HOLD_FIX_0.2.18.md).
+
 ## 0.2.17 - 04.11.2026
 
 - Eigene Leerlauffrist; Statusänderungen und Bluetooth-Wiederverbindung wecken das Display nicht mehr. Startgesten bleiben bis zum stabilen Loslassen gesperrt.
