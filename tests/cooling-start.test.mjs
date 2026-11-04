@@ -24,6 +24,8 @@ bool fsReady=true,sessionHue=false,wantConnection=false,recoveryOff=false,coolin
 bool coolCancel=false;unsigned airOwner=0,reconnectAttempt=0,lastGeneration=0;
 uint64_t retryAt=0,clockMs=1000;uint64_t nowMs(){return clockMs;}void delay(int n){clockMs+=n;}
 String notice,operation;vd::KeyContext inputContext;
+struct{bool pending(){return false;}bool matches(const std::string&){return false;}}outputIntent;String sessionHueIdentity;String managedPlugIdentity(){return "bridge|plug";}
+struct{bool valid(uint64_t,bool){return false;}bool critical(){return false;}}batteryMonitor;bool busy(){return false;}
 constexpr int WL_CONNECTED=3;struct{int status(){return WL_CONNECTED;}}WiFi;
 void publish(){}std::string coolingIdentity(){return missing?"":"valid";}
 struct{bool saved=false;bool pending(){return saved;}bool matches(const std::string& id){return saved&&id=="valid";}}coolingIntent;

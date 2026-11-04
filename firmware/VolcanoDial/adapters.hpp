@@ -61,6 +61,7 @@ class Volcano : public vd::DeviceIO, public NimBLEClientCallbacks {
   bool output(bool heater,bool on){
     error="";
     if(!snapshot().connected||(on&&stopRequested))return false;
+    if(on&&!beforeOutputOn()){error="Start gesperrt: Akku oder AUS-Auftrag nicht bestaetigt";return false;}
     if(on&&!heater&&manualHold && !manualDemandValid())return false;
     auto c=heater?(on?heatOn:heatOff):(on?fanOn:fanOff);if(!c)return false;
     ownCommand=true;quietUntil=nowMs()+1500;uint8_t value=on?1:0;
@@ -79,6 +80,7 @@ class Volcano : public vd::DeviceIO, public NimBLEClientCallbacks {
     return ok&&(written||!on||confirmed(heater,true));
   }
  public:
+  std::function<bool()> beforeOutputOn=[](){return false;};
   std::atomic<bool> physicalHeat{false};std::atomic<uint32_t> generation{0};bool manualHold=false;String error;
   bool manualAirCancelled()override{return manualHold&&!manualDemandValid();}
   std::string failureDetail()override{return std::string(error.c_str());}
@@ -247,7 +249,7 @@ class Hue {
     error="Hue-Steckdose nicht erreichbar";return false;
   }
   bool power(bool on,std::function<bool()> allowed=[](){return true;}){
-    bool actual;if(!read(actual))return false;if(actual==on)return true;JsonDocument result;
+    bool actual;if(!read(actual))return false;if(actual==on)return allowed();JsonDocument result;
     if(!allowed()){error="Hue-Schaltung abgebrochen";return false;}
     if(!request("/clip/v2/resource/light/"+plug,"PUT",result,on?"{\"on\":{\"on\":true}}":"{\"on\":{\"on\":false}}",false,allowed))return false;
     for(int i=0;i<5;++i){delay(300);if(read(actual)&&actual==on)return true;}

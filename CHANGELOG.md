@@ -1,5 +1,13 @@
 # Versionsstand
 
+## 0.2.17 - 04.11.2026
+
+- Eigene Leerlauffrist; Statusänderungen und Bluetooth-Wiederverbindung wecken das Display nicht mehr. Startgesten bleiben bis zum stabilen Loslassen gesperrt.
+- Sicherer gemeinsamer Ausschaltpfad mit begrenzten Wiederholungen, geprüfter RTC-Abschaltung, finaler OFF-/Aktivitätsprüfung und Standby bei externer Versorgung. Kein automatisches erneutes Setzen von HOLD.
+- Dauerhafter separater AUS-Auftrag vor jedem HEAT/AIR EIN; Wiederherstellung nach Reset bleibt ausschließlich AUS.
+- Eco-Helligkeit, schaltbares RFID, Versions-/Leerlauf-/Akkuanzeige und optionale, standardmäßig deaktivierte MAX17048-Unterstützung. Ladezustand und Akkuanwesenheit bleiben ohne belastbaren Nachweis unbekannt.
+- 143/143 automatisierte Fälle bestanden. Hardware-Abnahme für Akku-Kaltstart und gleichzeitiges USB-Daten/Laden steht aus: Das frei endende zweipolige Akkukabel verhindert derzeit USB, Entfernen stellt COM3 wieder her. [Details](docs/BATTERY_HARDWARE_ACCEPTANCE.md).
+
 ## 0.2.10 - 13.10.2026
 
 - Lange Programmnamen werden auf dem runden Display automatisch kleiner gesetzt. Dadurch erscheint „Aroma-Kurve 3“ vollständig und mit Abstand zum äußeren Ring. Die übrige Bedienung und Bibliothek bleiben unverändert.

@@ -12,6 +12,7 @@ fs.writeFileSync(cpp,`#include <cassert>
 #include <string>
 using String=std::string;std::atomic<bool> displayWakeRequested{false},coolCancel{false},powerOffInProgress{false};
 constexpr int LIBRARY_LIMIT=32768,pdTRUE=1;void* requests=nullptr;
+unsigned activities=0;void powerActivity(){++activities;}
 struct Request{char* text;unsigned id,epoch;};Request saved{};
 struct{unsigned snapshot(){return 0;}}requestFence;
 int xQueueSend(void*,Request* r,int){saved=*r;return pdTRUE;}
@@ -20,9 +21,9 @@ bool command(const String& command){String body="{}";unsigned id=1;return enqueu
 int main(int argc,char**argv){int mode=std::stoi(argv[1]);
  if(mode==3){powerOffInProgress=true;assert(!command("run"));assert(!displayWakeRequested&&!coolCancel);return 0;}
  assert(command(mode==0?"sleepDisplay":mode==1?"wakeDisplay":"run"));
- if(mode==0){assert(!displayWakeRequested);assert(!coolCancel);}
- if(mode==1){assert(displayWakeRequested);assert(!coolCancel);}
- if(mode==2){assert(displayWakeRequested);assert(coolCancel);}
+ if(mode==0){assert(!displayWakeRequested);assert(!coolCancel);assert(activities==0);}
+ if(mode==1){assert(displayWakeRequested);assert(!coolCancel);assert(activities==1);}
+ if(mode==2){assert(displayWakeRequested);assert(coolCancel);assert(activities==1);}
  free(saved.text);
 }
 `);

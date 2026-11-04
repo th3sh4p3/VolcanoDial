@@ -1,55 +1,111 @@
 {
-  "version": "0.2.7",
-  "verifiedDate": "2026-10-12",
-  "installedVersion": "0.2.7",
-  "board": "M5Stack Dial v1.1 / ESP32-S3 8 MB, no PSRAM",
-  "tests": 95,
-  "passed": 95,
+  "version": "0.2.17",
+  "appBinaryBytes": 1852720,
+  "appSHA256": "05EAC18DEA01C884C862E164BE8E0B229139DE40EE2F7645976558F06E0B00C2",
+  "sourceSHA256": "51961422C7EF62D1790DF68EAD2AFBC48FA164AF0390F1F5983960AB2BB780D1",
+  "tests": 143,
+  "passed": 143,
   "failed": 0,
-  "flash": 1824387,
-  "staticRam": 69768,
+  "flash": 1852579,
+  "staticRam": 70256,
   "flashLimit": 3145728,
-  "appBinaryBytes": 1824528,
-  "appSHA256": "74472B1FE878AEDEAD7054CA32552401042EAD058490BB810B2ED7000FCD8796",
-  "changes": [
-    "A transient invalid BLE status at a confirmed-off workflow checkpoint keeps the current checkpoint instead of failing the whole plan",
-    "Explicit next-stage input requires a fresh status and confirmed HEAT/AIR off before advancing",
-    "A missed secondary BLE read no longer fabricates a device fault; actual fault bits and active-run fail-safe behavior remain"
-  ],
-  "regression": {
-    "reproducedBeforeFix": true,
-    "checkpointStatusRecovery": true,
-    "actualFaultStillFails": true,
-    "activeRunStaleStatusStillFails": true,
-    "secondaryReadFailureDistinguished": true,
-    "knownActiveOutputStillFails": true
-  },
-  "pendingHardwareVerification": [
-    "Complete real Daily heating run with stage transitions",
-    "Intermittent BLE read failure cannot be forced reliably on a real Volcano"
-  ],
-  "documentation": {
-    "manualPdfVersion": "0.2.7",
-    "stageRetryAddendum": "WORKFLOW_STAGE_RETRY.md"
-  },
-  "releaseState": "installed",
-  "usbUpdateHashVerified": true,
-  "installationVerified": true,
+  "privateBuildPathScanPassed": true,
+  "installedVersion": "0.2.17",
   "libraryPreserved": true,
   "settingsPreserved": true,
+  "originalSettingCount": 21,
   "outputsOff": true,
   "noAutomaticRestart": true,
-  "liveTestPerformed": false,
-  "previousInstalledBuild": {
-    "version": "0.2.6",
-    "appSHA256": "7A96389430895FD0E7B2D3FC503AC2A8863E2696F4BB512FD1AE064ED9BC5605",
-    "appBinaryBytes": 1824096,
-    "flash": 1823955,
-    "staticRam": 69768,
-    "usbUpdateHashVerified": true,
-    "installationVerified": true
+  "optionalMonitorDisabled": true,
+  "powerState": "awake",
+  "usbUpdateHashVerified": true,
+  "installationVerified": true,
+  "verifiedDate": "2026-11-04",
+  "board": "M5Stack Dial v1.1 / ESP32-S3 8 MB, no PSRAM",
+  "releaseState": "installed",
+  "preUpdateObservedVersion": "0.2.16",
+  "installMethod": "USB COM3; app-only at 0x10000; no filesystem/NVS erase",
+  "testCommand": "tools/Test.ps1 with Zig 0.15.2, ArduinoJson 7.4.2 and Node 26.13.0",
+  "review": {
+    "freshIndependentReview": true,
+    "criticalFindings": 0,
+    "importantFindings": 4,
+    "importantFindingsFixed": 4,
+    "regressionsReproducedBeforeFix": true
   },
-  "buildPathMapping": "-ffile-prefix-map, all user-profile path variants replaced with /build-user",
-  "privateBuildPathScanPassed": true,
-  "publicCopy": "Only technical test/build evidence; live status and local work-log metadata omitted."
+  "documentation": {
+    "batteryFirmware": "BATTERY_FIRMWARE_0.2.17.md",
+    "hardwareAcceptance": "BATTERY_HARDWARE_ACCEPTANCE.md",
+    "manualPdfVersion": "0.2.7"
+  },
+  "pendingHardwareVerification": [
+    "Resolve disconnected two-wire battery cable removing USB enumeration",
+    "Simultaneous USB data and measured battery charging/termination",
+    "Battery-only cold start and WAKE/off cycles",
+    "Physical latch-off and external-supply standby/removal",
+    "Current/runtime and overnight quiet soak",
+    "Optional gauge fit, polarity, signal levels and back-power acceptance"
+  ],
+  "previousVerificationRecord": {
+    "version": "0.2.7",
+    "verifiedDate": "2026-10-12",
+    "installedVersion": "0.2.7",
+    "board": "M5Stack Dial v1.1 / ESP32-S3 8 MB, no PSRAM",
+    "tests": 95,
+    "passed": 95,
+    "failed": 0,
+    "flash": 1824387,
+    "staticRam": 69768,
+    "flashLimit": 3145728,
+    "appBinaryBytes": 1824528,
+    "appSHA256": "74472B1FE878AEDEAD7054CA32552401042EAD058490BB810B2ED7000FCD8796",
+    "changes": [
+      "A transient invalid BLE status at a confirmed-off workflow checkpoint keeps the current checkpoint instead of failing the whole plan",
+      "Explicit next-stage input requires a fresh status and confirmed HEAT/AIR off before advancing",
+      "A missed secondary BLE read no longer fabricates a device fault; actual fault bits and active-run fail-safe behavior remain"
+    ],
+    "regression": {
+      "reproducedBeforeFix": true,
+      "checkpointStatusRecovery": true,
+      "actualFaultStillFails": true,
+      "activeRunStaleStatusStillFails": true,
+      "secondaryReadFailureDistinguished": true,
+      "knownActiveOutputStillFails": true
+    },
+    "pendingHardwareVerification": [
+      "Complete real Daily heating run with stage transitions",
+      "Intermittent BLE read failure cannot be forced reliably on a real Volcano"
+    ],
+    "documentation": {
+      "manualPdfVersion": "0.2.7",
+      "stageRetryAddendum": "WORKFLOW_STAGE_RETRY.md"
+    },
+    "releaseState": "installed",
+    "usbUpdateHashVerified": true,
+    "installationVerified": true,
+    "libraryPreserved": true,
+    "settingsPreserved": true,
+    "outputsOff": true,
+    "noAutomaticRestart": true,
+    "liveTestPerformed": false,
+    "previousInstalledBuild": {
+      "version": "0.2.6",
+      "appSHA256": "7A96389430895FD0E7B2D3FC503AC2A8863E2696F4BB512FD1AE064ED9BC5605",
+      "appBinaryBytes": 1824096,
+      "flash": 1823955,
+      "staticRam": 69768,
+      "usbUpdateHashVerified": true,
+      "installationVerified": true
+    },
+    "buildPathMapping": "-ffile-prefix-map, all user-profile path variants replaced with /build-user",
+    "privateBuildPathScanPassed": true,
+    "publicCopy": "Only technical test/build evidence; live status and local work-log metadata omitted."
+  },
+  "publicCopy": "Technical build/install evidence only; credentials and live private records excluded.",
+  "browserAssetsVerified": true,
+  "unicodeLabelsVerified": true,
+  "usbDataVerifiedWithBatteryCableRemoved": true,
+  "simultaneousChargingVerified": false,
+  "screenSleepObservedBeforeLabelRefresh": true,
+  "expectedBootCountAfterTwoAuthorizedUploads": 2
 }

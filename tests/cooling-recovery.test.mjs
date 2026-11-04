@@ -18,6 +18,7 @@ struct {String bridgeId="0123456789abcdef",plug="01234567-0123-0123-0123-0123456
 struct {bool armed=false;void cancel(){armed=false;}void arm(const std::string&){armed=true;}}cooldown;
 struct {int disconnects=0;void disconnect(){++disconnects;}}volcano;
 String notice;bool sessionHue=false,wantConnection=false,recoveryOff=false,coolingRestore=true,stopRequested=false;
+struct{bool matches(const std::string&){return false;}bool complete(){return true;}}outputIntent;bool outputRestoring=false;String sessionHueIdentity;String managedPlugIdentity(){return "bridge|plug";}
 uint64_t coolingRecoveryAt=0,coolingRetryAt=0,clockMs=1000;unsigned coolingFailures=0;
 bool active=false;bool busy(){return active;}uint64_t nowMs(){return clockMs;}
 ${source.slice(start,end)}

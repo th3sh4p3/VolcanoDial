@@ -5,9 +5,9 @@
     "sha256": "af65eda2482e1f08362e495287b0bf4c764052ff2e475c319d2a3a3c1e77f668"
   },
   "/app.js": {
-    "bytes": 8803,
-    "gzip": 3246,
-    "sha256": "fa11164cff30ac0b0e65134bc1f53554e055178a29b9c6b01bea38953abce9bb"
+    "bytes": 9120,
+    "gzip": 3335,
+    "sha256": "674924136915848575f558150058676d282f2cd3ef033466b0eb0902a99dcac0"
   },
   "/ble/ble-constants.js": {
     "bytes": 2241,
@@ -55,14 +55,19 @@
     "sha256": "3b1343a19fec220319de596b753b7b2effd198e2510b43f9fb73b9c17bd8fbf8"
   },
   "/index.html": {
-    "bytes": 6997,
-    "gzip": 2822,
-    "sha256": "08af8a9e733f3a12e5da5802e8725980e145509ca17b4c19134cd3f2c44b82e4"
+    "bytes": 7629,
+    "gzip": 3047,
+    "sha256": "e638da36ac2a756112201ceb5ff9b1cb1892fea9e2e52077e9c99749a8d386aa"
   },
   "/library-bridge.js": {
     "bytes": 1824,
     "gzip": 806,
     "sha256": "ded90f49455a6504f81aadfc7ad88fd904e4ddf92ebfa0cf4880550120695bb8"
+  },
+  "/power-status.js": {
+    "bytes": 986,
+    "gzip": 543,
+    "sha256": "f327bbace03c97203eba6fa3232b9ebdef2db71082e4ced4b83db3dc5facc70a"
   },
   "/runnable-items.js": {
     "bytes": 669,

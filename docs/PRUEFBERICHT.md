@@ -1,3 +1,13 @@
+# Prüfbericht – Volcano Dial 0.2.17
+
+Stand 04.11.2026: **143/143 automatisierte Fälle** und native Sicherheits-/Speicher-/UI-Prüfungen bestanden. Unabhängige Gegenprüfung: vier wichtige Befunde vor Installation reproduziert und korrigiert. Finaler Build: 1.852.579 Byte Programm, 70.256 Byte statisches RAM, kein PSRAM.
+
+**Per USB installiert**: App-only-Update an 0x10000 mit bestätigtem Schreibhash. Direkte USB-Abfrage und WLAN meldeten anschließend 0.2.17, Leerlauf, HEAT/AIR AUS, keine offenen Kühl-/AUS-Aufträge und erkannten Zusatztaster. Bibliothek und alle 21 zuvor gemeldeten Einstellungen stimmen mit der Sicherung überein. Kein Heizlauf wurde gestartet. Die optionale Akkumessung bleibt deaktiviert und Akku-/Ladestatus unbekannt. [Firmware](BATTERY_FIRMWARE_0.2.17.md), [Bau-/Installationsnachweis](verification.json).
+
+USB funktioniert nach Entfernen des am freien Ende getrennten zweipoligen Akkukabels wieder auf COM3. Der genaue Anschlussfehler, Akku-Kaltstart, gleichzeitiges USB-Daten/Laden und physisches Abschalten/Wiederwecken bleiben zu prüfen; die neue Firmware ist kein Nachweis einer elektrischen Reparatur. [Hardware-Abnahme](BATTERY_HARDWARE_ACCEPTANCE.md).
+
+## Frühere Prüfberichte
+
 # Prüfbericht – Volcano Dial 0.2.7
 
 Stand 12.10.2026: 95/95 automatisierte Tests bestanden. Ein gezielter Test stellte nach, dass eine vorübergehend ungültige Bluetooth-Statusabfrage in der AUS-Zwischenpause den Workflow 0.2.6 abbrach; er scheiterte vor der Korrektur und besteht danach. Die neue Firmware hält die Zwischenpause, verlangt vor „Weiter“ eine frische Bestätigung für HEAT/AIR AUS und unterscheidet einen fehlenden zweiten Statuswert von einem echten Gerätefehler. Echte Fehler und ungültiger Status während eines aktiven Ablaufs führen weiterhin zum sicheren Abbruch.

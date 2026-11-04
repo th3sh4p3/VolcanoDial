@@ -41,6 +41,7 @@ JsonDocument config,library,persistedConfig;String notice,operation,revision="re
 bool failStore=false;bool store(const char*,const String& text){if(failStore)return false;return !deserializeJson(persistedConfig,text);}void applyHue(){}
 String previewId,previewRevision,stageChoiceId,stageChoiceRevision;int previewStages=0,stageChoice=0;
 bool fsReady=true,sessionHue=false,wantConnection=false,recoveryOff=false,coolingRestore=false,activationPending=false,coolCancel=false;
+struct{bool pending(){return false;}bool matches(const std::string&){return false;}}outputIntent;String sessionHueIdentity;String managedPlugIdentity(){return "bridge|plug";}
 unsigned airOwner=0,reconnectAttempt=0,lastGeneration=0;uint64_t retryAt=0;
 constexpr int WL_CONNECTED=3;struct{int status(){return WL_CONNECTED;}}WiFi;
 struct{bool saved=false;bool pending(){return saved;}}coolingIntent;
@@ -64,6 +65,7 @@ struct FakeVolcano:vd::DeviceIO{
  uint64_t monotonic()override{return clockMs;}
 }volcano;
 vd::Engine engine(volcano);vd::HoseSession hose(volcano);
+struct{bool valid(uint64_t,bool){return true;}bool critical(){return mode==40;}}batteryMonitor;bool busy(){return engine.busy()||hose.busy();}
 bool hoseSelected(){return String(config["selectedMode"]|"")=="hose";}
 ${selectionHelpers}
 ${previewHelper}
@@ -81,6 +83,7 @@ struct CachedLink{bool physicalHeat=true;vd::Snapshot data;int mux=0;std::atomic
  ${disconnect}
 };
 int main(int argc,char**argv){mode=std::stoi(argv[1]);
+ if(mode==40){assert(!prepare());assert(hue.ons==0&&volcano.connects==0&&volcano.heatOns==0&&volcano.fanOns==0);return 0;}
  config["volcanoId"]="11:22:33:44:55:66";
  assert(!deserializeJson(library,R"({"settingsVersion":2,"globalVariables":[],"presets":[{"id":"p","name":"Daily first","kind":"simple","startTemp":180,"endTemp":180,"steps":1,"fillTime":5}],"workflows":[],"activeRunnable":{"kind":"preset","id":"p"}})"));
  if(mode==0||mode>=20)assert(!deserializeJson(library,R"daily(${daily})daily"));
@@ -224,5 +227,6 @@ for(const [mode,name]of[
  [37,'Persisted fill time in a checkpoint applies to the next Daily stage'],
  [38,'Persisted balloon confirmation in a checkpoint applies to the next stage'],
  [39,'Failed settings write leaves active and stored balloon fill unchanged'],
+ [40,'Fresh critical battery blocks preparation before any Hue or output ON'],
 ])test(name,()=>{const r=spawnSync(exe,[String(mode)],{encoding:'utf8'});assert.equal(r.status,0,r.stderr||r.stdout);});
 test.after(()=>fs.rmSync(dir,{recursive:true,force:true}));

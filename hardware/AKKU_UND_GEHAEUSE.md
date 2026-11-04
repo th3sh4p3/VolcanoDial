@@ -1,5 +1,9 @@
 # Akku und INCLINE: Erweiterung in Entwicklung
 
+**Aktualisierung 04.11.2026:** USB funktioniert wieder, seit das am freien Ende unbeschaltete zweipolige Akkukabel aus der Dial-Buchse entfernt wurde. USB-Daten und Laden müssen gemeinsam funktionieren; die geplante Monitorplatine behebt diesen Anschlussfehler nicht. [Abnahme und Fehlerbild](../docs/BATTERY_HARDWARE_ACCEPTANCE.md). [Firmware 0.2.17](../docs/BATTERY_FIRMWARE_0.2.17.md) ergänzt die Software; Akku-Kaltstart und Laden sind weiterhin nicht abgenommen.
+
+**Historischer Planungsstand 03.11.2026:** Der Nutzer hat den EREMIT-Akku inzwischen angeschlossen. Reiner Akku-Kaltstart und ungewolltes Aufwachen sind noch ungeklärt. Die folgenden Anbauschritte sind der frühere Entwicklungsstand, keine bestätigte Akku-Abnahme. Der letzte dokumentierte Installationsstand ist 0.2.14; Auto AUS liegt erst im Quellstand 0.2.16 vor. Siehe [Untersuchung und Softwareplan](../docs/BATTERY_POWER_PLAN.md) und [neue Hardware-Recherche mit lötfreier Teileliste](BATTERY_RESEARCH_2026-11-03.md).
+
 Der vollständig beschriebene Nachbau in diesem Repository ist der **USB-versorgte Dial in seinen Originalgehäusen**. Das geneigte INCLINE-Gehäuse mit Akku ist ein zusätzlicher Entwurf. Es gibt dafür noch keine vollständig geprüfte STL/STEP-Fertigungsdatei und keinen bestätigten Plug-and-play-Akkuadapter.
 
 ## Vorgesehene Erweiterung
