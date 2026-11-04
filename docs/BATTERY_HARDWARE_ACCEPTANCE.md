@@ -1,6 +1,6 @@
 # Battery / USB acceptance record — 4 November 2026
 
-**Later same-day correction:** with USB, battery and adapter all attached (explicitly confirmed by the user), healthy COM3 enumeration and actual USB `info`/`status` replies were verified. The missing connection sound did not indicate loss of data. USB plus an attached battery works in this observed configuration; the earlier disappearance does not establish a continuing adapter fault. The user can also run on battery after USB-assisted startup, but battery-only cold start still fails. A concrete early-HOLD API error was found in 0.2.17 and corrected for 0.2.18; see [HOLD investigation and next physical test](BATTERY_HOLD_FIX_0.2.18.md). Measured charging remains unverified.
+**Later same-day correction:** with USB, battery and adapter all attached (explicitly confirmed by the user), healthy COM3 enumeration and actual USB `info`/`status` replies were verified. The missing connection sound did not indicate loss of data. USB plus an attached battery works in this observed configuration; the earlier disappearance does not establish a continuing adapter fault. The user can also run on battery after USB-assisted startup, and one battery-only cold start on 0.2.18 is now confirmed: full supply removal, held WAKE, sustained operation after release and Wi-Fi idle/OFF readback. A concrete early-HOLD API error was found in 0.2.17 and corrected for 0.2.18; see [HOLD investigation and next physical test](BATTERY_HOLD_FIX_0.2.18.md). Measured charging remains unverified.
 
 **Software update:** 0.2.17 subsequently installed app-only with verified write hash; direct USB and Wi-Fi readback confirmed the version, idle outputs and preserved library/settings. This does not close the hardware checks below.
 
@@ -33,9 +33,10 @@ Acceptance must establish:
 - [ ] USB data remains available with a verified empty adapter fitted and Stamp correctly seated.
 - [ ] USB data and positive battery charge current together with the actual EREMIT battery fitted; charging within its specifications and correct termination.
 - [ ] Stable USB/battery operation and supply handover with Chain Key attached and detached.
-- [ ] Battery-only physical WAKE after full supply removal; held startup inputs never activate a workflow or air.
+- [x] One battery-only physical WAKE after full supply removal, held for about two seconds: stays on after release; Wi-Fi readback idle with HEAT/AIR off.
+- [ ] Brief WAKE and repeated startup input/cutoff cycles.
 - [ ] Repeated battery latch-off / deliberate wake cycles, USB-powered standby, and USB removal after standby.
 - [ ] Rail minima at startup, awake/screen-off/latch-off current, at least 20 startup cycles and a two-hour/overnight quiet soak.
 - [ ] Optional gauge polarity, PaHub voltage levels, stale/absent readings and no back-power path before enabling its firmware option.
 
-Software tests cannot close the unchecked electrical and physical items. No completed battery-only startup, charging, runtime or cutoff acceptance is claimed here.
+Software tests cannot close the unchecked electrical and physical items. One held-WAKE battery-only startup is confirmed; repeated startup, charging, runtime and cutoff acceptance remain open.

@@ -24,7 +24,7 @@
   "optionalMonitorDisabled": true,
   "usbDataVerifiedWithBatteryAttached": true,
   "simultaneousChargingVerified": false,
-  "physicalColdStartVerified": false,
+  "physicalColdStartVerified": true,
   "changes": [
     "Replace Arduino digitalWrite-before-pinMode with the pinned M5Unified raw GPIO preload-before-output API",
     "Test the actual board GPIO wrapper against Arduino GPIO ownership behavior",
@@ -37,7 +37,7 @@
     "regressionReproducedBeforeFix": true
   },
   "pendingHardwareVerification": [
-    "Battery-only cold WAKE after HOLD correction",
+    "Brief WAKE and deliberate shutdown/restart on battery; repeated cycles",
     "Measured charging current/termination and polarity/rail minima",
     "Repeated physical cutoff/wake cycles and quiet soak",
     "Optional gauge fit, polarity and back-power acceptance"
@@ -157,5 +157,22 @@
     "simultaneousChargingVerified": false,
     "screenSleepObservedBeforeLabelRefresh": true,
     "expectedBootCountAfterTwoAuthorizedUploads": 2
+  },
+  "batteryColdStart": {
+    "firmware": "0.2.18",
+    "verifiedDate": "2026-11-04",
+    "cyclesObserved": 1,
+    "usbAbsentConfirmedByUser": true,
+    "fullBatteryDisconnectBeforeStart": true,
+    "wakeHeldAboutSeconds": 2,
+    "staysOnAfterRelease": true,
+    "wifiReadbackVerified": true,
+    "phase": "idle",
+    "heat": false,
+    "fan": false,
+    "coolingPending": false,
+    "outputOffPending": false,
+    "resetReason": 1,
+    "bootCount": 6
   }
 }
