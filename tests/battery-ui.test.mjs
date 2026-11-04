@@ -18,3 +18,7 @@ test('Standby never claims proven USB power or physical cutoff',()=>{
  const text=powerStatusText({powerState:'standby',battery:{valid:false}});
  assert.match(text,/Standby/);assert.match(text,/WAKE/);assert.doesNotMatch(text,/USB erkannt|stromlos/);
 });
+test('A previous failed shutdown is labelled as history after the current guard clears',()=>{
+ const text=powerStatusText({powerState:'awake',lastShutdownError:'Hue nicht erreichbar',idleRemainingSeconds:0});
+ assert.match(text,/Letztes AUS/);assert.match(text,/Hue nicht erreichbar/);assert.doesNotMatch(text,/AUS gesperrt/);
+});

@@ -11,5 +11,6 @@ export function powerStatusText(state={}) {
  else if(Number.isFinite(state.idleRemainingSeconds)&&state.idleRemainingSeconds>=0){
   const t=Math.ceil(state.idleRemainingSeconds);power=`Auto AUS in ${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}`;
  }
- return `${battery} · Ladestatus unbekannt · ${power}`;
+ const previous=state.lastShutdownError&&state.powerState==='awake'?` · Letztes AUS: ${state.lastShutdownError}`:'';
+ return `${battery} · Ladestatus unbekannt · ${power}${previous}`;
 }

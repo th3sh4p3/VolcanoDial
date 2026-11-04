@@ -13,7 +13,7 @@ inline uint16_t blend(uint16_t a,uint16_t b,int coverage){int r=((a>>11)*(15-cov
 inline const char* menuLabel(int i){static const char* a[]={"Zurück","Zieltemperatur","Starttemperatur","Endtemperatur","Füllzeit","Heizschritte","Timer: Sekunden","Timer: Temperatur","Timer starten","Bluetooth","Heizung","Lüftung","Helligkeit","Signaltöne","Hue Automatik","Hue Schwelle","RFID zuordnen","Einrichtungs-WLAN","Geräteinfo","Schlauch beenden","Display aus","Ruhezeit","Ballon bestätigen","Ballonfüllzeit","Ausschalten","Hue AUS","Auto AUS"};return a[std::clamp(i,0,26)];}
 inline int parameter(const UiSnapshot& s,int i){switch(i){case 1:return s.hose?s.hoseTemperature:s.target;case 2:return s.startTemp;case 3:return s.endTemp;case 4:return s.fillTime;case 5:return s.steps;case 6:return s.timerSeconds;case 7:return s.timerTemperature;case 12:return s.brightness;case 15:return s.threshold;case 21:return s.sleepOffSeconds;case 23:return s.globalFillSeconds;case 26:return s.powerIdleMinutes;default:return 0;}}
 inline bool editable(int i){return (i>=1&&i<=7)||i==12||i==15||i==21||i==23||i==26;}
-inline bool menuAvailable(const UiSnapshot& s,int i){if(i==24)return powerOffAvailable(s);if(i==25)return s.hueOffAvailable;if(i==20)return !s.programActive&&(!s.busy||s.hose);if(i==19)return s.hose&&s.busy;if(s.busy)return i==0||(s.phase==UiPhase::Checkpoint&&((i==4&&s.fillEditable)||i==22||i==23))||(s.hose&&i==1)||i==18;if(i==4)return s.fillEditable;if(i>=2&&i<=5)return !s.hose&&s.simple;return true;}
+inline bool menuAvailable(const UiSnapshot& s,int i){if(i==24)return true;if(i==25)return s.hueOffAvailable;if(i==20)return !s.programActive&&(!s.busy||s.hose);if(i==19)return s.hose&&s.busy;if(s.busy)return i==0||(s.phase==UiPhase::Checkpoint&&((i==4&&s.fillEditable)||i==22||i==23))||(s.hose&&i==1)||i==18;if(i==4)return s.fillEditable;if(i>=2&&i<=5)return !s.hose&&s.simple;return true;}
 inline int nextMenu(const UiSnapshot& s,int i,int delta){int step=delta<0?-1:1;for(int n=0;n<std::abs(delta);++n)do{i=(i+step+27)%27;}while(!menuAvailable(s,i));return i;}
 inline const char* wrapLine(const Font& font,const char* input,char* line,size_t capacity,int width){int used=0;size_t bytes=0;while(*input){const char* start=input;uint32_t cp=codepoint(input);int advance=glyph(font,cp)->advance;size_t n=input-start;if(bytes+n>=capacity||used+advance>width){input=start;break;}if(cp=='\n')break;memcpy(line+bytes,start,n);bytes+=n;used+=advance;}line[bytes]=0;return input;}
 template<class Canvas> class Painter {
@@ -61,20 +61,22 @@ template<class Canvas> void paint(Canvas& c,const UiSnapshot& s,const UiState& u
    else if(i==1)snprintf(b,sizeof b,"%s",s.balloonConfirm?"AN":"AUS");
    else if(i==2)snprintf(b,sizeof b,"%d s",s.sleepOffSeconds);
    else if(i==3)snprintf(b,sizeof b,available?"%d°":"—",s.hose?s.hoseTemperature:s.endTemp);
-   else if(i==4)snprintf(b,sizeof b,u.powerConfirm?"Erneut":"2x");
+   else if(i==4)snprintf(b,sizeof b,!powerOffAvailable(s)?"Gesperrt":u.powerConfirm?"Erneut":"2x");
    else snprintf(b,sizeof b,"Menü");
    p.text(font14,b,px[i],py[i]+15,i==0||i==3?76:68,ink,bg);
   }
-  p.text(font18,"‹",120,94,40,GREEN);p.text(font12,"Zurück",120,117,58,MUTED);
+  if(u.menu==4&&!powerOffAvailable(s)){p.text(font12,"AUS",120,94,48,AMBER);p.text(font12,"gesperrt",120,112,62,AMBER);}
+  else{p.text(font18,"‹",120,94,40,GREEN);p.text(font12,"Zurück",120,117,58,MUTED);}
   return;
  }
  if(u.screen==Screen::Menu){
   p.text(font12,"‹ ZURÜCK",120,23,120,MUTED);
   int prev=nextMenu(s,u.menu,-1),next=nextMenu(s,u.menu,1);
   p.text(font14,menuLabel(prev),120,64,172,MUTED);
-  bool confirmPower=u.menu==24&&u.powerConfirm,confirmHue=u.menu==25&&u.hueOffConfirm;
-  p.rounded(24,99,192,48,16,PANEL);p.text(font18,confirmPower?"Wirklich aus?":confirmHue?"Hue AUS?":menuLabel(u.menu),120,112,176,confirmHue?RED:confirmPower?AMBER:INK,PANEL);
-  p.text(font14,menuLabel(next),120,166,174,MUTED);p.text(font12,confirmPower||confirmHue?"Nochmals klicken":"Drehen · Klick",120,202,130,MUTED);return;
+  bool blockedPower=u.menu==24&&!powerOffAvailable(s),confirmPower=u.menu==24&&u.powerConfirm&&!blockedPower,confirmHue=u.menu==25&&u.hueOffConfirm;
+  p.rounded(24,99,192,48,16,PANEL);p.text(font18,confirmPower?"Wirklich aus?":confirmHue?"Hue AUS?":menuLabel(u.menu),120,blockedPower?102:112,176,confirmHue?RED:confirmPower||blockedPower?AMBER:INK,PANEL);
+  if(blockedPower){if(coolingOnly(s)&&s.valid)snprintf(b,sizeof b,"Kühlt: %d° / Ziel %d°",s.current,s.threshold);else snprintf(b,sizeof b,"%s",powerOffReason(s));p.text(font12,b,120,130,176,AMBER,PANEL);}
+  p.text(font14,menuLabel(next),120,166,174,MUTED);p.text(font12,confirmPower||confirmHue?"Nochmals tippen":"Wischen · Drehen · Tipp",120,202,174,MUTED);return;
  }
  if(u.screen==Screen::Edit){
   p.text(font12,"‹ ZURÜCK",120,23,120,MUTED);p.text(font18,menuLabel(u.menu),120,59,192);
@@ -87,9 +89,9 @@ template<class Canvas> void paint(Canvas& c,const UiSnapshot& s,const UiState& u
   p.text(font14,s.ap?"192.168.4.1":s.ip,120,74,200);
   snprintf(b,sizeof b,"PIN  %s",s.pin);p.text(font22,b,120,95,200);
   if(s.batteryValid)snprintf(b,sizeof b,"Akku ~%d%% · Laden unbekannt",s.batteryPercent);else snprintf(b,sizeof b,"Akku / Ladestatus unbekannt");p.text(font12,b,120,129,206,s.batteryLow?AMBER:MUTED);
-  if(s.powerBlocked)snprintf(b,sizeof b,"AUS gesperrt · Meldung prüfen");else if(s.busy||s.cooling||s.coolingPending)snprintf(b,sizeof b,"Auto AUS pausiert");else if(s.idleRemainingSeconds<0)snprintf(b,sizeof b,"Auto AUS deaktiviert");else snprintf(b,sizeof b,"Auto AUS in %d:%02d",s.idleRemainingSeconds/60,s.idleRemainingSeconds%60);p.text(font12,b,120,150,206,MUTED);
+  if(!powerOffAvailable(s))snprintf(b,sizeof b,"%s",powerOffReason(s));else if(s.powerBlocked)snprintf(b,sizeof b,"Letztes AUS fehlgeschlagen");else if(s.idleRemainingSeconds<0)snprintf(b,sizeof b,"Auto AUS deaktiviert");else snprintf(b,sizeof b,"Auto AUS in %d:%02d",s.idleRemainingSeconds/60,s.idleRemainingSeconds%60);p.text(font12,b,120,150,206,MUTED);
   if(s.ap){snprintf(b,sizeof b,"WLAN: %s",s.apPassword);p.text(font12,b,120,172,192);}else p.text(font12,s.keyAlive?"Zusatztaster verbunden":"Ohne Zusatztaster",120,172,192,MUTED);
-  p.text(font12,s.ecoMode?"Firmware 0.2.18 · Eco":"Firmware 0.2.18",120,194,148,MUTED);return;
+  p.text(font12,s.ecoMode?"Firmware 0.2.19 · Eco":"Firmware 0.2.19",120,194,148,MUTED);return;
  }
  if(u.screen==Screen::Details){p.text(font12,"‹ ZURÜCK",120,23,120,MUTED);const char* headings[]={"Vollständiger Name","Aktuelles / nächstes Preset","Meldung","Meldung · Fortsetzung"};p.text(font12,headings[u.value%4],120,41,164,MUTED);const char* content=u.value%4==0?s.name:u.value%4==1?s.stageName:s.message;p.wrapped(font14,content[0]?content:"Keine Meldung",58,8,u.value%4>=2&&s.phase==UiPhase::Error?RED:INK,u.value%4==3?8:0);snprintf(b,sizeof b,"%d/4 · Drehen / Tippen",u.value%4+1);p.text(font12,b,120,202,100,MUTED);return;}
  // The top menu target is separate from all start/air/stop targets.
@@ -105,6 +107,6 @@ template<class Canvas> void paint(Canvas& c,const UiSnapshot& s,const UiState& u
  p.text(font12,line,120,135,204,s.phase==UiPhase::Error?RED:MUTED);
  if(s.hose&&(s.phase==UiPhase::HoseReady||s.phase==UiPhase::HoseHeating)){p.button(29,112,s.phase==UiPhase::HoseReady?"Luft halten":"Heizt …",s.phase==UiPhase::HoseReady?BLUE:PANEL);p.button(147,64,"Ende",RED);}
  else p.button(42,156,s.phase==UiPhase::BalloonReady?"Ballon bereit":s.phase==UiPhase::Checkpoint?"Weiter":s.busy?"Stoppen":s.retryStage?"Preset erneut":s.hose?"Heizen starten":"Starten",s.busy&&s.phase!=UiPhase::Checkpoint&&s.phase!=UiPhase::BalloonReady?RED:GREEN);
- if(s.workflow&&s.busy)snprintf(b,sizeof b,"Stufe %d / %d",s.stage,s.stages);else if(s.batteryValid&&s.batteryLow)snprintf(b,sizeof b,"Akku ~%d%%",s.batteryPercent);else if(!s.busy&&!s.cooling&&!s.coolingPending&&s.idleRemainingSeconds>=0&&s.idleRemainingSeconds<=60)snprintf(b,sizeof b,"AUS in %d s",s.idleRemainingSeconds);else snprintf(b,sizeof b,"H %s · L %s",s.heat?"AN":"AUS",s.fan?"AN":"AUS");p.text(font12,b,120,202,100,s.batteryLow?AMBER:MUTED);
+ if(s.workflow&&s.busy)snprintf(b,sizeof b,"Stufe %d / %d",s.stage,s.stages);else if(coolingOnly(s))snprintf(b,sizeof b,"Kühlt bis %d°",s.threshold);else if(s.batteryValid&&s.batteryLow)snprintf(b,sizeof b,"Akku ~%d%%",s.batteryPercent);else if(!s.busy&&s.idleRemainingSeconds>=0&&s.idleRemainingSeconds<=60)snprintf(b,sizeof b,"AUS in %d s",s.idleRemainingSeconds);else snprintf(b,sizeof b,"H %s · L %s",s.heat?"AN":"AUS",s.fan?"AN":"AUS");p.text(font12,b,120,202,100,coolingOnly(s)||s.batteryLow?AMBER:MUTED);
 }
 }
