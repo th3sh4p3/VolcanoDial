@@ -22,6 +22,10 @@ The proposed [MAX17048 board](https://learn.adafruit.com/adafruit-max17048-lipol
 
 The previously suggested ADA3922 was a connector **candidate**, not a proven Dial harness. Matching 1.25 mm pitch did not establish mating geometry, clearance or polarity. The confirmed detachable PH battery plug makes a finished replacement harness possible, but no exact ready-made replacement has been electrically and mechanically verified for this assembly. Do not present the monitor shopping list as a complete repair kit.
 
+## Manual shutdown / wake follow-up
+
+The user reports that battery-only Dial AUS and subsequent brief WAKE both worked on 0.2.18, but a red LED remained visible in the off state. Its location and persistence are not yet identified. Wi-Fi then showed boot count 7 / power-on reset, corroborating a CPU restart. However, the current live state was `blocked`, with an airflow-stop error, a pending cooling duty, 128 °C temperature and the configured 100 °C cutoff threshold; HEAT/AIR were off. The Dial therefore remained powered for cooling supervision at the time of the LED investigation. This confirms the reported user interaction, not a measured low-current latch-off state. Do not assume that the LED is a charging indicator or that advertised battery-off current has been achieved.
+
 ## Required inspection and acceptance
 
 Do not rewire the assembly based only on cable colours or a missing Windows sound. If the earlier physical USB failure recurs, inspect it with all power removed against M5Stack's [connector drawing](https://m5stack.oss-cn-shenzhen.aliyuncs.com/resource/docs/products/core/M5Dial/1.25WT-2P.pdf), including module seating, insulation, continuity and polarity. A qualified supplier/technician can supply a finished tested replacement if one is needed. The user's requirement remains no soldering, repinning or cable fabrication by the user. Do not add a second charger in parallel as a workaround.

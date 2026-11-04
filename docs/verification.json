@@ -37,7 +37,8 @@
     "regressionReproducedBeforeFix": true
   },
   "pendingHardwareVerification": [
-    "Brief WAKE and deliberate shutdown/restart on battery; repeated cycles",
+    "Identify persistent red LED reported during battery-only off state",
+    "Confirm latch-off after cooling completion; identify red LED and measure off-state current",
     "Measured charging current/termination and polarity/rail minima",
     "Repeated physical cutoff/wake cycles and quiet soak",
     "Optional gauge fit, polarity and back-power acceptance"
@@ -174,5 +175,21 @@
     "outputOffPending": false,
     "resetReason": 1,
     "bootCount": 6
+  },
+  "batteryManualShutdownRestartReported": true,
+  "offStateRedLedReported": true,
+  "offStateLedIdentified": false,
+  "physicalLatchOffCurrentVerified": false,
+  "shutdownCoolingGuardObservation": {
+    "firmware": "0.2.18",
+    "powerState": "blocked",
+    "temperatureC": 128,
+    "configuredCoolingThresholdC": 100,
+    "coolingPending": true,
+    "heat": false,
+    "fan": false,
+    "previousError": "Lueftung vorzeitig ausgefallen",
+    "bootCountAfterReportedWake": 7,
+    "resetReason": 1
   }
 }
