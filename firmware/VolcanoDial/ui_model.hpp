@@ -5,7 +5,7 @@
 #include <cmath>
 #include <initializer_list>
 namespace vd {
-enum class Screen:uint8_t {Home,Menu,Edit,Info,Details,Rose};
+enum class Screen:uint8_t {Home,Menu,Edit,Info,Details,Rose,PowerConfirm};
 enum class UiPhase:uint8_t {Idle,Running,Checkpoint,Complete,Stopped,Error,HoseHeating,HoseReady,Connecting,BalloonReady};
 struct UiSnapshot {
  char name[97]{},stageName[97]{},message[144]{},ip[20]{},pin[8]{},apName[32]{},apPassword[16]{},shutdownReason[64]{};
@@ -28,7 +28,8 @@ inline const char* powerOffReason(const UiSnapshot& s){
  if(s.shutdownGuardBlocked)return s.shutdownReason[0]?s.shutdownReason:"AUS gesperrt";
  return "";
 }
-enum class Hit {None,Menu,Primary,Stop,Temperature,FillTime,Stage,Details,Up,Down,Back,RoseItem};
+inline const char* manualOffEffect(const UiSnapshot& s){if(s.programActive||s.busy)return "Stoppt Ablauf und Ausgänge";if(s.heat||s.fan||s.outputRequested||s.outputOffPending)return "Schaltet Ausgänge AUS";if(s.cooling||s.coolingPending)return "Beendet Kühlüberwachung";return "Ausgänge AUS, dann Dial AUS";}
+enum class Hit {None,Menu,Primary,Stop,Temperature,FillTime,Stage,Details,Up,Down,Back,RoseItem,PowerCancel,PowerAccept};
 inline int roseSector(int dx,int dy){
  constexpr int vx[]={0,866,866,0,-866,-866},vy[]={-1000,-500,500,1000,500,-500};
  int best=0,score=dx*vx[0]+dy*vy[0];for(int i=1;i<6;++i){int candidate=dx*vx[i]+dy*vy[i];if(candidate>score){best=i;score=candidate;}}return best;
@@ -58,6 +59,7 @@ inline Hit hit(int x,int y,const UiSnapshot& s,const UiState& u){
  if(u.screen==Screen::Details)return y<46?Hit::Back:Hit::Primary;
  if(u.screen==Screen::Home&&y>=21&&y<47&&x>=95&&x<=145&&((x-120)*(x-120)+(y-120)*(y-120))<100*100)return Hit::Menu;
  if(u.screen!=Screen::Home&&y<46&&x>=70&&x<=170)return Hit::Back;
+ if(u.screen==Screen::PowerConfirm){if(y>=158&&y<=200&&x>=30&&x<=116)return Hit::PowerCancel;if(y>=158&&y<=200&&x>=124&&x<=210)return Hit::PowerAccept;return Hit::None;}
  if(u.screen==Screen::Menu){if(y<90)return Hit::Up;if(y>155)return Hit::Down;return Hit::Primary;}
  if(u.screen==Screen::Edit){if(y>=156&&y<=200)return Hit::Primary;return Hit::None;}
  if(u.screen==Screen::Home&&s.workflow&&!s.busy&&ringStageAt(x,y,s.stages))return Hit::Stage;

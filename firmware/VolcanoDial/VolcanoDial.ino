@@ -19,6 +19,7 @@
 #include "power_policy.hpp"
 #include "power_runtime.hpp"
 #include "board_power.hpp"
+#include "manual_shutdown.hpp"
 #include "battery_monitor.hpp"
 #include <esp_system.h>
 #include <esp_sleep.h>
@@ -59,7 +60,8 @@ std::atomic<bool> activationPending{false},uiInhibited{false},endHoseRequested{f
 std::atomic<uint64_t> localSeen{0},webSeen{0};std::atomic<int> airOwner{0};
 vd::WebHoldLease webLease;portMUX_TYPE webMux=portMUX_INITIALIZER_UNLOCKED;vd::RequestFence requestFence;std::atomic<int> selectionPending{0};
 std::atomic<bool> displayWakeRequested{false},displaySleepRequested{false},displayResting{false},powerOffRequested{false},powerOffInProgress{false};std::atomic<int> displayBrightness{160};vd::DisplayIdle displayIdle;
-void requestPowerOff(){powerOffActivityEpoch=powerActivityEpoch.load();powerOffRequested=true;}
+std::atomic<bool> manualPowerOffRequested{false};
+void requestPowerOff(bool manual=false){manualPowerOffRequested=manual;powerOffActivityEpoch=powerActivityEpoch.load();if(manual){stopRequested=true;requestFence.invalidate();powerOffInProgress=true;}powerOffRequested=true;}
 vd::UiSnapshot uiShared;vd::UiState uiState;vd::DirtyFrame dirtyFrame;
 alignas(4) uint16_t stripPixels[240*4];M5Canvas strip(&M5Dial.Display);
 bool manualDemandValid(){if(uiInhibited||endHoseRequested||stopRequested||powerOffInProgress)return false;uint64_t n=nowMs();switch(airOwner.load()){case 1:return vd::holdFresh(keyHeld,n,keySeen,150);case 2:return vd::holdFresh(localHeld,n,localSeen,150);case 3:return vd::holdFresh(webHeld,n,webSeen,450);default:return false;}}
@@ -205,7 +207,7 @@ void setupAP(){
   if(apOn)return;WiFi.mode(WIFI_AP_STA);WiFi.softAP(apName.c_str(),apPassword.c_str());dns.start(53,"*",WiFi.softAPIP());apOn=true;apSince=nowMs();
 }
 void publish(){
-  JsonDocument d;auto s=volcano.snapshot();d["version"]="0.2.19";d["connected"]=s.connected;d["current"]=std::isfinite(s.current)?s.current:0;d["target"]=std::isfinite(s.target)?s.target:210;d["temperatureValid"]=s.connected&&std::isfinite(s.current)&&nowMs()>=s.sampleAt&&nowMs()-s.sampleAt<1500;
+  JsonDocument d;auto s=volcano.snapshot();d["version"]="0.2.20";d["connected"]=s.connected;d["current"]=std::isfinite(s.current)?s.current:0;d["target"]=std::isfinite(s.target)?s.target:210;d["temperatureValid"]=s.connected&&std::isfinite(s.current)&&nowMs()>=s.sampleAt&&nowMs()-s.sampleAt<1500;
   auto shutdownSafety=powerSafety();const char* blockedReason=vd::powerOffBlockReason(shutdownSafety);
   d["powerState"]=powerStandby?"standby":powerOffInProgress?"confirming":blockedReason[0]?"blocked":"awake";
   d["shutdownBlockedReason"]=blockedReason;d["lastShutdownError"]=powerBlock;d["shutdownEligible"]=vd::canPowerOff(shutdownSafety);d["idleRemainingSeconds"]=idleRemainingSeconds.load();
@@ -462,9 +464,47 @@ bool execute(JsonVariant r){
   if(command=="rfidLearn"){if(rfidSeen.isEmpty()){notice="Zuerst RFID-Karte an Dial halten";return false;}config["rfid"][rfidSeen].set(library["activeRunnable"]);return saveConfig();}
   notice="Unbekannter Befehl";return false;
 }
+bool performManualShutdown(){
+  bool useHue=hue.plug.length()==36&&!hue.key.isEmpty()&&!hue.bridgeId.isEmpty();
+  String plugIdentity=managedPlugIdentity();bool ownedHue=useHue&&((sessionHue&&sessionHueIdentity==plugIdentity)||coolingIntent.matches(coolingIdentity()));
+  bool obligation=wantConnection||recoveryOff||outputIntent.pending()||coolingIntent.pending()||busy()||volcano.snapshot().connected;
+  powerUiQuiesced=false;powerKeyQuiesced=false;powerOffInProgress=true;inputContext=vd::KeyContext::Fault;requestFence.invalidate();
+  activationPending=false;selectionPending=0;airOwner=0;volcano.manualHold=false;localHeld=false;webHeld=false;
+  portENTER_CRITICAL(&webMux);webLease=vd::WebHoldLease{};portEXIT_CRITICAL(&webMux);
+  Request stale;while(xQueueReceive(requests,&stale,0)==pdTRUE)free(stale.text);
+  notice="Ausschalten: Ablauf stoppen, Ausgaenge AUS";publish();
+  uint64_t until=nowMs()+1500;while((!powerUiQuiesced||!powerKeyQuiesced)&&nowMs()<until)vTaskDelay(pdMS_TO_TICKS(10));
+  if(!powerUiQuiesced||!powerKeyQuiesced){powerBlock=notice="Ausschalten: Bedienung noch nicht angehalten";powerOffInProgress=false;return false;}
+  uint32_t epoch=requestFence.snapshot(),offGeneration=volcano.generation;bool offVerified=false;
+  auto verifyOff=[&](){if(!obligation){offVerified=true;return true;}if(!volcano.snapshot().connected||!volcano.poll())return false;auto s=volcano.snapshot();offGeneration=volcano.generation;offVerified=vd::safe(s,nowMs());return offVerified;};
+  auto result=vd::manualPowerOff(useHue,ownedHue,
+    [&](){
+      stopRequested=true;if(hose.busy())hose.stop(nowMs());if(engine.busy())engine.stop(nowMs());runLocksKey=false;stopRequested=false;
+      if(obligation&&!ownedHue&&!volcano.snapshot().connected){String address=config["volcanoId"]|"";if(!address.isEmpty())volcano.connect(address,config["volcanoType"]|0);}
+      if(volcano.snapshot().connected){volcano.fan(false);volcano.heat(false);}
+      operation="";
+    },
+    [&](){return hue.power(false,[&](){return powerOffInProgress&&managedPlugIdentity()==plugIdentity;});},
+    verifyOff,
+    [&](bool authoritative){
+      if(coolingIntent.pending()&&(!useHue||!coolingIntent.matches(coolingIdentity())))return false;
+      if(outputIntent.pending()&&!outputIntent.matches(config["volcanoId"]|""))return false;
+      if(!authoritative&&!offVerified)return false;
+      if(!coolingIntent.complete()||!outputIntent.complete())return false;
+      cooldown.cancel();coolingRestore=outputRestoring=false;coolCancel=false;wantConnection=recoveryOff=sessionHue=false;stopRequested=false;operation="";return true;
+    },
+    [&](bool authoritative){
+      uint64_t releasedBy=nowMs()+5000;while(localPowerHeld&&nowMs()<releasedBy)vTaskDelay(pdMS_TO_TICKS(10));
+      if(!authoritative&&!verifyOff())return false;
+      bool cut=boardPower.release([&](){auto s=volcano.snapshot();return !localPowerHeld&&!busy()&&!activationPending&&uxQueueMessagesWaiting(requests)==0&&requestFence.snapshot()==epoch&&(!useHue||managedPlugIdentity()==plugIdentity)&&(authoritative||vd::offEvidenceValid(obligation,vd::safe(s,nowMs()),nowMs(),s.statusAt,volcano.generation,offGeneration,requestFence.snapshot(),epoch));});
+      if(cut){powerStandby=true;volcano.disconnect();displayResting=true;displayBrightness=0;keyBrightness=0;M5Dial.Display.setBrightness(0);M5Dial.Speaker.end();WiFi.mode(WIFI_OFF);apOn=false;powerBlock="";notice="Aus. Zum Einschalten WAKE druecken.";publish();}return cut;
+    });
+  if(result!=vd::ManualOffResult::Done){powerBlock=notice=result==vd::ManualOffResult::HueFailed?String("Hue AUS nicht bestaetigt: ")+hue.error:result==vd::ManualOffResult::OutputsUnknown?"Ausgaenge AUS nicht bestaetigt. Volcano pruefen!":result==vd::ManualOffResult::PersistenceFailed?"AUS-Auftrag konnte nicht abgeschlossen werden":"Ausschalten fehlgeschlagen: WAKE loslassen / RTC pruefen";powerOffInProgress=false;return false;}
+  return true;
+}
 void worker(void*){
   uint64_t polled=0,published=0,coolAt=0,outputAckAt=0;vd::KeyInput webInput;volcano.begin();coolingIntent.load();restoreOutputIntent();
-  volcano.beforeOutputOn=[](){return fsReady&&!batteryMonitor.critical()&&outputIntent.begin(config["volcanoId"]|"");};
+  volcano.beforeOutputOn=[](){return fsReady&&!powerOffInProgress&&!batteryMonitor.critical()&&outputIntent.begin(config["volcanoId"]|"");};
   results.to<JsonArray>();publish();
   for(;;){
     if(powerStandby){
@@ -505,7 +545,8 @@ void worker(void*){
     if(powerOffRequested.exchange(false)){
       // Hue and BLE belong to this task. Never block the UI task on network
       // confirmation, or release the battery latch after a Hue failure.
-      if(powerOffActivityEpoch!=powerActivityEpoch)powerBlock=notice="Ausschalten durch neue Eingabe abgebrochen.";
+      if(manualPowerOffRequested.exchange(false)){performManualShutdown();powerOffInProgress=powerStandby.load();powerOffRequested=false;}
+      else if(powerOffActivityEpoch!=powerActivityEpoch)powerBlock=notice="Ausschalten durch neue Eingabe abgebrochen.";
       else if(!vd::canPowerOff(powerSafety()))powerBlock=notice="Ausschalten erst nach Ablauf, Luft AUS und Hue-Abkuehlung.";
       else{
         uint32_t activityEpoch=powerOffActivityEpoch,requestEpoch=requestFence.snapshot(),generation=volcano.generation;
@@ -659,7 +700,7 @@ void finishEdit(const vd::UiSnapshot& u){int i=uiState.menu,v=uiState.value;
  uiState.screen=vd::Screen::Home;
 }
 void menuAction(const vd::UiSnapshot& u){int i=uiState.menu;if(!vd::menuAvailable(u,i)){uiState.powerConfirm=uiState.hueOffConfirm=false;return;}if(i==0){uiState.powerConfirm=uiState.hueOffConfirm=false;uiState.screen=vd::Screen::Home;return;}if(vd::editable(i)){uiState.powerConfirm=uiState.hueOffConfirm=false;openEdit(u,i);return;}
- if(i==24){if(!vd::powerOffAvailable(u)){uiState.powerConfirm=false;return;}if(vd::confirmOnce(uiState.powerConfirm)){requestPowerOff();uiState.screen=vd::Screen::Home;}return;}
+ if(i==24){if(vd::confirmOnce(uiState.powerConfirm)){requestPowerOff(true);uiState.screen=vd::Screen::Home;}return;}
  if(i==25){if(vd::confirmOnce(uiState.hueOffConfirm)){uiState.screen=vd::Screen::Home;localCommand("hueOffFromRose");}return;}
  if(i==22){JsonDocument q;q["command"]="configure";q["settings"]["balloonConfirm"]=!u.balloonConfirm;String t;serializeJson(q,t);enqueue(t,0);uiState.screen=vd::Screen::Home;return;}
  if(i==20){displaySleepRequested=true;uiState.screen=vd::Screen::Home;return;}if(i==18){uiState.screen=vd::Screen::Info;return;}if(i==19){endHoseRequested=true;uiState.screen=vd::Screen::Home;return;}
@@ -674,10 +715,12 @@ void roseAction(const vd::UiSnapshot& u){
  if(item==2){openEdit(u,21);return;}
  if(item==3){openEdit(u,u.hose?1:3);return;}
  if(item==5){uiState.screen=vd::Screen::Menu;uiState.menu=0;return;}
- if(!vd::powerOffAvailable(u)){uiState.powerConfirm=false;uiState.screen=vd::Screen::Menu;uiState.menu=24;return;}
- if(vd::confirmOnce(uiState.powerConfirm)){requestPowerOff();uiState.screen=vd::Screen::Home;}
+ if(vd::confirmOnce(uiState.powerConfirm)){requestPowerOff(true);uiState.screen=vd::Screen::Home;}
 }
-void primary(const vd::UiSnapshot& u){if(uiState.screen==vd::Screen::Rose)roseAction(u);else if(uiState.screen==vd::Screen::Menu)menuAction(u);else if(uiState.screen==vd::Screen::Edit)finishEdit(u);else if(uiState.screen==vd::Screen::Details)uiState.value=(uiState.value+1)%4;else if(uiState.screen!=vd::Screen::Home)uiState.screen=vd::Screen::Home;else if(u.busy&&u.phase!=vd::UiPhase::Checkpoint&&u.phase!=vd::UiPhase::BalloonReady&&u.phase!=vd::UiPhase::HoseHeating&&u.phase!=vd::UiPhase::HoseReady){stopRequested=true;localCommand("stop");}else if(!u.hose||!u.busy)localCommand("run");}
+void openPowerDialog(){uiState.screen=vd::Screen::PowerConfirm;uiState.menu=0;uiState.powerConfirm=uiState.hueOffConfirm=false;}
+void powerDialogAction(const vd::UiSnapshot& u,bool accept){if(accept)requestPowerOff(true);uiState.screen=vd::Screen::Home;}
+void primary(const vd::UiSnapshot& u){if(uiState.screen==vd::Screen::PowerConfirm){powerDialogAction(u,uiState.menu==1);return;}if(uiState.screen==vd::Screen::Rose)roseAction(u);else if(uiState.screen==vd::Screen::Menu)menuAction(u);else if(uiState.screen==vd::Screen::Edit)finishEdit(u);
+    else if(uiState.screen==vd::Screen::Details)uiState.value=(uiState.value+1)%4;else if(uiState.screen!=vd::Screen::Home)uiState.screen=vd::Screen::Home;else if(u.busy&&u.phase!=vd::UiPhase::Checkpoint&&u.phase!=vd::UiPhase::BalloonReady&&u.phase!=vd::UiPhase::HoseHeating&&u.phase!=vd::UiPhase::HoseReady){stopRequested=true;localCommand("stop");}else if(!u.hose||!u.busy)localCommand("run");}
 void setup(){
   bootResetReason=int(esp_reset_reason());bootWakeCause=int(esp_sleep_get_wakeup_cause());boardPower.begin();
   auto cfg=M5.config();cfg.disable_rtc_irq=true;M5Dial.begin(cfg,true,false);boardPower.begin();encoderPrevious=M5Dial.Encoder.read()/4;auto speaker=M5Dial.Speaker.config();speaker.dma_buf_len=128;speaker.dma_buf_count=2;M5Dial.Speaker.config(speaker);M5Dial.Display.setBrightness(160);Serial.begin(115200);
@@ -715,7 +758,7 @@ void usbConsole(){
     if(c!='\n'){if(line.length()<512)line+=c;else discarded=true;continue;}
     JsonDocument q;if(discarded||deserializeJson(q,line)){Serial.println("{\"error\":\"USB JSON ungueltig/zu lang\"}");}
     else if(String(q["command"]|"")=="info"){
-      JsonDocument d;d["device"]="VolcanoDial";d["version"]="0.2.19";d["pin"]=pin;d["apName"]=apName;d["apPassword"]=apPassword;d["ip"]=WiFi.localIP().toString();d["ap"]=apOn.load();d["heap"]=ESP.getFreeHeap();d["filesystem"]=fsReady;serializeJson(d,Serial);Serial.println();
+      JsonDocument d;d["device"]="VolcanoDial";d["version"]="0.2.20";d["pin"]=pin;d["apName"]=apName;d["apPassword"]=apPassword;d["ip"]=WiFi.localIP().toString();d["ap"]=apOn.load();d["heap"]=ESP.getFreeHeap();d["filesystem"]=fsReady;serializeJson(d,Serial);Serial.println();
     }else if(String(q["command"]|"")=="status"){
       xSemaphoreTake(stateMutex,portMAX_DELAY);auto s=stateText;xSemaphoreGive(stateMutex);Serial.println(*s);
     }else{if(String(q["command"]|"")=="stop")stopRequested=true;Serial.println(enqueue(line,0,String(q["command"]|"")!="sleepDisplay"&&String(q["command"]|"")!="wakeDisplay",String(q["command"]|"")!="sleepDisplay")?"{\"accepted\":true}":"{\"error\":\"Warteschlange voll\"}");}
@@ -724,7 +767,7 @@ void usbConsole(){
 }
 uint64_t gestureToken(const vd::UiSnapshot& u){uint64_t h=uint64_t(inputContext.load())|(uint64_t(u.phase)<<4)|(uint64_t(u.stage)<<8)|(uint64_t(u.connected)<<16)|(uint64_t(u.hose)<<17)|(uint64_t(uiState.screen)<<18)|(uint64_t(uiState.menu)<<22);for(const char* p=u.name;*p;++p)h=h*1099511628211ull^uint8_t(*p);return h;}
 void loop(){
-  M5Dial.update();static vd::UiSnapshot u,frame;static vd::UiState frameState;static vd::KeyInput localInput;static vd::BootInputGate bootInput;static vd::MenuSwipe menuSwipe;
+  M5Dial.update();static vd::UiSnapshot u,frame;static vd::UiState frameState;static vd::KeyInput localInput;static vd::BootInputGate bootInput;static vd::MenuSwipe menuSwipe;static vd::ShutdownHold powerHold;
   static bool rfidReady=false;
   if(powerStandby){if(M5Dial.BtnA.wasPressed())powerWakeRequested=true;usbConsole();delay(10);return;}
   if(powerOffInProgress){
@@ -732,7 +775,7 @@ void loop(){
     localHeld=false;M5Dial.Display.setBrightness(0);M5Dial.Speaker.end();if(rfidReady){M5Dial.Rfid.PCD_AntennaOff();rfidReady=false;}powerUiQuiesced=true;usbConsole();delay(5);return;
   }
   if(powerUiQuiesced.exchange(false)){localRearmRequested=true;dirtyFrame.invalidate();}
-  if(localRearmRequested.exchange(false)){bootInput.reset();menuSwipe.cancel();encoderPrevious=M5Dial.Encoder.read()/4;uiState={};}
+  if(localRearmRequested.exchange(false)){bootInput.reset();menuSwipe.cancel();powerHold.cancel();encoderPrevious=M5Dial.Encoder.read()/4;uiState={};}
   xSemaphoreTake(stateMutex,portMAX_DELAY);u=uiShared;xSemaphoreGive(stateMutex);
   uint64_t n=nowMs();auto touch=M5Dial.Touch.getDetail();static bool suppressLocal=false;bool wasResting=displayResting.load();bool keepAwake=u.programActive||(u.busy&&!u.hose)||u.phase==vd::UiPhase::Connecting;static vd::WakeRotation wakeRotation;
   long raw=M5Dial.Encoder.read()/4;int delta=std::clamp(int(raw-encoderPrevious),-10,10);encoderPrevious=raw;
@@ -746,7 +789,8 @@ void loop(){
 
   if(delta){
     menuSwipe.cancel();
-    if(uiState.screen==vd::Screen::Details)uiState.value=(uiState.value+delta%4+4)%4;
+    if(uiState.screen==vd::Screen::PowerConfirm)uiState.menu=(uiState.menu+delta%2+2)%2;
+    else if(uiState.screen==vd::Screen::Details)uiState.value=(uiState.value+delta%4+4)%4;
     else if(uiState.screen==vd::Screen::Rose){int direction=delta<0?-1:1;for(int step=0;step<std::abs(delta);++step){int next=uiState.menu;do{next=(next+direction+6)%6;}while(!vd::roseAvailable(u,next)&&next!=uiState.menu);uiState.menu=next;}uiState.powerConfirm=false;}
     else if(uiState.screen==vd::Screen::Menu){uiState.menu=vd::nextMenu(u,uiState.menu,delta);uiState.powerConfirm=uiState.hueOffConfirm=false;}
     else if(uiState.screen==vd::Screen::Edit){int i=uiState.menu;int low=i==26?0:i==4||i==23?5:i==5||i==6?1:i==12?20:i==15?30:i==21?u.sleepDimSeconds+10:40;int high=i==26?240:i==4||i==23?300:i==5?20:i==6||i==21?3600:i==12?255:i==15?100:230;if(i==2)high=u.endTemp;if(i==3)low=u.startTemp;uiState.value=std::clamp(uiState.value+delta*(i==12?5:1),low,high);}
@@ -755,7 +799,7 @@ void loop(){
   }
   if(selectionPending&&n-selectionAt>=120){int pending=selectionPending.exchange(0);if(pending)localCommand("select",nullptr,pending);}
   static bool longHandled=false,knobAir=false,touchAir=false,touchLongHandled=false;static uint64_t touchStarted=0,twoFingerStarted=0;static vd::ReleaseGesture knobGesture,touchGesture;static vd::Hit touchOrigin=vd::Hit::None;static int touchStageOrigin=0,touchRoseOrigin=-1;
-  if(!suppressLocal&&M5Dial.BtnA.wasPressed()){knobGesture.press(gestureToken(u));longHandled=false;knobAir=uiState.screen==vd::Screen::Home&&u.phase==vd::UiPhase::HoseReady;}
+  if(!suppressLocal&&M5Dial.BtnA.wasPressed()){knobGesture.press(gestureToken(u));longHandled=false;knobAir=uiState.screen==vd::Screen::Home&&u.phase==vd::UiPhase::HoseReady;powerHold.press(n,!knobAir);}
   if(!suppressLocal&&touch.wasPressed()){
     menuSwipe.press(touch.x,touch.y,uiState.screen==vd::Screen::Menu);
     if(uiState.screen==vd::Screen::Menu&&M5Dial.Touch.getCount()!=1)menuSwipe.cancel();
@@ -785,10 +829,11 @@ void loop(){
   if(!suppressLocal&&!longHandled&&!knobAir&&M5Dial.BtnA.pressedFor(700)){longHandled=true;selectionPending=0;
     if(u.busy&&u.phase!=vd::UiPhase::HoseHeating&&u.phase!=vd::UiPhase::HoseReady){stopRequested=true;localCommand("stop");}
     else{uiState.screen=uiState.screen==vd::Screen::Home?vd::Screen::Menu:vd::Screen::Home;uiState.menu=0;}}
+  if(powerHold.tick(M5Dial.BtnA.isPressed(),!suppressLocal&&!knobAir,n)){longHandled=touchLongHandled=true;selectionPending=0;knobGesture.release(0);touchGesture.release(0);menuSwipe.cancel();openPowerDialog();}
   if(!suppressLocal&&touch.wasReleased()){
     bool menuDragged=menuSwipe.finish();
     auto end=vd::hit(touch.x,touch.y,u,uiState);
-    if(!touchLongHandled&&touchGesture.release(gestureToken(u))&&!menuDragged&&!touchAir&&end==touchOrigin){switch(end){case vd::Hit::Menu:uiState.screen=vd::Screen::Menu;uiState.menu=0;break;case vd::Hit::Back:uiState.screen=vd::Screen::Home;uiState.powerConfirm=false;break;case vd::Hit::RoseItem:if(touchRoseOrigin==vd::roseAt(touch.x,touch.y)){uiState.menu=touchRoseOrigin;roseAction(u);}break;case vd::Hit::Primary:if(selectionPending){int pending=selectionPending.exchange(0);if(pending)localCommand("select",nullptr,pending);}primary(u);break;case vd::Hit::Stage:if(selectionPending){int pending=selectionPending.exchange(0);if(pending)localCommand("select",nullptr,pending);}else if(touchStageOrigin==vd::ringStageAt(touch.x,touch.y,u.stages))sendValue("selectStage",nullptr,touchStageOrigin);break;case vd::Hit::FillTime:openEdit(u,4);break;case vd::Hit::Details:uiState.screen=vd::Screen::Details;uiState.value=u.phase==vd::UiPhase::Error?2:0;break;case vd::Hit::Temperature:openEdit(u,1);break;case vd::Hit::Up:uiState.menu=vd::nextMenu(u,uiState.menu,-1);break;case vd::Hit::Down:uiState.menu=vd::nextMenu(u,uiState.menu,1);break;default:break;}}touchAir=false;touchOrigin=vd::Hit::None;touchStageOrigin=0;touchRoseOrigin=-1;touchStarted=0;
+    if(!touchLongHandled&&touchGesture.release(gestureToken(u))&&!menuDragged&&!touchAir&&end==touchOrigin){switch(end){case vd::Hit::PowerCancel:powerDialogAction(u,false);break;case vd::Hit::PowerAccept:powerDialogAction(u,true);break;case vd::Hit::Menu:uiState.screen=vd::Screen::Menu;uiState.menu=0;break;case vd::Hit::Back:uiState.screen=vd::Screen::Home;uiState.powerConfirm=false;break;case vd::Hit::RoseItem:if(touchRoseOrigin==vd::roseAt(touch.x,touch.y)){uiState.menu=touchRoseOrigin;roseAction(u);}break;case vd::Hit::Primary:if(selectionPending){int pending=selectionPending.exchange(0);if(pending)localCommand("select",nullptr,pending);}primary(u);break;case vd::Hit::Stage:if(selectionPending){int pending=selectionPending.exchange(0);if(pending)localCommand("select",nullptr,pending);}else if(touchStageOrigin==vd::ringStageAt(touch.x,touch.y,u.stages))sendValue("selectStage",nullptr,touchStageOrigin);break;case vd::Hit::FillTime:openEdit(u,4);break;case vd::Hit::Details:uiState.screen=vd::Screen::Details;uiState.value=u.phase==vd::UiPhase::Error?2:0;break;case vd::Hit::Temperature:openEdit(u,1);break;case vd::Hit::Up:uiState.menu=vd::nextMenu(u,uiState.menu,-1);break;case vd::Hit::Down:uiState.menu=vd::nextMenu(u,uiState.menu,1);break;default:break;}}touchAir=false;touchOrigin=vd::Hit::None;touchStageOrigin=0;touchRoseOrigin=-1;touchStarted=0;
   }
   if(suppressLocal&&!M5Dial.BtnA.isPressed()&&!touch.isPressed()){suppressLocal=false;knobAir=touchAir=false;knobGesture.release(0);touchGesture.release(0);}
   if(!((uiState.screen==vd::Screen::Menu&&uiState.menu==24)||(uiState.screen==vd::Screen::Rose&&uiState.menu==4)))uiState.powerConfirm=false;

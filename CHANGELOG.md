@@ -1,5 +1,18 @@
 # Versionsstand
 
+## 0.2.20 - 04.11.2026
+
+- Drei Sekunden auf das Rad drücken öffnet eine eigene Ausschaltfrage. Standard ist Abbrechen; erst ein weiterer Tipp auf AUS oder eine neue Radbestätigung schaltet ab. Ein manueller Luft-Haltedruck wird nicht zur Ausschaltgeste.
+- Bestätigtes manuelles Dial AUS beendet auch aktive Abläufe und Abkühlüberwachung: Ausgänge AUS, konfigurierte Hue-Steckdose standardmäßig AUS, dann Dial abschalten. Auto AUS wartet weiterhin auf das reguläre Abkühlende. Fehler bei AUS-Bestätigung/Speicherung bleiben sichtbar und halten die Versorgung.
+- Nach Abschaltung kein Wiederverbinden mit dem Volcano. Bewusstes WAKE startet im Leerlauf und verlangt eine neue Bedienung.
+- 187 automatisierte Fälle einschließlich tatsächlich kompiliertem manuellen Worker; unabhängige Prüfung, beide wichtigen Befunde vor Korrektur reproduziert. [Details](docs/POWER_SHORTCUT_0.2.20.md).
+
+## 0.2.19 - 04.11.2026
+
+- Ausführliches Menü mit vertikalen Touch-Wischgesten und weiterhin per Rad bedienbar; Ziehen und Mehrfingergesten lösen keine Zeile aus.
+- Ausschalten bleibt im Menü sichtbar; Hintergrund-Abkühlung und AUS-Wiederherstellung wecken das Display nicht laufend auf.
+- 160 automatisierte Fälle, USB-App-Update und Datenerhalt bestätigt. [Details](docs/TOUCH_MENU_0.2.19.md).
+
 ## 0.2.18 - 04.11.2026
 
 - Frühen HOLD-Fehler korrigiert: Arduino 3.x ignoriert digitalWrite vor GPIO-Registrierung. Der Wrapper verwendet jetzt wie M5Unified direktes HIGH-Vorladen vor dem Aktivieren des Ausgangs; LOW funktioniert ebenfalls ohne Arduino-Registrierung.

@@ -1,3 +1,13 @@
+# Prüfbericht – Volcano Dial 0.2.20
+
+Stand 04.11.2026: **187/187 automatisierte Fälle** und native Prüfungen bestanden. Zehn Fälle kompilieren den tatsächlichen manuellen Abschaltworker mit simuliertem Transport/Speicher: aktive Abläufe/Abkühlung, konfigurierte Hue-Steckdose bei deaktiviertem enabled/autoOff, kein Hue, fehlgeschlagenes Hue AUS, Speicherfehler, unbekannter Ausgangszustand, fehlende Hue-Zuordnung, RTC-Fehler und nicht angehaltene UI. Standby führt auch nach wiederholten Worker-Iterationen keine Volcano-/Hue-Arbeit aus. Unabhängige Prüfung: undefiniertes delta in primary und unvollständige Hue-Zuordnung wurden vor Korrektur reproduziert und behoben; keine wichtigen Befunde offen.
+
+**Installiert und geprüft:** App-only an 0x10000, Schreibhash bestätigt, direkte USB-Abfrage und WLAN melden 0.2.20. Leerlauf, HEAT/AIR AUS, keine offenen Kühl-/AUS-Aufträge. Bibliothek und alle 24 Einstellungen stimmen mit der frischen Sicherung überein. Programm 1.858.983 Byte, statisches RAM 70.488 Byte, App-Datei 1.859.136 Byte. Keine Heiz-/EIN-Befehle wurden zur Prüfung gesendet.
+
+Die bestätigte manuelle Abschaltung überschreibt auf ausdrücklichen Nutzerwunsch die Abkühlüberwachung; Auto AUS behält diese Sperre. Drei Sekunden Rad halten öffnet nur die Frage; Freigeben bestätigt nicht. Touch-Wischen und Radbedienung bleiben verfügbar. Tatsächliche neue Bediengeste, heiße manuelle Abschaltung und Strommessung bleiben physisch zu prüfen. [Verhalten](POWER_SHORTCUT_0.2.20.md), [Bau-/Installationsnachweis](verification.json).
+
+## Frühere Nachweise und damaliger Kenntnisstand
+
 # Prüfbericht – Volcano Dial 0.2.18
 
 Stand 04.11.2026: 145/145 Fälle und native Prüfungen bestanden. Zwei neue Tests des tatsächlichen Board-GPIO-Wrappers reproduzierten den Fehler digitalWrite vor pinMode bei noch fehlender Arduino-GPIO-Registrierung. Die Korrektur entspricht dem gepinnten M5Unified-Ablauf: HIGH direkt vorladen, dann Ausgang aktivieren. Eine gezielte unabhängige Prüfung der Vendor-APIs fand keinen wichtigen offenen Befund.

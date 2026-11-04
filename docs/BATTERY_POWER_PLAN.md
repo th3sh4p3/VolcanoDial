@@ -1,5 +1,7 @@
 # Battery power investigation and proposed design
 
+**4 November update, firmware 0.2.20:** the user explicitly changed manual shutdown policy. Confirmed **Dial AUS** overrides an active program and pending cooling: stop HEAT/AIR, confirm the configured Hue outlet OFF by default, then release HOLD. Automatic idle shutdown retains the guards described below. Missing OFF confirmation remains a visible error. The wheel shortcut opens confirmation after three seconds; a separate action is required. See [current behavior](POWER_SHORTCUT_0.2.20.md).
+
 Original investigation: 3 November 2026. **Update 4 November:** implementation and USB installation were subsequently authorized. USB now works with the disconnected battery cable removed; direct USB confirmed pre-update firmware 0.2.16. See [implemented software](BATTERY_FIRMWARE_0.2.17.md) and [hardware acceptance / USB charging investigation](BATTERY_HARDWARE_ACCEPTANCE.md). The history below describes the original research evidence.
 
 ## Established setup and installation history

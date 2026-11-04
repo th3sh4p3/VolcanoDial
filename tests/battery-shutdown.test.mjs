@@ -2,10 +2,12 @@ import test from 'node:test';import assert from 'node:assert/strict';
 import fs from 'node:fs';import os from 'node:os';import path from 'node:path';import {spawnSync}from'node:child_process';import {fileURLToPath}from'node:url';
 const source=fs.readFileSync(new URL('../firmware/VolcanoDial/VolcanoDial.ino',import.meta.url),'utf8');
 const a=source.indexOf('    if(powerOffRequested.exchange(false)){'),b=source.indexOf('\n    if(powerStandby)continue;',a);assert(a>=0&&b>a);
+const idleA=source.indexOf('    if(powerStandby){',source.indexOf('void worker(')),idleB=source.indexOf('    uint64_t n=nowMs();',idleA);assert(idleA>0&&idleB>idleA);
 const firmware=fileURLToPath(new URL('../firmware/VolcanoDial/',import.meta.url)).replaceAll('\\','/');
 const dir=fs.mkdtempSync(path.join(os.tmpdir(),'vd-shutdown-')),cpp=path.join(dir,'shutdown.cpp'),exe=path.join(dir,'shutdown.exe');
 fs.writeFileSync(cpp,`#include <cassert>
 #include <atomic>
+#include <ArduinoJson.h>
 #include "${firmware}/core.hpp"
 #include "${firmware}/interaction.hpp"
 #include "${firmware}/power_runtime.hpp"
@@ -13,6 +15,7 @@ fs.writeFileSync(cpp,`#include <cassert>
 #include "${firmware}/board_power.hpp"
 struct String:std::string{using std::string::string;using std::string::operator=;bool isEmpty()const{return empty();}};
 int mode=0;uint64_t clockMs=1000;uint64_t nowMs(){return clockMs;}
+std::atomic<bool> manualPowerOffRequested{false},powerWakeRequested{false},localRearmRequested{false},displayWakeRequested{false},stopRequested{false};void performManualShutdown(){assert(false);}
 std::atomic<bool> powerOffRequested{true},powerOffInProgress{false},powerStandby{false},powerUiQuiesced{true},powerKeyQuiesced{true},activationPending{false},displayResting{false};
 std::atomic<unsigned> powerActivityEpoch{0},powerOffActivityEpoch{0};std::atomic<int> displayBrightness{160},keyBrightness{255},selectionPending{0};
 bool wantConnection=false,recoveryOff=false,sessionHue=false,apOn=false;String notice,powerBlock;
@@ -20,15 +23,16 @@ String sessionHueIdentity="bridge|plug";String managedPlugIdentity(){return "bri
 vd::KeyContext inputContext=vd::KeyContext::Idle;
 vd::PowerSafety safety;vd::PowerSafety powerSafety(){return safety;}
 struct{unsigned epoch=0;unsigned snapshot(){return epoch;}void invalidate(){++epoch;}}requestFence;
-void publish(){}constexpr int WIFI_OFF=0;struct{void mode(int){}}WiFi;
+std::string events;int workIterations=0;bool wifiConfigured=true;JsonDocument config;void powerActivity(){++powerActivityEpoch;}void setupAP(){}void publish(){}constexpr int WIFI_OFF=0,WIFI_STA=1,WIFI_AP_STA=2;struct{void mode(int){}void begin(const char*,const char*){}}WiFi;struct{void begin(const char*){}void addService(const char*,const char*,int){}}MDNS;
 struct{struct{void setBrightness(int){}}Display;struct{void end(){}}Speaker;}M5Dial;
 void vTaskDelay(unsigned n){clockMs+=n;if(mode!=5)powerUiQuiesced=powerKeyQuiesced=true;}
 #define pdMS_TO_TICKS(n) (n)
 struct{vd::Snapshot s;unsigned generation=1;int polls=0;vd::Snapshot snapshot(){return s;}bool poll(){++polls;if(mode==3)return false;s.statusAt=nowMs();return true;}void disconnect(){s.connected=false;++generation;}}volcano;
-struct IO{bool high=true;int cuts=0;bool clearRtc(){if(mode==4)++powerActivityEpoch;if(mode==7)clockMs+=1600;if(mode==9)safety.manualHeld=true;return mode!=11;}void latch(bool v){high=v;if(!v)++cuts;}}io;
+struct IO{bool high=true;int cuts=0;bool clearRtc(){if(mode==4)++powerActivityEpoch;if(mode==7)clockMs+=1600;if(mode==9)safety.manualHeld=true;return mode!=11;}void latch(bool v){high=v;if(!v){++cuts;events+='L';}}}io;
 vd::BoardPower<IO> boardPower(io);
-struct{bool enabled=false;int offs=0;String error="Hue fehlt";bool power(bool on,std::function<bool()> allowed){assert(!on);++offs;if(mode==2)return false;clockMs+=2000;if(mode==12){++volcano.generation;return true;}if(!allowed())return false;clockMs+=2000;if(!allowed())return false;if(mode!=13){volcano.s.connected=false;++volcano.generation;}return true;}}hue;
+struct{bool enabled=false;int offs=0;String error="Hue fehlt";bool power(bool on,std::function<bool()> allowed){assert(!on);++offs;events+='H';if(mode==2)return false;clockMs+=2000;if(mode==12){++volcano.generation;return true;}if(!allowed())return false;clockMs+=2000;if(!allowed())return false;if(mode!=13){volcano.s.connected=false;++volcano.generation;}return true;}}hue;
 void shutdown(){${source.slice(a,b)}}
+void idleStep(){for(int tick=0;tick<1;++tick){${source.slice(idleA,idleB)}++workIterations;}}
 int main(int argc,char**argv){mode=std::stoi(argv[1]);
  if(mode==1)safety.busy=true;
  if(mode==2||mode==6||mode==8||mode==12||mode==13)hue.enabled=true;
@@ -37,9 +41,10 @@ int main(int argc,char**argv){mode=std::stoi(argv[1]);
  if(mode==3)volcano.s.connected=false;
  if(mode==5)powerUiQuiesced=false;
  if(mode==10)++powerActivityEpoch;
+ if(mode==14||mode==15){powerOffRequested=false;powerStandby=true;wantConnection=false;for(int k=0;k<100;++k)idleStep();assert(workIterations==0&&hue.offs==0&&volcano.polls==0&&!wantConnection);if(mode==15){powerWakeRequested=true;idleStep();assert(!powerStandby&&localRearmRequested&&displayWakeRequested&&!wantConnection&&!activationPending&&selectionPending==0&&workIterations==0);}return 0;}
  shutdown();
  bool expected=mode==0||mode==6||mode==8||mode==13;assert(powerStandby==expected);assert((io.cuts==1)==expected);assert(io.high!=expected);
- if(expected){assert(!wantConnection&&!sessionHue);assert(displayBrightness==0&&keyBrightness==0);}
+ if(expected){assert(!wantConnection&&!sessionHue);assert(displayBrightness==0&&keyBrightness==0);if(hue.enabled)assert(events.find('H')<events.find('L'));}
 }
 `);
 const built=spawnSync(process.env.VD_ZIG,['c++','-std=c++17','-target','x86_64-windows-gnu','-I',path.join(process.env.VD_ARDUINO_JSON,'src'),cpp,'-o',exe],{encoding:'utf8'});assert.equal(built.status,0,built.stderr);
@@ -47,3 +52,5 @@ for(const [mode,name]of [[0,'Unowned idle boot may shut down without opening a V
 test.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
 test('An unrelated already-OFF plug never waives stale BLE evidence',()=>{const r=spawnSync(exe,['12'],{encoding:'utf8'});assert.equal(r.status,0,r.stderr||r.stdout);});
 test('Bypass sessions still require fresh final BLE OFF evidence',()=>{const r=spawnSync(exe,['13'],{encoding:'utf8'});assert.equal(r.status,0,r.stderr||r.stdout);});
+
+for(const [mode,name]of [[14,'Standby executes no Volcano or Hue work over repeated worker iterations'],[15,'Deliberate wake resumes idle with no reconnect or queued activation']])test(name,()=>{const r=spawnSync(exe,[String(mode)],{encoding:'utf8'});assert.equal(r.status,0,r.stderr||r.stdout);});

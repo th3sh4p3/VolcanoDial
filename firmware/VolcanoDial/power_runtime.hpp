@@ -2,6 +2,13 @@
 #include <cstdint>
 
 namespace vd {
+class ShutdownHold {
+ bool tracking=false,fired=false;uint64_t began=0;
+public:
+ void press(uint64_t now,bool eligible){tracking=eligible;fired=false;began=now;}
+ bool tick(bool held,bool allowed,uint64_t now){if(!held||!allowed){tracking=false;return false;}if(tracking&&!fired&&now>=began&&now-began>=3000){fired=true;return true;}return false;}
+ void cancel(){tracking=false;}
+};
 class BootInputGate {
   bool armed=false,released=false;uint64_t since=0;
 public:

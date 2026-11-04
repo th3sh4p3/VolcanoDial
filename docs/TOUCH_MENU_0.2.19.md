@@ -1,5 +1,7 @@
 # Touch menu and clear shutdown state
 
+**Superseded shutdown policy:** since [0.2.20](POWER_SHORTCUT_0.2.20.md), deliberate manual shutdown overrides cooling and stops outputs before switching off Hue and the Dial. Cooling guards below now describe automatic idle shutdown only.
+
 User request, 4 November 2026: navigate the menu by vertical touch scrolling while retaining the wheel; explain why a cancelled workflow can keep the Dial powered and why the off entry disappeared.
 
 Design: the existing three-row menu supports vertical swipes. Up advances, down goes back; each 36 pixels traverses one available entry, with bounded steps and no momentum. Movement beyond a 12-pixel tap tolerance consumes the gesture, including horizontal movement, so releasing a drag cannot activate a row. Existing taps, rotary selection, boot-release and first-gesture-wakes-only behavior remain.
